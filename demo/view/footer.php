@@ -1,0 +1,1 @@
+<p>{#$smarty.server['SERVER_SOFTWARE']#} , Page rendered in {#$costTime#} seconds, Use memory {#$memory#}.</p>
