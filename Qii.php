@@ -377,8 +377,6 @@ final class Qii
 		{
 			$className = $siteInfo['controller']['default'];
 		}
-		var_dump($className);
-		print_r($siteInfo);
 		if($actionName == '')
 		{
 			$actionName = $siteInfo['action']['default'];
