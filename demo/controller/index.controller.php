@@ -26,8 +26,11 @@ class index_controller extends Controller
 		$this->Qii('index_model');
 		$this->index_model->index();
 	}
-	public function test()
+	protected function test()
 	{
+		$this->setCache('redis', array('servers' => array('127.0.0.1.6379')));
+		print_r($this->cache->set('redis', array('servers' => '127.0.0.1.6379')));
+		print_r($this->cache->get('redis'));
 		
 	}
 }

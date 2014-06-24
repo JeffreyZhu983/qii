@@ -1,5 +1,6 @@
 <?php
 return array(
+		-1 => '%s',
 		0 => '未知错误%d',
 		1 => '链接数据库失败, 数据库服务器 %s, use user %s, password %s, database %s',
 		2 => '目录%s不存在',
@@ -21,6 +22,7 @@ return array(
 		113 => '文件 <font color="red">%s</font>格式不正确',
 		114 => '错误页面<font color="red">%s</font>不存在',
 		115 => '使用框架Cache的时候请先启用缓存机制',
+		116 => 'Redis扩展没有加载',
 		404 => '未找到文件<font color="red">%s</font>'
 );
 ?>

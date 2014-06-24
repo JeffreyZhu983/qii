@@ -450,6 +450,9 @@ class cache_controller extends Controller
 		$this->setCache('xcache', array('life_time'=>600));
 		//缓存内容
 		$this->cache($cache_id, 'cache内容');
+		//redis缓存
+		$this->setCache('redis', array('servers' => array('127.0.0.1.6379')));
+		$this->cache($cache_id, array('cache' => 'cache 内容'));
 		//获取缓存内容
 		$this->getCache($cache_id);
 		//移除缓存

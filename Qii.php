@@ -445,9 +445,18 @@ final class Qii
 				}
 			}
 			$myController= new $className();
-			//如果有三个以上的参数，就将后边的参数依次传过去
-			//$myControl->{$actionName}();暂时去掉
-			call_user_func_array(array($myController, $actionName), $argvs);
+			//如果方法不是公用的就不让用户通过浏览器访问，直接报404错误
+			$reflection = new ReflectionMethod($className, $actionName);
+			if(!$reflection->isPublic())
+			{
+				self::setError(false, 4, array('You do not have permission to access this page'));
+			}
+			else
+			{
+				//如果有三个以上的参数，就将后边的参数依次传过去
+				//$myControl->{$actionName}();暂时去掉
+				call_user_func_array(array($myController, $actionName), $argvs);
+			}
 		}
 	}
 	/**
@@ -787,6 +796,7 @@ final class Qii
 		}
 		elseif(isset($routerArray["action"][$controller . ":*"]) && '' != $routerArray["action"][$controller . ":*"])//xx:*=>yy:* mode
 		{
+			$action = $routerArray['action'][$controller .":*"];
 			$controller = $routerArray["controller"][$controller .":*"];
 		}
 		elseif(isset($routerArray["action"]["*:" . $action]) && '' != $routerArray["action"]["*:" . $action])//*:xxx=> yy:yyy mode

@@ -1,6 +1,6 @@
 <?php
 return array(
-			'index:*' => 'Qii:Example',
+			//'index:*' => 'Qii:Example',
 			  'show:message' => 'show:tips'
 );
 ?>

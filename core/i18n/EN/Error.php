@@ -1,5 +1,6 @@
 <?php
 return array(
+		-1 => '%s',
 		0 => 'Unknow error %d',
 		1 => 'Connect Database fail, host:%s, use user:%s, password:%s, database:%s',
 		2 => 'Dir %s does not exist',
@@ -21,6 +22,7 @@ return array(
 		113 => 'The file <font color="red">%s</font> format is wrong',
 		114 => 'Error page <font color="red">%s</font> does not exist',
 		115 => 'User MVC\'s Cache, Please enable cache policy first',
+		116 => 'The redis extension must be loaded before use',
 		404 => 'Not find this file <font color="red">%s</font>'
 );
 ?>
