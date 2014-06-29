@@ -314,7 +314,7 @@ abstract class Controller
  		$viewObject = Qii::Instance('_View');
  		$viewObject->setView($view);
  		$this->view = $viewObject->getView();
- 		if($assign['class'] && method_exists($this->view, 'registerClass'))
+ 		if(isset($assign['class']) && $assign['class'] && method_exists($this->view, 'registerClass'))
  		{
  			if(is_array($assign['smarty_view_class_plugin']))
  			{

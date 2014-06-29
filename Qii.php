@@ -327,7 +327,9 @@ final class Qii
 		self::Router();//加载Controller
 		if(isset($siteInfo['status']['security']) && $siteInfo['status']['security']['enable'] == 1)
 		{
-			self::enableSecurity($siteInfo['status']['security']['name'], $siteInfo['status']['security']['key'], $siteInfo['status']['security']['enable']);
+			$key = null;
+			if(isset($siteInfo['status']['security']['name'])) $key = $siteInfo['status']['security']['name'];
+			self::enableSecurity($key, $siteInfo['status']['security']['key'], $siteInfo['status']['security']['enable']);
 			if(isset($siteInfo['status']['security']['expired']))
 			{
 				self::setSecurityExpired((int) $siteInfo['status']['security']['expired']);
@@ -445,18 +447,18 @@ final class Qii
 				}
 			}
 			$myController= new $className();
-			//如果方法不是公用的就不让用户通过浏览器访问，直接报404错误
-			$reflection = new ReflectionMethod($className, $actionName);
-			if(!$reflection->isPublic())
-			{
-				self::setError(false, 4, array('You do not have permission to access this page'));
+			if(method_exists($myController, $actionName)){
+				//如果方法不是公用的就不让用户通过浏览器访问，直接报404错误
+				$reflection = new ReflectionMethod($className, $actionName);
+				if(!$reflection->isPublic())
+				{
+					self::setError(false, 4, array('You do not have permission to access this page'));
+					return;
+				}
 			}
-			else
-			{
-				//如果有三个以上的参数，就将后边的参数依次传过去
-				//$myControl->{$actionName}();暂时去掉
-				call_user_func_array(array($myController, $actionName), $argvs);
-			}
+			//如果有三个以上的参数，就将后边的参数依次传过去
+			//$myControl->{$actionName}();暂时去掉
+			call_user_func_array(array($myController, $actionName), $argvs);
 		}
 	}
 	/**
@@ -573,7 +575,7 @@ final class Qii
 	 * @param String $key
 	 * @return Array
 	 */
-	static public function loadFile($fullPath, $key)
+	static public function loadFile($fullPath, $key = null)
 	{
 		$realPath = realpath($fullPath);
 		$sign = md5($fullPath);
@@ -587,7 +589,7 @@ final class Qii
 			Qii::setPrivate('loadFile['.$sign.']', (array) include($realPath));
 			$data = Qii::getPrivate('loadFile['.$sign.']');
 		}
-		if(isset($key))
+		if(isset($key) && $key !== null)
 		{
 			return $data[$key];
 		}
@@ -867,7 +869,7 @@ final class Qii
 	 */
 	static public function setCachePath($path)
 	{
-		self::setPrivate('qii_site_cache_path', $path);
+		self::setPrivate('qii_site_cache_path', realpath($path));
 	}
 	/**
 	 * 将网站配置文件Cache到临时目录

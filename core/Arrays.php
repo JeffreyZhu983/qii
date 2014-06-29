@@ -93,7 +93,8 @@ class Arrays
 	public function setPrivate($key, $value)
 	{
 		preg_match_all("/(.*?)\[(.*?)\]/", $key, $match);
-		$name = $match[1][0];
+		$name = null;
+		if(isset($match[1]) && isset($match[1][0])) $name = $match[1][0];
 		$keys = $match[2];
 		if($name == '')
 		{
@@ -146,7 +147,8 @@ class Arrays
 			return $this->_private;
 		}
 		preg_match_all("/(.*?)\[(.*?)\]/", $key, $match);
-		$name = $match[1][0];
+		$name = null;
+		if(isset($match[1]) && isset($match[1][0])) $name = $match[1][0];
 		$keys = $match[2];
 		if($name == '')
 		{
@@ -165,7 +167,14 @@ class Arrays
 			}
 			else 
 			{
-				$value = $value[$key];
+				if(isset($value[$key]))
+				{
+					$value = $value[$key];
+				}
+				else
+				{
+					$value = null;
+				}
 			}
 		}
 		return $value;

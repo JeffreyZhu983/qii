@@ -57,7 +57,7 @@ final class Language
 	 *
 	 * @param String $fileName
 	 */
-	public function load($fileName, $key)
+	public function load($fileName, $key = null)
 	{
 		if(is_array($this->data))
 		{
