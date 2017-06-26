@@ -1,5 +1,5 @@
 <?php
-namespace \Qii\Consts;
+namespace Qii\Config;
 
 /**
  * 将键值保存到\Qii\Config\Register::$config中

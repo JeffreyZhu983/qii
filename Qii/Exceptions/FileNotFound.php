@@ -1,5 +1,5 @@
 <?php
-namespace \Qii\Exceptions;
+namespace Qii\Exceptions;
 
 class FileNotFound extends Errors
 {
@@ -12,6 +12,6 @@ class FileNotFound extends Errors
 	 */
 	public static function getError($e)
 	{
-
+		
 	}
 }

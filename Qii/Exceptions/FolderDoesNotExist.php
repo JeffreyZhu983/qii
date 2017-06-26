@@ -1,5 +1,5 @@
 <?php
-namespace \Qii\Exceptions;
+namespace Qii\Exceptions;
 
 class FolderDoesNotExist extends Errors
 {

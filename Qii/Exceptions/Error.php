@@ -1,5 +1,5 @@
 <?php
-namespace \Qii\Exceptions;
+namespace Qii\Exceptions;
 
 /**
  *
@@ -84,7 +84,7 @@ class Error
 		if ($condition) {
 			return false;
 		}
-		$appConfigure = \Qii_Config_Register::AppConfigure();
+		$appConfigure = \Qii::getConfig();
 		//如果是调试模式就直接抛出异常
 		$isDebug = $appConfigure['debug'];
 		$message = array();
@@ -98,16 +98,16 @@ class Error
 			throw new \Exception(call_user_func_array(array('\Qii', 'i'), $args), $line);
 		}
 		$errorPage = $appConfigure['errorPage'];
-		$env = \Qii_Config_Register::get(\Qii_Const_Config::APP_ENVIRON, 'dev');
+		$env = \Qii\Config\Register::get(\Qii\Consts\Config::APP_ENVIRON, 'dev');
 		if ($env != 'product' && $errorPage != null) {
 			list($controller, $action) = explode(':', $appConfigure['errorPage']);
-			$controllerCls = \Qii_Config_Register::get(\Qii_Const_Config::APP_DEFAULT_CONTROLLER_PREFIX) . '_' . $controller;
+			$controllerCls = \Qii\Config\Register::get(\Qii\Consts\Config::APP_DEFAULT_CONTROLLER_PREFIX) . '_' . $controller;
 			$action = preg_replace('/(Action)$/i', "", $action);
-			$filePath = \Qii_Autoloader_Import::requireByClass($controllerCls);
+			$filePath = \Qii\Autoloader\Import::requireByClass($controllerCls);
 			if (!is_file($filePath)) {
 				if ($env == 'product') return '';
 				\Qii_Autoloader_Import::requires(Qii_DIR . DS . 'Exceptions' . DS . 'Error.php');
-				call_user_func_array(array('\Qii_Exceptions_Error', 'index'), array($controller, $action));
+				call_user_func_array(array('\Qii\Exceptions\Error', 'index'), array($controller, $action));
 				die();
 			} else {
 				\Qii::getInstance()->request->setControllerName($controller);
@@ -141,6 +141,6 @@ class Error
 
 	public function __call($method, $args)
 	{
-		if (method_exists(self, $method)) return call_user_func_array(array('Qii_Exceptions_Error', $method), $args);
+		if (method_exists(self, $method)) return call_user_func_array(array('Qii\Exceptions\Error', $method), $args);
 	}
 }

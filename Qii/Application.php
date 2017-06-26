@@ -1,38 +1,22 @@
 <?php
 namespace Qii;
 
-use \Qii\Autoloader;
-
-/**
- * Qii 框架基本库所在路径
- */
-define('Qii_DIR', dirname(__FILE__));
-/**
- * DIRECTORY_SEPARATOR 的简写
- */
-define('DS', DIRECTORY_SEPARATOR);
-/**
- * 定义包含的路径分隔符
- */
-define('PS', PATH_SEPARATOR);
-/**
- * 定义操作系统类型
- */
-define('OS', strtoupper(substr(PHP_OS, 0, 3)));
-
-define('IS_CLI', php_sapi_name() == 'cli' ? true : false);
-
-include(Qii_DIR . DS .'Autoloader'. DS . 'Factory.php');
-include(Qii_DIR . DS .'Config'. DS . 'Arrays.php');
-
 class Application 
 {
     /**
      * 存储网站配置文件内容
      *
-     * @var array $_config 配置内容
+     * @var array $config 配置内容
      */
-    protected static $_config = [];
+    protected static $config = [];
+    /**
+     * @var object $logerWriter 写日志工具
+     */
+    public $logerWriter = null;
+    /**
+     * @var string $workspace 工作目录
+     */
+    private static $workspace = './';
 
 	public function __construct()
 	{
@@ -46,19 +30,46 @@ class Application
      */
 	public static function getInstance()
 	{
-
 	    return \Qii\Autoloader\Factory::getInstance('\Qii\Application');
 	}
 
+    /**
+     * 设置网站的工作目录，可以通过此方法将网站的重要文件指向到其他目录
+     *
+     * @param string $workspace 工作目录
+     * @return $this
+     */
+    public function setWorkspace($workspace = './')
+    {
+        //此处转换成真实路径，防止workspace中引入的文件出错
+        if (!is_dir($workspace)) {
+            throw new \Qii\Exceptions\FolderDoesNotExist(\Qii::i(1045, $workspace), __LINE__);
+        }
+        $workspace = \Qii\Autoloader\Psr4::getInstance()->realpath($workspace);
+        \Qii\Autoloader\Psr4::getInstance()->removeNamespace('workspace', self::$workspace);
+        //如果配置了使用namespace就走namespace
+        self::$workspace = $workspace;
+        \Qii\Autoloader\Psr4::getInstance()->addNamespace('workspace', $workspace, true);
+        foreach (self::$paths AS $path) {
+            \Qii\Autoloader\Psr4::getInstance()->addNamespace($path, $workspace . '\\' . $path);
+        }
+
+        return $this;
+    }
+
+    public function getWorkspace()
+    {
+        return self::$workspace;
+    }
     /**
      * 设置网站配置文件
      *
      * @param array $config 配置文件
      */
-	public function setConfig($config = [])
+	public function setConfig($key, $config = [])
 	{
         \Qii\Autoloader\Factory::getInstance('\Qii\Config\Arrays')
-            ->set('Application', $config);
+            ->set(\Qii\Consts\Config::APP_CONFIGURE . '['. $key.']', $config);
 	}
 
     /**
@@ -71,35 +82,23 @@ class Application
     {
         if(!$key) {
             return \Qii\Autoloader\Factory::getInstance('\Qii\Config\Arrays')
-                ->get('Application');
+                ->get(\Qii\Consts\Config::APP_CONFIGURE);
         }
-
         return \Qii\Autoloader\Factory::getInstance('\Qii\Config\Arrays')
-            ->get('Application['.$key.']');
+            ->get(\Qii\Consts\Config::APP_CONFIGURE . '['.$key.']');
     }
-
+    /**
+     * 设置Route配置
+     * @param array $route
+     */
 	public function setRoute($route = [])
     {
-        Application::$_config['route'] = $route;
+        \Qii\Autoloader\Factory::getInstance('\Qii\Config\Arrays')
+            ->set(\Qii\Consts\Config::APP_SITE_ROUTER, $config);
     }
 	
 	public function run()
 	{
 		print_r($this->getConfig());
 	}
-
-	public static function _i()
-    {
-
-    }
-
-    /**
-     * 抛出异常
-     *
-     * @return mixed
-     */
-    public static function _e()
-    {
-        return call_user_func_array(array('\Qii\Exceptions\Errors', 'e'), func_get_args());
-    }
 }

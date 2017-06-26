@@ -1,5 +1,5 @@
 <?php
-namespace \Qii\Exceptions;
+namespace Qii\Exceptions;
 
 class Errors extends \Exception
 {
@@ -47,10 +47,10 @@ class Errors extends \Exception
 			echo json_encode(array('code' => $e->getCode(), 'msg' => strip_tags($e->getMessage())), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 			return;
 		}
-		$message[] = Qii::i('Error file', self::getRelatePath($_SERVER['SCRIPT_FILENAME'], $e->getFile()));
-		$message[] = Qii::i('Error code', $e->getCode());
-		$message[] = Qii::i('Error description', $e->getMessage());
-		$message[] = Qii::i('Error line', $e->getLine() . ' on ' . self::getLineMessage($e->getFile(), $e->getLine()));
+		$message[] = \Qii::i('Error file', self::getRelatePath($_SERVER['SCRIPT_FILENAME'], $e->getFile()));
+		$message[] = \Qii::i('Error code', $e->getCode());
+		$message[] = \Qii::i('Error description', $e->getMessage());
+		$message[] = \Qii::i('Error line', $e->getLine() . ' on ' . self::getLineMessage($e->getFile(), $e->getLine()));
 		$traceString = Qii::i('Trace as below') . '<br />';
 		$traces = explode("\n", $e->getTraceAsString());
 		foreach ($traces AS $trance) {
@@ -62,18 +62,18 @@ class Errors extends \Exception
 			$message[] = 'Referer URL:' . (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : \Qii::getInstance()->request->url->getCurrentURL());
 			\Qii::getInstance()->logerWriter->writeLog($message);
 		}
-		$appConfigure = Qii_Config_Register::AppConfigure();
+		$appConfigure = Qii\Config\Register::getConfig();
 
-		$env = Qii_Config_Register::get(\Qii_Const_Config::APP_ENVIRON, 'dev');
+		$env = Qii\Config\Register::get(\Qii\Consts\Config::APP_ENVIRON, 'dev');
 		if ($env == 'product' || ($appConfigure['errorPage'] && (isset($appConfigure['debug']) && $appConfigure['debug'] == 0))) {
 			list($controller, $action) = explode(':', $appConfigure['errorPage']);
-			$controllerCls = \Qii_Config_Register::get(\Qii_Const_Config::APP_DEFAULT_CONTROLLER_PREFIX) . '_' . $controller;
+			$controllerCls = \Qii\Config\Register::get(\Qii\Consts\Config::APP_DEFAULT_CONTROLLER_PREFIX) . '_' . $controller;
 			$action = preg_replace('/(Action)$/i', "", $action);
-			$filePath = \Qii_Autoloader_Import::requireByClass($controllerCls);
+			$filePath = \Qii\Autoloader\Import::requireByClass($controllerCls);
 			if (!is_file($filePath)) {
 				if ($env == 'product') return '';
-				\Qii_Autoloader_Import::requires(Qii_DIR . DS . 'Exceptions' . DS . 'Error.php');
-				call_user_func_array(array('\Qii_Exceptions_Error', 'index'), array($controller, $action));
+				\Qii\Autoloader\Import::requires(Qii_DIR . DS . 'Exceptions' . DS . 'Error.php');
+				call_user_func_array(array('\Qii\Exceptions\Error', 'index'), array($controller, $action));
 				die();
 			} else {
 				\Qii::getInstance()->request->setControllerName($controller);
@@ -135,9 +135,9 @@ class Errors extends \Exception
 		$message = array_shift($argvs);
 		$line = (int) array_pop($argvs);
 		if ($count == 2) {
-			throw new \Qii_Exceptions_Errors($message, $line);
+			throw new \Qii\Exceptions\Errors($message, $line);
 		}
 		$message = vsprintf($message, $argvs);
-		throw new \Qii_Exceptions_Errors($message, $line);
+		throw new \Qii\Exceptions\Errors($message, $line);
 	}
 }

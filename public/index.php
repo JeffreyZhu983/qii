@@ -1,5 +1,6 @@
 <?php
-require_once('../Qii/Application.php');
-$app = \Qii\Application::getInstance();
-$app->setConfig('site', ['env' => 'product']);
+require_once('../Qii/Qii.php');
+$app = \Qii::getInstance();
+$app->setConfig('site', ['env' => 'product', ['siteName' => 'Qii'] ]);
 $app->run();
+new s();
