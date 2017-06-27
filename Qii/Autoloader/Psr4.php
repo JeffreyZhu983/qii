@@ -200,17 +200,11 @@ class Psr4
         }
         return $folder;
     }
-
     /**
-     * 通过类名加载文件
-     * @param string $class 类名
-     * @return string 文件路径
+     * 从Map中获取文件
      */
-    public function loadFileByClass($class)
+    protected function searchMappedFile($class)
     {
-        // the current namespace prefix
-        //replace "_" to "\" use common method to load class
-        $class = str_replace("_", "\\", $class);
         $prefix = $class;
         // work backwards through the namespace names of the fully-qualified
         // class name to find a mapped file name
@@ -226,9 +220,6 @@ class Psr4
             if ($mappedFile) {
                 return $mappedFile;
             }
-
-            // remove the trailing namespace separator for the next iteration
-            // of strrpos()
             $prefix = rtrim($prefix, '\\');
         };
         //如果没有找到就在workspace中去找对应的文件 额外添加的方法
@@ -236,8 +227,23 @@ class Psr4
         if ($mappedFile) {
             return $mappedFile;
         }
-        $notLoaded = isset(self::$lastErrorLoadedFile[$class]) ? self::$lastErrorLoadedFile[$class] : self::getClassName($class);
-        throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $notLoaded), __LINE__);
+        return false;
+    }
+    /**
+     * 通过类名加载文件
+     * @param string $class 类名
+     * @return string 文件路径
+     */
+    public function loadFileByClass($class)
+    {
+        // the current namespace prefix
+        //replace "_" to "\" use common method to load class
+        $class = str_replace("_", "\\", $class);
+        if(!$this->searchMappedFile($class))
+        {
+            $notLoaded = isset(self::$lastErrorLoadedFile[$class]) ? self::$lastErrorLoadedFile[$class] : self::getClassName($class);
+            throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $notLoaded), __LINE__);
+        }
     }
 
     /**
@@ -250,34 +256,11 @@ class Psr4
         // the current namespace prefix
         //replace "_" to "\" use common method to load class
         $class = str_replace("_", "\\", $class);
-        $prefix = $class;
-        // work backwards through the namespace names of the fully-qualified
-        // class name to find a mapped file name
-        while (false !== $pos = strrpos($prefix, '\\')) {
-            // retain the trailing namespace separator in the prefix
-            $prefix = substr($class, 0, $pos + 1);
-
-            // the rest is the relative class name
-            $relativeClass = substr($class, $pos + 1);
-
-            // try to load a mapped file for the prefix and relative class
-            $mappedFile = $this->loadMappedFile($prefix, $relativeClass);
-            if ($mappedFile) {
-                return $class;
-            }
-
-            // remove the trailing namespace separator for the next iteration
-            // of strrpos()
-            $prefix = rtrim($prefix, '\\');
-        };
-        //如果没有找到就在workspace中去找对应的文件 额外添加的方法
-        $mappedFile = $this->loadMappedFile('workspace\\', $class);
-
-        if ($mappedFile) 
+        if($this->searchMappedFile($class))
         {
             return $class;
         }
-        return str_replace('\\', '_', $class);
+        return  str_replace('\\', '_', $class);
     }
 
     /**
@@ -420,15 +403,11 @@ class Psr4
             throw new \Qii\Exceptions\CallUndefinedClass(\Qii::i('1105', $className), __LINE__);
         }
         $loader = new \ReflectionClass($className);
-        //try {
         self::$_loadedClass[$className] = $instance = $loader->newInstanceArgs($args);
         //如果有_initialize方法就自动调用_initialize方法，并将参数传递给_initialize方法
         if ($loader->hasMethod('_initialize')) {
             call_user_func_array(array($instance, '_initialize'), $args);
         }
         return $instance;
-        /*} catch (Exception $e) {
-            throw new \Exception($e->getMessage(), __LINE__);
-        }*/
     }
 }

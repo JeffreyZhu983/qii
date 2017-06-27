@@ -34,13 +34,61 @@ use \Qii\Application;
 
 class Qii extends Application
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
+    public static function getInstance()
+    {
+	    return \Qii\Autoloader\Factory::getInstance('\Qii');
+    }
+    /**
+     * 设置private 属性
+     *
+     * @param String $name
+     * @param Mix $value
+     */
+    public static function setPrivate($name, $value)
+    {
+        \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Config\Arrays')->setPrivate($name, $value);
+    }
 
+    /**
+     * 获取private属性
+     *
+     * @param String $name
+     * @param String $key
+     * @return Mix
+     */
+    public static function getPrivate($name, $key = '')
+    {
+        $private = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Config\Arrays')->getPrivate($name);
+        if (preg_match('/^\s*$/', $key)) {
+            return $private;
+        }
+        if (isset($private[$key])) return $private[$key];
+    }
+    
 	public static function i()
     {
         return call_user_func_array(array(
             \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Language\Loader'), 'i'),
             func_get_args()
         );
+    }
+    /**
+     * 错误设置，如果满足给定的条件就直接返回false，否则在设置了错误页面的情况下返回true
+     * 如果出错后要终止的话，需要自行处理，此方法不错停止不执行
+     *
+     * @param Bool $condition
+     * @param int $line 出错的行数，这样以便轻松定位错误
+     * @param String $msg
+     * @param Int|String $code
+     * @return Bool
+     */
+    public static function setError($condition, $line = 0, $code, $args = null)
+    {
+        return call_user_func_array(array('\Qii\Exceptions\Error', 'setError'), func_get_args());
     }
     /**
      * 抛出异常
@@ -51,8 +99,57 @@ class Qii extends Application
     {
         return call_user_func_array(array('\Qii\Exceptions\Errors', 'e'), func_get_args());
     }
+    /**
+     * 返回当前app的配置
+     * @param string $key 如果需要返回单独的某一个key就指定一下这个值
+     * @return Mix
+     */
+    public static function appConfigure($key = null)
+    {
+        return \Qii\Config\Register::getAppConfigure(\Qii::getInstance()->getAppIniFile(), $key);
+    }
     
+    /**
+     * 当调用Qii不存在的方法的时候，试图通过Autoload去加载对应的类
+     * 示例：
+     * \Qii::getInstance()->Qii_Autoloader_Psr4('instance', 'Model\User')；
+     *    此方法将调用：Qii_Autoloader_Psr4->instance('Model\User');
+     */
+    public function __call($className, $args)
+    {
+        return call_user_func_array(array(\Qii\Autoloader\Psr4::getInstance(), 'loadClass'), $args);
+    }
+    /**
+     * 当调用不存在的静态方法的时候会试图执行对应的类和静态方法
+     * 示例：
+     * \Qii::Qii_Autoloader_Psr4('getInstance')
+     *    此方法将调用：\Qii\Autoloader\Psr4::getInstance静态方法
+     */
+    public static function __callStatic($className, $args)
+    {
+        $method = array_shift($args);
+        $className = \Qii\Autoloader\Psr4::getInstance()->getClassName($className);
+        return call_user_func_array($className . '::' . $method, $args);
+    }
 }
+
+if (!function_exists('catch_fatal_error')) {
+    function catch_fatal_error()
+    {
+        // Getting Last Error
+        $error = error_get_last();
+        // Check if Last error is of type FATAL
+        if (isset($error['type']) && $error['type'] == E_ERROR) {
+            // Fatal Error Occurs
+            $message = array();
+            $message[] = 'Error file : ' . ltrim($error['file'], \Qii\Autoloader\Psr4::realpath($_SERVER['DOCUMENT_ROOT']));
+            $message[] = 'Error line : ' . $error['line'] . ' on ' . \Qii\Exceptions\Errors::getLineMessage($error['file'], $error['line']);
+            $message[] = 'Error description : ' . $error['message'];
+            \Qii\Exceptions\Error::showError($message);
+        }
+    }
+}
+
 \Qii\Autoloader\Psr4::getInstance()
     ->register()
     ->setUseNamespace('Qii\\', true)
@@ -100,3 +197,9 @@ class Qii extends Application
 \Qii\Autoloader\Factory::getInstance('\Qii\Language\Loader')->load('error', Qii_DIR . DS . 'Language');
 \Qii\Autoloader\Factory::getInstance('\Qii\Language\Loader')->load('exception', Qii_DIR . DS . 'Language');
 \Qii\Autoloader\Factory::getInstance('\Qii\Language\Loader')->load('resource', Qii_DIR . DS . 'Language');
+
+
+//捕获FATAL错误，用户可以选择记录到日志，还是直接显示或者不显示错误
+register_shutdown_function('catch_fatal_error');
+set_exception_handler(array('\Qii\Exceptions\Errors', 'getError'));
+set_error_handler(array('\Qii\Exceptions\Errors', 'getError'), E_USER_ERROR);

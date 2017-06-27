@@ -51,7 +51,7 @@ class Errors extends \Exception
 		$message[] = \Qii::i('Error code', $e->getCode());
 		$message[] = \Qii::i('Error description', $e->getMessage());
 		$message[] = \Qii::i('Error line', $e->getLine() . ' on ' . self::getLineMessage($e->getFile(), $e->getLine()));
-		$traceString = Qii::i('Trace as below') . '<br />';
+		$traceString = \Qii::i('Trace as below') . '<br />';
 		$traces = explode("\n", $e->getTraceAsString());
 		foreach ($traces AS $trance) {
 			$traceString .= "&nbsp;&nbsp;&nbsp;&nbsp;" . $trance . '<br />';
@@ -62,9 +62,9 @@ class Errors extends \Exception
 			$message[] = 'Referer URL:' . (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : \Qii::getInstance()->request->url->getCurrentURL());
 			\Qii::getInstance()->logerWriter->writeLog($message);
 		}
-		$appConfigure = Qii\Config\Register::getConfig();
+		$appConfigure = \Qii\Config\Register::getConfig();
 
-		$env = Qii\Config\Register::get(\Qii\Consts\Config::APP_ENVIRON, 'dev');
+		$env = \Qii\Config\Register::get(\Qii\Consts\Config::APP_ENVIRON, 'dev');
 		if ($env == 'product' || ($appConfigure['errorPage'] && (isset($appConfigure['debug']) && $appConfigure['debug'] == 0))) {
 			list($controller, $action) = explode(':', $appConfigure['errorPage']);
 			$controllerCls = \Qii\Config\Register::get(\Qii\Consts\Config::APP_DEFAULT_CONTROLLER_PREFIX) . '_' . $controller;

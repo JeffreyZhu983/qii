@@ -26,14 +26,16 @@ class Factory
         {
             return \Qii::e('CLASS_NAME_IS_NULL', $className);
         }
-        $className = Psr4::getInstance()->getClassName($className);
         if(isset(Factory::$instance[$className]) &&
             Factory::$instance[$className] != null
         ){
             return Factory::$instance[$className];
         }
-        Factory::$instance[$className] = new $className;
-
-        return Factory::$instance[$className];
+        if(class_exists($className, false))
+        {
+            return Factory::$instance[$className] = new $className;
+        }
+        $className = Psr4::getInstance()->getClassName($className);
+        return Factory::$instance[$className] = new $className;
     }
 }
