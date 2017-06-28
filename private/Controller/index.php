@@ -14,6 +14,7 @@ class index extends \Qii\Base\Controller
         
         return new \Qii\Base\Response(array('format' => 'json', 'body' => $data));
     }
+    
     public function dispatchAction()
     {
         $this->dispatch('test', 'index');
@@ -26,6 +27,8 @@ class index extends \Qii\Base\Controller
 
     public function displayAction()
     {
+        //可以从这里设置加载模板的路径
+        $this->view->setTemplateDir(__DIR__ . "/view/");
         $this->view->display('index.tpl');
     }
 }
