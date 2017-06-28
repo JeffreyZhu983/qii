@@ -84,7 +84,7 @@ class Error
 		if ($condition) {
 			return false;
 		}
-		$appConfigure = \Qii::getConfig();
+		$appConfigure = \Qii::appConfigure();
 		//如果是调试模式就直接抛出异常
 		$isDebug = $appConfigure['debug'];
 		$message = array();
@@ -106,7 +106,7 @@ class Error
 			$filePath = \Qii\Autoloader\Import::requireByClass($controllerCls);
 			if (!is_file($filePath)) {
 				if ($env == 'product') return '';
-				\Qii_Autoloader_Import::requires(Qii_DIR . DS . 'Exceptions' . DS . 'Error.php');
+				\Qii\Autoloader\Import::requires(Qii_DIR . DS . 'Exceptions' . DS . 'Error.php');
 				call_user_func_array(array('\Qii\Exceptions\Error', 'index'), array($controller, $action));
 				die();
 			} else {

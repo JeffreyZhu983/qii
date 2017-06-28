@@ -62,7 +62,7 @@ class Errors extends \Exception
 			$message[] = 'Referer URL:' . (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : \Qii::getInstance()->request->url->getCurrentURL());
 			\Qii::getInstance()->logerWriter->writeLog($message);
 		}
-		$appConfigure = \Qii\Config\Register::getConfig();
+		$appConfigure = \Qii::appConfigure();
 
 		$env = \Qii\Config\Register::get(\Qii\Config\Consts::APP_ENVIRON, 'dev');
 		if ($env == 'product' || ($appConfigure['errorPage'] && (isset($appConfigure['debug']) && $appConfigure['debug'] == 0))) {

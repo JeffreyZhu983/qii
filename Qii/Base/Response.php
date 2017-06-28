@@ -1,5 +1,5 @@
 <?php
-namespace Qii\Response;
+namespace Qii\Base;
 
 class Response
 {
@@ -7,27 +7,34 @@ class Response
      * Default body name
      */
     const DEFAULT_BODY = 'html';
+    const FORMAT_JSON = 'json';
+    const FORMAT_HTML = 'html';
 
     /**
      * Body content
      * @var array
      */
-    protected $_body = array();
-
+    protected $body = array();
+    
+    /**
+     * data 
+     * @param array $data
+     */
+    protected $data = array();
     /**
      * Array of headers. Each header is an array with keys 'name' and 'value'
      * @var array
      */
-    protected $_headers = array();
+    protected $headers = array();
 
     /**
      * Determine to send the headers or not
      * @var unknown_type
      */
     protected $_sendHeader = false;
-	public function __construct()
+	public function __construct($data = array())
 	{
-		
+		$this->data = $data;
 	}
 
     /**
@@ -42,10 +49,10 @@ class Response
         if (!strlen($key)) {
             $key = self::DEFAULT_BODY;
         }
-        if (!isset($this->_body[$key])) {
-            $this->_body[$key] = '';
+        if (!isset($this->body[$key])) {
+            $this->body[$key] = '';
         }
-        $this->_body[$key] .= (string) $body;
+        $this->body[$key] .= (string) $body;
         return $this;
     }
 
@@ -58,11 +65,11 @@ class Response
     public function clearBody($key = NULL)
     {
         if (strlen($key)) {
-            if (array_key_exists($key, $this->_body)) {
-                unset($this->_body[$key]);
+            if (array_key_exists($key, $this->body)) {
+                unset($this->body[$key]);
             }
         } else {
-            $this->_body = array();
+            $this->body = array();
         }
         return true;
     }
@@ -74,7 +81,7 @@ class Response
      */
     public function clearHeaders()
     {
-        $this->_headers = array();
+        $this->headers = array();
         return $this;
     }
 
@@ -89,17 +96,17 @@ class Response
         if (!strlen($key)) {
             $key = self::DEFAULT_BODY;
         }
-        return array_key_exists($key, $this->_body) ? $this->_body[$key] : null;
+        return array_key_exists($key, $this->body) ? $this->body[$key] : null;
     }
 
     /**
-     * Return array of headers; see {@link $_headers} for format
+     * Return array of headers; see {@link $headers} for format
      *
      * @return array
      */
     public function getHeader()
     {
-        return $this->_headers;
+        return $this->headers;
     }
 
     /**
@@ -114,10 +121,10 @@ class Response
         if (!strlen($key)) {
             $key = self::DEFAULT_BODY;
         }
-        if (!isset($this->_body[$key])) {
-            $this->_body[$key] = '';
+        if (!isset($this->body[$key])) {
+            $this->body[$key] = '';
         }
-        $this->_body[$key] = $body . $this->_body[$key];
+        $this->body[$key] = $body . $this->body[$key];
         return $this;
     }
 
@@ -128,10 +135,25 @@ class Response
      */
     public function response()
     {
+        if($this->data && isset($this->data['body']))
+        {
+            switch($this->data['format'])
+            {
+                case self::FORMAT_JSON:
+                    $this->setHeader('Content-Type', 'text/json');
+                    $this->sendHeaders();
+                    echo json_encode($this->data['body'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+                break;
+                default:
+                    echo $this->body;
+                break;
+            }
+            return;
+        }
         if ($this->_sendHeader == true) {
             $this->sendHeaders();
         }
-        foreach ($this->_body as $key => $body) {
+        foreach ($this->body as $key => $body) {
             echo $body;
         }
     }
@@ -152,7 +174,7 @@ class Response
         if (!strlen($key)) {
             $key = self::DEFAULT_BODY;
         }
-        $this->_body[$key] = (string) $body;
+        $this->body[$key] = (string) $body;
         return $this;
     }
 
@@ -173,14 +195,14 @@ class Response
         $value = (string) $value;
 
         if ($replace) {
-            foreach ($this->_headers as $key => $header) {
+            foreach ($this->headers as $key => $header) {
                 if ($name == $header['name']) {
-                    unset($this->_headers[$key]);
+                    unset($this->headers[$key]);
                 }
             }
         }
 
-        $this->_headers[] = array(
+        $this->headers[] = array(
             'name'    => $name,
             'value'   => $value,
             'replace' => $replace
@@ -245,17 +267,12 @@ class Response
      */
     protected function sendHeaders()
     {
-        foreach ($this->_headers as $header) {
+        foreach ($this->headers as $header) {
             header(
                 $header['name'] . ': ' . $header['value'],
                 $header['replace']
             );
         }
         return $this;
-    }
-
-    public function render()
-    {
-        
     }
 }

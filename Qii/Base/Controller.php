@@ -39,7 +39,7 @@ abstract class Controller
      */
     public $request;
     /**
-     * @var Qii_Response_Abstract $response
+     * @var \Qii\Base\Response $response
      */
     public $response;
     /**
@@ -64,7 +64,7 @@ abstract class Controller
      * 是否启用Model
      * @var bool
      */
-    public $enableModel = false;
+    public $enableDB = false;
 
     public function __construct()
     {
@@ -73,8 +73,8 @@ abstract class Controller
         $this->controllerId = $this->request->controller;
         $this->actionId = $this->request->action;
         //载入model
-        if ($this->enableModel) {
-            $this->enableModel();
+        if ($this->enableDB) {
+            $this->enableDB();
         }
         //载入view
         if ($this->enableView) {
@@ -157,8 +157,10 @@ abstract class Controller
         }
         return $data;
     }
-
-    final public function enableModel()
+    /**
+     * 开启数据库操作
+     */
+    final public function enableDB()
     {
         return $this->db = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Driver\Model');
     }
@@ -173,6 +175,14 @@ abstract class Controller
         return $this->view;
     }
 
+    /**
+     * 设置 response
+     * @param $request
+     */
+    public function setResponse(\Qii\Base\Response $response)
+    {
+        $this->response = $response;
+    }
     /**
      * 设置request
      * @param $request
@@ -197,7 +207,14 @@ abstract class Controller
      */
     protected function afterRun()
     {
-
+        if(!$this->response || !is_object($this->response))
+        {
+            return;
+        }
+        if($this->response instanceof \Qii\Base\Response)
+        {
+            $this->response->response();
+        }
     }
 
     /**
@@ -259,7 +276,7 @@ abstract class Controller
      */
     public function __destruct()
     {
-        $this->afterRun($this->controller, $this->actionId);
+        $this->afterRun($this->controllerId, $this->actionId);
         if ($this->request && $this->request->isForward()) {
             $this->request->setForward(false);
             \Qii::getInstance()->dispatcher->setRequest($this->request);

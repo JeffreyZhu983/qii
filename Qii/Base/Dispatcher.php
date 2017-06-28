@@ -9,7 +9,10 @@ class Dispatcher
     {
 
     }
-
+    /**
+     * 设置请求
+     * @param \Qii\Request\Http $request 当前请求
+     */
     public function setRequest(\Qii\Request\Http $request)
     {
         $this->request = $request;
@@ -40,12 +43,11 @@ class Dispatcher
         $controllerCls->controller = $controllerCls;
         $controllerCls->controllerId = $controller;
         $controllerCls->actionId = $action;
+        $response = null;
         //查看是否设置了当前action的对应关系,如果设置了就走对应关系里边的,否则走当前类中的
         if ($controllerCls->actions && isset($controllerCls->actions[$action]) && $controllerCls->actions[$action]) {
             $actionArgs = array();
             $actionArgs[] = $controllerCls->actions[$action];
-            //$actionArgs[] = $controllerCls;
-            //$actionArgs[] = $action;
             $actionCls = call_user_func_array(array($psr4, 'loadClass'), $actionArgs);
             $actionCls->setRequest($this->request);
             $actionCls->controller = $controllerCls;
@@ -53,19 +55,20 @@ class Dispatcher
             $actionCls->controllerId = $controllerCls->controllerId;
             //支持多个action对应到同一个文件，如果对应的文件中存在指定的方法就直接调用
             if (method_exists($actionCls, $action . \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_ACTION_SUFFIX))) {
-                return call_user_func_array(array($actionCls, $action. \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_ACTION_SUFFIX)), $funcArgs);
+                $actionCls->response = $response = call_user_func_array(array($actionCls, $action. \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_ACTION_SUFFIX)), $funcArgs);
             }
             if (!method_exists($actionCls, 'run')) {
                 throw new \Qii\Exceptions\MethodNotFound(\Qii::i(1101, $controllerCls->actions[$action] . '->run'), __LINE__);
             }
-            return call_user_func_array(array($actionCls, 'run'), $funcArgs);
+            $response = call_user_func_array(array($actionCls, 'run'), $funcArgs);
         } else {
             array_shift($funcArgs);
             $actionName = $action . \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_ACTION_SUFFIX);
             if (!method_exists($controllerCls, $actionName) && !method_exists($controllerCls, '__call')) {
                 throw new \Qii\Exceptions\MethodNotFound(\Qii::i(1101, $controller . '->' . $actionName), __LINE__);
             }
-            return call_user_func_array(array($controllerCls, $actionName), $funcArgs);
+            $controllerCls->response = $response = call_user_func_array(array($controllerCls, $actionName), $funcArgs);
         }
+        return $response;
     }
 }

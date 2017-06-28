@@ -94,7 +94,19 @@ class Model
                 '\Qii\Driver\\' . ucWords($this->_driver) . '\Connection'
             )
         );
+		$this->db->_debugSQL = isset($this->_dbInfo['debug']) ? $this->_dbInfo['debug'] : false;
 		return $this;
+	}
+	/**
+	 * 将属性转到DB类中去
+	 */
+	public function __get($attr)
+	{
+		if($this->db)
+		{
+			return $this->db->$attr;
+		}
+		return null;
 	}
 
 	/**

@@ -64,13 +64,13 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 	 */
 	public $useDB;
 	/**
-	 * @var string $__markKey 用于保存数据库执行相关信息
+	 * @var string $markKey 用于保存数据库执行相关信息
 	 */
-	private $__markKey = '__model';
+	public $markKey = '__model';
 	/**
-	 * @var string $_response Response对象
+	 * @var string $response Response对象
 	 */
-	protected $_response;
+	protected $response;
 
 	public function __construct(\Qii\Driver\ConnIntf $connection)
 	{
@@ -78,7 +78,7 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 		$this->connection = $connection;
 		$this->sysConfigure = $this->connection->getDBInfo();
 		$this->useDB = $this->sysConfigure['master']['db'];
-		$this->_response = new \Qii\Driver\Response();
+		$this->response = new \Qii\Driver\Response();
 	}
 
 	/**
@@ -103,8 +103,6 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 		 */
 		if ($this->_debugSQL) {
 			$startTime = microtime(true);
-			$this->_exeSQL[] = $sql;
-			\Qii::setPrivate('model', array('_exeSQL' => $this->_exeSQL));
 		}
 		$this->sql = $sql;
 		$this->db['CURRENT'] = $this->connection->getConnectionBySQL($this->sql);
@@ -120,6 +118,7 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 			$error = $this->getError('error');
 			return \Qii::setError(false, __LINE__, 1509, $sql, $error[2] == '' ? 'NULL' : $error[2]);
 		}
+		$this->_queryTimes++;
 		/**
 		 * 如果调试SQL的话就启用时间的记录
 		 */
@@ -130,10 +129,7 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 			$this->_querySeconds[$this->_queryTimes]['costTime'] = $costTime;
 			$this->_querySeconds[$this->_queryTimes]['startTime'] = $startTime;
 			$this->_querySeconds[$this->_queryTimes]['endTime'] = $endTime;
-			\Qii::setPrivate('model', array('_querySeconds' => $this->_querySeconds));
 		}
-		$this->_queryTimes++;
-		\Qii::setPrivate('model', array('_queryTimes' => $this->_queryTimes));
 		return $rs;
 	}
 
@@ -239,8 +235,7 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 		if (\mysql_errno($this->db['CURRENT'])) {
 			$this->_errorInfo[$this->_queryTimes]['sql'] = $this->sql;
 			$this->_errorInfo[$this->_queryTimes]['error'][2] = \mysql_error($this->db['CURRENT']);
-			$this->_response = \Qii\Driver\Response::Fail('pdo.error', $this->_errorInfo);
-			\Qii::setPrivate('model', array('_errorInfo' => $this->_errorInfo));
+			$this->response = \Qii\Driver\Response::Fail('pdo.error', $this->_errorInfo);
 		}
 	}
 
@@ -264,6 +259,6 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 	 */
 	public function getResponse()
 	{
-		return $this->_response;
+		return $this->response;
 	}
 }

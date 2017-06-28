@@ -251,7 +251,7 @@ class Response
 	public static function Instance($code, $operate, $result)
 	{
 		$data = array('code' => $code, 'body' => array('operate' => $operate, 'result' => $result));
-		return (new Qii\Driver\Response())->set($data);
+		return (new \Qii\Driver\Response())->set($data);
 	}
 
 	/**

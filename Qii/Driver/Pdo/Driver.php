@@ -28,13 +28,13 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 	 *
 	 * @var unknown_type
 	 */
-	public $_queryTimes = 0;
+	public $queryTimes = 0;
 	/**
 	 * 查询耗时
 	 *
 	 * @var INT
 	 */
-	public $_querySeconds = array();
+	public $querySeconds = array();
 
 	/**
 	 * 最后一次执行的SQL
@@ -64,13 +64,13 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 	 */
 	public $useDB;
 	/**
-	 * @var string $__markKey debug信息保存用的key
+	 * @var string $markKey debug信息保存用的key
 	 */
-	private $__markKey = '__model';
+	public $markKey = '__model';
     /**
-     * @var string $_response Response对象
+     * @var string $response Response对象
      */
-    protected $_response;
+    public $response;
 	/**
 	 * 初始化
 	 * @param \Qii_Driver_ConnIntf $connection 数据库连接
@@ -81,7 +81,7 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 		$this->connection = $connection;
 		$this->sysConfigure = $this->connection->getDBInfo();
 		$this->useDB = $this->sysConfigure['master']['db'];
-        $this->_response = new \Qii\Driver\Response();
+        $this->response = new \Qii\Driver\Response();
 	}
 
 	/**
@@ -115,8 +115,6 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 		 */
 		if ($this->_debugSQL) {
 			$startTime = microtime(true);
-			$this->_exeSQL[] = $sql;
-			\Qii::setPrivate($this->__markKey, array('_exeSQL' => $this->_exeSQL));
 		}
 		$this->sql = $sql;
 		$this->db['CURRENT'] = $this->connection->getConnectionBySQL($sql);
@@ -125,25 +123,24 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
         $this->db['CURRENT']->query('set names utf8');
 		$rs = $this->db['CURRENT']->query($sql);
 		$this->setError();
-		if (!$rs) {
+		if (!$rs) 
+		{
 			$error = $this->getError('error');
 			return \Qii::setError(false, __LINE__, 1509, $sql, $error[2] == '' ? 'NULL' : $error[2]);
 		}
 		$rs->setFetchMode(\PDO::FETCH_ASSOC);
+		$this->queryTimes++;
 		/**
 		 * 如果调试SQL的话就启用时间的记录
 		 */
 		if ($this->_debugSQL) {
 			$endTime = microtime(true);
 			$costTime = sprintf('%.4f', ($endTime - $startTime));
-			$this->_querySeconds[$this->_queryTimes]['sql'] = $sql;
-			$this->_querySeconds[$this->_queryTimes]['costTime'] = $costTime;
-			$this->_querySeconds[$this->_queryTimes]['startTime'] = $startTime;
-			$this->_querySeconds[$this->_queryTimes]['endTime'] = $endTime;
-			\Qii::setPrivate($this->__markKey, array('_querySeconds' => $this->_querySeconds));
+			$this->querySeconds[$this->queryTimes]['sql'] = $sql;
+			$this->querySeconds[$this->queryTimes]['costTime'] = $costTime;
+			$this->querySeconds[$this->queryTimes]['startTime'] = $startTime;
+			$this->querySeconds[$this->queryTimes]['endTime'] = $endTime;
 		}
-		$this->_queryTimes++;
-		\Qii::setPrivate($this->__markKey, array('_queryTimes' => $this->_queryTimes));
 		return $rs;
 	}
 
@@ -292,10 +289,9 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 	public function setError()
 	{
 		if ($this->connection->getConnectionBySQL($this->sql)->errorCode() != '00000') {
-			$this->_errorInfo[$this->_queryTimes]['sql'] = $this->sql;
-			$this->_errorInfo[$this->_queryTimes]['error'] = $this->connection->getConnectionBySQL($this->sql)->errorInfo();
-			$this->_response = \Qii\Driver\Response::Fail('pdo.error', $this->_errorInfo);
-			\Qii::setPrivate($this->__markKey, array('_errorInfo' => $this->_errorInfo));
+			$this->_errorInfo[$this->queryTimes]['sql'] = $this->sql;
+			$this->_errorInfo[$this->queryTimes]['error'] = $this->connection->getConnectionBySQL($this->sql)->errorInfo();
+			$this->response = \Qii\Driver\Response::Fail('pdo.error', $this->_errorInfo);
 		}
 	}
 
@@ -306,10 +302,25 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 	 */
 	public function isError()
 	{
+		if(!$this->rs)
+		{
+			return true;
+		}
 		$errorInfo = $this->rs->errorInfo();
-		if ($this->connection->getConnectionBySQL($this->sql)->errorCode() != '00000') {
+		if ($this->connection->getConnectionBySQL($this->sql)->errorCode() != '00000') 
+		{
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * 返回response对象
+	 *
+	 * @return Bool
+	 */
+	public function getResponse()
+	{
+		return $this->response;
 	}
 }

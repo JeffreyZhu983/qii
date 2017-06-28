@@ -607,6 +607,9 @@ abstract class Request
 
         return false;
     }
+    /**
+     * 对于不存在的方法默认调用url中的方法
+     */
     public function __call($method, $args)
     {
         return call_user_func_array(array($this->url, $method), $args);

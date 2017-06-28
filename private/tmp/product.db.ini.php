@@ -2,6 +2,7 @@
  return array (
   'readOrWriteSeparation' => '0',
   'driver' => 'pdo',
+  'debug' => '1',
   'use_db_driver' => 'mysql',
   'master' => 
   array (
