@@ -402,10 +402,10 @@ class Psr4
         if (!class_exists($className, false)) {
             throw new \Qii\Exceptions\CallUndefinedClass(\Qii::i('1105', $className), __LINE__);
         }
-        $loader = new \ReflectionClass($className);
-        self::$_loadedClass[$className] = $instance = $loader->newInstanceArgs($args);
+        $refClass = new \ReflectionClass($className);
+        self::$_loadedClass[$className] = $instance = $refClass->newInstanceArgs($args);
         //如果有_initialize方法就自动调用_initialize方法，并将参数传递给_initialize方法
-        if ($loader->hasMethod('_initialize')) {
+        if ($refClass->hasMethod('_initialize')) {
             call_user_func_array(array($instance, '_initialize'), $args);
         }
         return $instance;

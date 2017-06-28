@@ -27,6 +27,7 @@ class index extends \Qii\Base\Controller
 
     public function displayAction()
     {
+        \Qii::getInstance('ww');
         //可以从这里设置加载模板的路径
         $this->view->setTemplateDir(__DIR__ . "/view/");
         $this->view->display('index.tpl');

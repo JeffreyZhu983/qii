@@ -1,6 +1,4 @@
 <?php
-namespace Qii\Config;
-
 /**
  * 将键值保存到\Qii\Config\Register::$config中
  * 用于保存系统相关设置，保存项目相关的配置，请注意不出现key相互覆盖的情况，可以考虑加前缀
@@ -17,6 +15,15 @@ namespace Qii\Config;
  *
  *
  */
+namespace Qii\Config;
+
+use \Qii\Application;
+
+use \Qii\Config\Register;
+use \Qii\Config\Consts;
+
+use \Qii\Exceptions\Variable;
+
 class Register
 {
 	const VERSION = '1.3';
@@ -74,7 +81,7 @@ class Register
 	 */
 	public static function get($key, $default = null)
 	{
-		if (!$key) throw new Qii_Exceptions_Variable(\Qii::i(1003), __LINE__);
+		if (!$key) throw new \Qii\Exceptions\Variable(\Qii::i(1003), __LINE__);
 		//优先调用存在的get方法
 		$method = 'get' . $key;
 		if (method_exists('\Qii\Config\Register', $method)) return \Qii\Config\Register::$method();

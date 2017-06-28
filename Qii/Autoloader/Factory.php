@@ -31,11 +31,19 @@ class Factory
         ){
             return Factory::$instance[$className];
         }
-        if(class_exists($className, false))
+
+        $args = func_get_args();
+        array_shift($args);
+        
+        if(!class_exists($className, false))
         {
-            return Factory::$instance[$className] = new $className;
+            $className = Psr4::getInstance()->getClassName($className);
         }
-        $className = Psr4::getInstance()->getClassName($className);
-        return Factory::$instance[$className] = new $className;
+        $refClass = new \ReflectionClass($className);
+        $instance = $refClass->newInstanceArgs($args);
+        if ($refClass->hasMethod('_initialize')) {
+            call_user_func_array(array($instance, '_initialize'), $args);
+        }
+        return Factory::$instance[$className] = $instance;
     }
 }

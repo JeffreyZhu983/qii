@@ -1,6 +1,17 @@
 <?php
 namespace Qii;
 
+use \Qii\Base\Dispatcher;
+
+use \Qii\Autoloader\Factory;
+use \Qii\Autoloader\Import;
+use \Qii\Autoloader\Psr4;
+use \Qii\Autoloader\Instance;
+
+use \Qii\Config\Register;
+use \Qii\Config\Consts;
+use \Qii\Config\Setting;
+
 class Application 
 {
     /**
@@ -32,7 +43,7 @@ class Application
 
 	public function __construct()
 	{
-        $this->helper = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Autoloader\Helper');
+        $this->helper = Psr4::getInstance()->loadClass('\Qii\Autoloader\Helper');
 	}
 
     /**
@@ -42,7 +53,12 @@ class Application
      */
 	public static function getInstance()
 	{
-	    return \Qii\Autoloader\Factory::getInstance('\Qii\Application');
+        $args = func_get_args();
+        if (count($args) > 0) {
+            $className = array_shift($args);
+            return Psr4::getInstance($className);
+        }
+	    return Factory::getInstance('\Qii\Application');
 	}
 
     /**
@@ -62,7 +78,7 @@ class Application
      */
     public function setCachePath($path)
     {
-        \Qii\Config\Register::set(\Qii\Config\Consts::APP_CACHE_PATH, $this->getCachePath($path));
+        Register::set(Consts::APP_CACHE_PATH, $this->getCachePath($path));
         return $this;
     }
 
@@ -73,7 +89,7 @@ class Application
      */
     public function setAppIniFile($iniFile)
     {
-        \Qii\Config\Register::set(\Qii\Config\Consts::APP_INI_FILE, $iniFile);
+        Register::set(Consts::APP_INI_FILE, $iniFile);
         return $this;
     }
 
@@ -89,13 +105,13 @@ class Application
         if (!is_dir($workspace)) {
             throw new \Qii\Exceptions\FolderDoesNotExist(\Qii::i(1045, $workspace), __LINE__);
         }
-        $workspace = \Qii\Autoloader\Psr4::getInstance()->realpath($workspace);
-        \Qii\Autoloader\Psr4::getInstance()->removeNamespace('workspace', self::$workspace);
+        $workspace = Psr4::getInstance()->realpath($workspace);
+        Psr4::getInstance()->removeNamespace('workspace', self::$workspace);
         //如果配置了使用namespace就走namespace
         self::$workspace = $workspace;
-        \Qii\Autoloader\Psr4::getInstance()->addNamespace('workspace', $workspace, true);
+        Psr4::getInstance()->addNamespace('workspace', $workspace, true);
         foreach (self::$paths AS $path) {
-            \Qii\Autoloader\Psr4::getInstance()->addNamespace($path, $workspace . '\\' . $path);
+            Psr4::getInstance()->addNamespace($path, $workspace . '\\' . $path);
         }
 
         return $this;
@@ -109,7 +125,7 @@ class Application
     {
         if (self::$workspace != '') return self::$workspace . DS . $path;
         $dir = '';
-        $workspace = \Qii\Autoloader\Psr4::getInstance()->getNamespace('workspace');
+        $workspace = sr4::getInstance()->getNamespace('workspace');
         foreach ($workspace AS $dir) {
             if (is_dir($dir)) $dir = $dir;
         }
@@ -137,7 +153,7 @@ class Application
      */
     public function getAppIniFile()
     {
-        return \Qii\Config\Register::get(\Qii\Config\Consts::APP_INI_FILE);
+        return Register::get(Consts::APP_INI_FILE);
         return $this;
     }
 
@@ -150,19 +166,19 @@ class Application
     public function setAppConfigure($ini, $env = '')
     {
         if ($env == '') $env = $this->getEnv();
-        $ini = \Qii\Autoloader\Psr4::getInstance()->getFileByPrefix($ini);
+        $ini = Psr4::getInstance()->getFileByPrefix($ini);
         $this->setAppIniFile($ini);
-        if (!\Qii\Config\Register::setAppConfigure(
+        if (!Register::setAppConfigure(
             $ini,
             $env
         )
         ) throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $ini), __LINE__);
         //载入request方法
-        $this->request = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Request\Http');
-        \Qii\Config\Setting::getInstance()->setDefaultTimeZone();
-        \Qii\Config\Setting::getInstance()->setDefaultControllerAction();
-        \Qii\Config\Setting::getInstance()->setDefaultNamespace();
-        \Qii\Config\Setting::getInstance()->setDefaultLanguage();
+        $this->request = Psr4::getInstance()->loadClass('\Qii\Request\Http');
+        Setting::getInstance()->setDefaultTimeZone();
+        Setting::getInstance()->setDefaultControllerAction();
+        Setting::getInstance()->setDefaultNamespace();
+        Setting::getInstance()->setDefaultLanguage();
         return $this;
     }
 
@@ -174,7 +190,7 @@ class Application
     public function mergeAppConfigure($iniFile, $array)
     {
         if (!is_array($array)) return;
-        \Qii\Config\Register::mergeAppConfigure($iniFile, $array);
+        Register::mergeAppConfigure($iniFile, $array);
         return $this;
     }
 
@@ -186,7 +202,7 @@ class Application
      */
     public function rewriteAppConfigure($iniFile, $key, $val)
     {
-        \Qii\Config\Register::rewriteConfig($iniFile, $key, $val);
+        Register::rewriteConfig($iniFile, $key, $val);
         return $this;
     }
     
@@ -198,7 +214,7 @@ class Application
      */
     public function setUseNamespace($prefix, $useNamespace = true)
     {
-        \Qii\Autoloader\Psr4::getInstance()->setUseNamespace($prefix, $useNamespace);
+        Psr4::getInstance()->setUseNamespace($prefix, $useNamespace);
         return $this;
     }
 
@@ -214,8 +230,8 @@ class Application
         if (!is_dir($baseDir)) {
             throw new \Qii\Exceptions\FolderDoesNotExist(\Qii::i(1009, $baseDir), __LINE__);
         }
-        $baseDir = \Qii\Autoloader\Psr4::getInstance()->realpath($baseDir);
-        \Qii\Autoloader\Psr4::getInstance()->addNamespace($prefix, $baseDir, $prepend);
+        $baseDir = Psr4::getInstance()->realpath($baseDir);
+        Psr4::getInstance()->addNamespace($prefix, $baseDir, $prepend);
         return $this;
     }
 
@@ -227,9 +243,9 @@ class Application
      */
     public function setBootstrap()
     {
-        \Qii\Autoloader\Psr4::getInstance()->loadFileByClass('Bootstrap');
+        Psr4::getInstance()->loadFileByClass('Bootstrap');
         if (!class_exists('Bootstrap', false)) throw new \Qii\Exceptions\ClassNotFound(\Qii::i(1405, 'Bootstrap'), __LINE__);;
-        $bootstrap = \Qii\Autoloader\Psr4::getInstance()->instance('Bootstrap');
+        $bootstrap = Psr4::getInstance()->instance('Bootstrap');
         if (!$bootstrap instanceof \Qii\Base\Bootstrap) {
             throw new \Qii\Exceptions\ClassInstanceof(Qii::i(1107, 'Bootstrap', 'Qii\Bootstrap'), __LINE__);;
         }
@@ -255,9 +271,9 @@ class Application
             throw new \Qii_Exceptions_ClassNotFound(Qii::i(1405, $logerCls), __LINE__);
         }*/
 
-        $this->logerWriter = \Qii\Autoloader\Instance::instance(
+        $this->logerWriter = Instance::instance(
             '\Qii\Loger\Instance',
-            \Qii\Autoloader\Instance::instance($logerCls)
+            Instance::instance($logerCls)
         );
         return $this;
     }
@@ -270,7 +286,7 @@ class Application
      */
     public function setDBIniFile($iniFile)
     {
-        \Qii\Config\Register::set(\Qii\Config\Consts::APP_DB, $iniFile);
+        Register::set(Consts::APP_DB, $iniFile);
     }
 
     /**
@@ -281,7 +297,7 @@ class Application
      */
     public function getDBIniFile()
     {
-        return \Qii\Config\Register::get(\Qii\Config\Consts::APP_DB);
+        return Register::get(Consts::APP_DB);
     }
 
     /**
@@ -293,8 +309,8 @@ class Application
     {
         if ($env == '') $env = $this->getEnv();
         $this->setDBIniFile($ini);
-        if (!\Qii\Config\Register::setAppConfigure(
-            \Qii\Autoloader\Psr4::getInstance()->getFileByPrefix($ini),
+        if (!Register::setAppConfigure(
+            Psr4::getInstance()->getFileByPrefix($ini),
             $env
         )
         ) {
@@ -311,15 +327,15 @@ class Application
      */
     public function setRouter($router)
     {
-        \Qii\Config\Register::set(
-            \Qii\Config\Consts::APP_SITE_ROUTER,
-            \Qii\Autoloader\Import::includes(
-                \Qii\Autoloader\Psr4::realpath(\Qii\Autoloader\Psr4::getInstance()->getFileByPrefix($router)
+        Register::set(
+            Consts::APP_SITE_ROUTER,
+            Import::includes(
+                Psr4::realpath(Psr4::getInstance()->getFileByPrefix($router)
                 )
             )
         );
         //载入rewrite规则后重写request
-        $rewrite = \Qii\Autoloader\Psr4::loadStatic(
+        $rewrite = Psr4::loadStatic(
             '\Qii\Route\Parse',
             'get',
             $this->request->controller,
@@ -351,7 +367,7 @@ class Application
 	public function run()
 	{
         $this->helper->load(self::$workspace);
-        $this->dispatcher = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Base\Dispatcher');
+        $this->dispatcher = Psr4::getInstance()->loadClass('\Qii\Base\Dispatcher');
         if (!$this->dispatcher instanceof \Qii\Base\Dispatcher) {
             throw new \Exception('Dispatcher must instance of Qii\Base\Dispatcher', __LINE__);
         }
@@ -360,8 +376,8 @@ class Application
         if (count($hosts) > 0) {
             foreach ($hosts AS $host) {
                 if ($host['domain'] == $this->request->host) {
-                    \Qii\Config\Register::set(
-                        \Qii\Config\Consts::APP_DEFAULT_CONTROLLER_PREFIX,
+                    Register::set(
+                        Consts::APP_DEFAULT_CONTROLLER_PREFIX,
                         ($host['path'] ? $host['path'] : $host['domain'])
                     );
                     break;

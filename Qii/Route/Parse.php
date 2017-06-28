@@ -1,5 +1,11 @@
 <?php
 namespace Qii\Route;
+
+use \Qii\Autoloader\Import;
+
+use \Qii\Config\Register;
+use \Qii\Config\Consts;
+
 /**
  * 路由规则类
  *
@@ -30,10 +36,10 @@ class Parse
             return array('controller' => $controller, 'action' => $action);
         }
         //如果第一列的是*号则所有的controller都执行对应的x:
-        $router =\Qii\Config\Register::getAppConfigure(\Qii\Config\Consts::APP_SITE_ROUTER);
-        $rewriteRule = \Qii\Config\Register::getAppConfigure(\Qii\Config\Register::get(\Qii\Config\Consts::APP_INI_FILE), 'rewriteRule');
+        $router = Register::getAppConfigure(Consts::APP_SITE_ROUTER);
+        $rewriteRule = Register::getAppConfigure(Register::get(Consts::APP_INI_FILE), 'rewriteRule');
         if (!$rewriteRule) $rewriteRule = 'Normal';
-        \Qii\Autoloader\Import::requires(Qii_DIR . DS . 'Route' . DS . 'Parse' .DS. $rewriteRule . '.php');
+        Import::requires(Qii_DIR . DS . 'Route' . DS . 'Parse' .DS. $rewriteRule . '.php');
         $className = '\Qii\Route\Parse\\' . $rewriteRule;
         if (!class_exists($className, false)) {
             throw new \Qii\Exceptions\ClassNotFound(\Qii::i(1103, $className), __LINE__);

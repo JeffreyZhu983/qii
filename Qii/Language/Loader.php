@@ -1,5 +1,4 @@
 <?php
-namespace Qii\Language;
 /**
  * 加载语言包
  * @Author Jinhui Zhu
@@ -12,6 +11,11 @@ namespace Qii\Language;
  *    Qii::Qii_Language_Loader()->load('error', Qii_DIR); 加载系统目录中的语言
  *    Qii::Qii_Language_Loader()->load('error'); 加载程序目录中的语言
  */
+namespace Qii\Language;
+
+use \Qii\Config\Register;
+use \Qii\Config\Consts;
+
 class Loader
 {
 	const VERSION = 1.3;
@@ -75,12 +79,12 @@ class Loader
 	 */
 	protected function merge($fileName)
 	{
-		$data = \Qii\Config\Register::get(\Qii\Config\Consts::APP_LANGUAGE_CONFIG);
+		$data = Register::get(Consts::APP_LANGUAGE_CONFIG);
 		if (!is_file($fileName)) throw new Exceptions(\Qii::i(1405, $fileName));
 		$merge = (array) \Qii\Autoloader\Import::includes($fileName);
 		
 		if ($data) $merge = $data + $merge;
-		\Qii\Config\Register::set(\Qii\Config\Consts::APP_LANGUAGE_CONFIG, $merge);
+		Register::set(Consts::APP_LANGUAGE_CONFIG, $merge);
 	}
 
 	/**
@@ -90,7 +94,7 @@ class Loader
 	 */
 	public function get($code)
 	{
-		$data = \Qii\Config\Register::get(\Qii\Config\Consts::APP_LANGUAGE_CONFIG, array());
+		$data = Register::get(Consts::APP_LANGUAGE_CONFIG, array());
 		if (isset($data) && isset($data[$code])) {
 			return $data[$code];
 		}

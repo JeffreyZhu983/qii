@@ -29,8 +29,12 @@ require Qii_DIR . DS . 'Autoloader' . DS . 'Import.php';
                                 )
 );
 
-use \Qii\Autoloader;
 use \Qii\Application;
+
+use \Qii\Autoloader\Factory;
+use \Qii\Autoloader\Psr4;
+
+use \Qii\Config\Register;
 
 class Qii extends Application
 {
@@ -40,7 +44,7 @@ class Qii extends Application
     }
     public static function getInstance()
     {
-	    return \Qii\Autoloader\Factory::getInstance('\Qii');
+	    return Factory::getInstance('\Qii');
     }
     /**
      * 设置private 属性
@@ -50,7 +54,7 @@ class Qii extends Application
      */
     public static function setPrivate($name, $value)
     {
-        \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Config\Arrays')->setPrivate($name, $value);
+        Psr4::getInstance()->loadClass('\Qii\Config\Arrays')->setPrivate($name, $value);
     }
 
     /**
@@ -62,7 +66,7 @@ class Qii extends Application
      */
     public static function getPrivate($name, $key = '')
     {
-        $private = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Config\Arrays')->getPrivate($name);
+        $private = Psr4::getInstance()->loadClass('\Qii\Config\Arrays')->getPrivate($name);
         if (preg_match('/^\s*$/', $key)) {
             return $private;
         }
@@ -72,7 +76,7 @@ class Qii extends Application
 	public static function i()
     {
         return call_user_func_array(array(
-            \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Language\Loader'), 'i'),
+            Psr4::getInstance()->loadClass('\Qii\Language\Loader'), 'i'),
             func_get_args()
         );
     }
@@ -106,7 +110,7 @@ class Qii extends Application
      */
     public static function appConfigure($key = null)
     {
-        return \Qii\Config\Register::getAppConfigure(\Qii::getInstance()->getAppIniFile(), $key);
+        return Register::getAppConfigure(\Qii::getInstance()->getAppIniFile(), $key);
     }
     
     /**
@@ -117,7 +121,7 @@ class Qii extends Application
      */
     public function __call($className, $args)
     {
-        return call_user_func_array(array(\Qii\Autoloader\Psr4::getInstance(), 'loadClass'), $args);
+        return call_user_func_array(array(Psr4::getInstance(), 'loadClass'), $args);
     }
     /**
      * 当调用不存在的静态方法的时候会试图执行对应的类和静态方法
@@ -128,7 +132,7 @@ class Qii extends Application
     public static function __callStatic($className, $args)
     {
         $method = array_shift($args);
-        $className = \Qii\Autoloader\Psr4::getInstance()->getClassName($className);
+        $className = Psr4::getInstance()->getClassName($className);
         return call_user_func_array($className . '::' . $method, $args);
     }
 }
@@ -142,7 +146,7 @@ if (!function_exists('catch_fatal_error')) {
         if (isset($error['type']) && $error['type'] == E_ERROR) {
             // Fatal Error Occurs
             $message = array();
-            $message[] = 'Error file : ' . ltrim($error['file'], \Qii\Autoloader\Psr4::realpath($_SERVER['DOCUMENT_ROOT']));
+            $message[] = 'Error file : ' . ltrim($error['file'], Psr4::realpath($_SERVER['DOCUMENT_ROOT']));
             $message[] = 'Error line : ' . $error['line'] . ' on ' . \Qii\Exceptions\Errors::getLineMessage($error['file'], $error['line']);
             $message[] = 'Error description : ' . $error['message'];
             \Qii\Exceptions\Error::showError($message);
