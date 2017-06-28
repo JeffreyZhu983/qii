@@ -5,10 +5,10 @@
   'use_db_driver' => 'mysql',
   'master' => 
   array (
-    'db' => 'istudy',
+    'db' => 'wecv',
     'host' => '127.0.0.1',
     'user' => 'root',
-    'password' => '119328118',
+    'password' => 'A119328118a',
   ),
   'slave' => 
   array (
@@ -16,15 +16,15 @@
     array (
       'db' => 'istudy',
       'host' => '127.0.0.1',
-      'user' => 'root',
-      'password' => '119328118',
+      'user' => 'wecv',
+      'password' => 'A119328118a',
     ),
     1 => 
     array (
       'db' => 'istudy',
       'host' => '127.0.0.1',
-      'user' => 'root',
-      'password' => '119328118',
+      'user' => 'wecv',
+      'password' => 'A119328118a',
     ),
   ),
 )

@@ -64,10 +64,10 @@ class Errors extends \Exception
 		}
 		$appConfigure = \Qii\Config\Register::getConfig();
 
-		$env = \Qii\Config\Register::get(\Qii\Consts\Config::APP_ENVIRON, 'dev');
+		$env = \Qii\Config\Register::get(\Qii\Config\Consts::APP_ENVIRON, 'dev');
 		if ($env == 'product' || ($appConfigure['errorPage'] && (isset($appConfigure['debug']) && $appConfigure['debug'] == 0))) {
 			list($controller, $action) = explode(':', $appConfigure['errorPage']);
-			$controllerCls = \Qii\Config\Register::get(\Qii\Consts\Config::APP_DEFAULT_CONTROLLER_PREFIX) . '_' . $controller;
+			$controllerCls = \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_CONTROLLER_PREFIX) . '_' . $controller;
 			$action = preg_replace('/(Action)$/i', "", $action);
 			$filePath = \Qii\Autoloader\Import::requireByClass($controllerCls);
 			if (!is_file($filePath)) {

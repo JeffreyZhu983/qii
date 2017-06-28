@@ -1,7 +1,9 @@
 <?php
 namespace Qii\Request;
 
-final class Http extends Base
+use Qii\Base\Request;
+
+final class Http extends Request
 {
 
     /**

@@ -40,7 +40,7 @@ class Url
      */
     public static function getCurrentURL()
     {
-        $rewriteRule = \Qii::getInstance()->appConfigure(\Qii\Consts\Config::APP_SITE_METHOD);
+        $rewriteRule = \Qii::getInstance()->appConfigure(\Qii\Config\Consts::APP_SITE_METHOD);
         return \Qii\Request\Url::getInstance($rewriteRule)->request->getCurrentURL();
     }
 
@@ -50,7 +50,7 @@ class Url
      */
     public static function pathUrl()
     {
-        $rewriteRule = \Qii::getInstance()->appConfigure(\Qii\Consts\Config::APP_SITE_METHOD);
+        $rewriteRule = \Qii::getInstance()->appConfigure(\Qii\Config\Consts::APP_SITE_METHOD);
         return \Qii\Request\Url::getInstance($rewriteRule)->request->getWebHost() . \Qii::getInstance()->request->url->getPath();
     }
 

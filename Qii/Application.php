@@ -62,7 +62,7 @@ class Application
      */
     public function setCachePath($path)
     {
-        \Qii\Config\Register::set(\Qii\Consts\Config::APP_CACHE_PATH, $this->getCachePath($path));
+        \Qii\Config\Register::set(\Qii\Config\Consts::APP_CACHE_PATH, $this->getCachePath($path));
         return $this;
     }
 
@@ -73,7 +73,7 @@ class Application
      */
     public function setAppIniFile($iniFile)
     {
-        \Qii\Config\Register::set(\Qii\Consts\Config::APP_INI_FILE, $iniFile);
+        \Qii\Config\Register::set(\Qii\Config\Consts::APP_INI_FILE, $iniFile);
         return $this;
     }
 
@@ -137,7 +137,7 @@ class Application
      */
     public function getAppIniFile()
     {
-        return \Qii\Config\Register::get(\Qii\Consts\Config::APP_INI_FILE);
+        return \Qii\Config\Register::get(\Qii\Config\Consts::APP_INI_FILE);
         return $this;
     }
 
@@ -230,7 +230,7 @@ class Application
         \Qii\Autoloader\Psr4::getInstance()->loadFileByClass('Bootstrap');
         if (!class_exists('Bootstrap', false)) throw new \Qii\Exceptions\ClassNotFound(\Qii::i(1405, 'Bootstrap'), __LINE__);;
         $bootstrap = \Qii\Autoloader\Psr4::getInstance()->instance('Bootstrap');
-        if (!$bootstrap instanceof \Qii\Bootstrap\Base) {
+        if (!$bootstrap instanceof \Qii\Base\Bootstrap) {
             throw new \Qii\Exceptions\ClassInstanceof(Qii::i(1107, 'Bootstrap', 'Qii\Bootstrap'), __LINE__);;
         }
         $refectionClass = new \ReflectionClass('Bootstrap');
@@ -270,7 +270,7 @@ class Application
      */
     public function setDBIniFile($iniFile)
     {
-        \Qii\Config\Register::set(\Qii\Consts\Config::APP_DB, $iniFile);
+        \Qii\Config\Register::set(\Qii\Config\Consts::APP_DB, $iniFile);
     }
 
     /**
@@ -281,7 +281,7 @@ class Application
      */
     public function getDBIniFile()
     {
-        return \Qii\Config\Register::get(\Qii\Consts\Config::APP_DB);
+        return \Qii\Config\Register::get(\Qii\Config\Consts::APP_DB);
     }
 
     /**
@@ -312,7 +312,7 @@ class Application
     public function setRouter($router)
     {
         \Qii\Config\Register::set(
-            \Qii\Consts\Config::APP_SITE_ROUTER,
+            \Qii\Config\Consts::APP_SITE_ROUTER,
             \Qii\Autoloader\Import::includes(
                 \Qii\Autoloader\Psr4::realpath(\Qii\Autoloader\Psr4::getInstance()->getFileByPrefix($router)
                 )
@@ -351,9 +351,9 @@ class Application
 	public function run()
 	{
         $this->helper->load(self::$workspace);
-        $this->dispatcher = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Controller\Dispatcher');
-        if (!$this->dispatcher instanceof \Qii\Controller\Dispatcher) {
-            throw new \Exception('Dispatcher must instance of Qii\Controller\Dispatcher', __LINE__);
+        $this->dispatcher = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Base\Dispatcher');
+        if (!$this->dispatcher instanceof \Qii\Base\Dispatcher) {
+            throw new \Exception('Dispatcher must instance of Qii\Base\Dispatcher', __LINE__);
         }
         //如果设置了host的话，看host对应的controller路径
         $hosts = $this->appConfigure('hosts');
@@ -361,7 +361,7 @@ class Application
             foreach ($hosts AS $host) {
                 if ($host['domain'] == $this->request->host) {
                     \Qii\Config\Register::set(
-                        \Qii\Consts\Config::APP_DEFAULT_CONTROLLER_PREFIX,
+                        \Qii\Config\Consts::APP_DEFAULT_CONTROLLER_PREFIX,
                         ($host['path'] ? $host['path'] : $host['domain'])
                     );
                     break;

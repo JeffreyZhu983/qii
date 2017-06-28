@@ -1,7 +1,7 @@
 <?php
 namespace Qii\Response;
 
-class Cli extends Base
+class Cli extends \Qii\Base\Response
 {
     /**
      * Magic __toString functionality

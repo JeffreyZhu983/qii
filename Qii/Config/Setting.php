@@ -59,12 +59,12 @@ class Setting
     public function setDefaultControllerAction()
     {
         //设置默认controller及controller方法前缀
-        \Qii\Config\Register::set(\Qii\Consts\Config::APP_DEFAULT_CONTROLLER, \Qii::getInstance()->appConfigure('controller')['default']);
-        \Qii\Config\Register::set(\Qii\Consts\Config::APP_DEFAULT_CONTROLLER_PREFIX, \Qii::getInstance()->appConfigure('controller')['prefix']);
+        \Qii\Config\Register::set(\Qii\Config\Consts::APP_DEFAULT_CONTROLLER, \Qii::getInstance()->appConfigure('controller')['default']);
+        \Qii\Config\Register::set(\Qii\Config\Consts::APP_DEFAULT_CONTROLLER_PREFIX, \Qii::getInstance()->appConfigure('controller')['prefix']);
 
         //设置默认action及方法名后缀
-        \Qii\Config\Register::set(\Qii\Consts\Config::APP_DEFAULT_ACTION, \Qii::getInstance()->appConfigure('action')['default']);
-        \Qii\Config\Register::set(\Qii\Consts\Config::APP_DEFAULT_ACTION_SUFFIX, \Qii::getInstance()->appConfigure('action')['suffix']);
+        \Qii\Config\Register::set(\Qii\Config\Consts::APP_DEFAULT_ACTION, \Qii::getInstance()->appConfigure('action')['default']);
+        \Qii\Config\Register::set(\Qii\Config\Consts::APP_DEFAULT_ACTION_SUFFIX, \Qii::getInstance()->appConfigure('action')['suffix']);
         return $this;
     }
 

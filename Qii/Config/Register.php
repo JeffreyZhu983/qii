@@ -49,7 +49,7 @@ class Register
 	 */
 	public static function add($index, $key, $val)
 	{
-		$added = \Qii\Config\Register::get(\Qii\Consts\Config::APP_LOADED_FILE, array());
+		$added = \Qii\Config\Register::get(\Qii\Config\Consts::APP_LOADED_FILE, array());
 		$added[$index][$key] = $val;
 		\Qii\Config\Register::$_cache[$index] = $added;
 	}
@@ -164,7 +164,7 @@ class Register
 	public static function getCacheName($iniFile)
 	{
 		$cacheName = basename($iniFile);
-		$environs = \Qii\Config\Register::get(\Qii\Consts\Config::APP_ENVIRONS, array());
+		$environs = \Qii\Config\Register::get(\Qii\Config\Consts::APP_ENVIRONS, array());
 		if (isset($environs[$cacheName])) {
 			$environ = $environs[$cacheName];
 			$cacheName = $environ . '.' . $cacheName;
@@ -208,7 +208,7 @@ class Register
 		if (!is_array($array)) return;
 		$config = \Qii\Config\Register::getIniConfigure($iniFile);
 
-		$environs = \Qii\Config\Register::get(\Qii\Consts\Config::APP_ENVIRONS, array());
+		$environs = \Qii\Config\Register::get(\Qii\Config\Consts::APP_ENVIRONS, array());
 
 		$cacheName = basename($iniFile);
 		if (isset($environs[$cacheName])) {
@@ -228,14 +228,14 @@ class Register
 	public static function setConfig($iniFile, $environ = 'product')
 	{
 		$cacheName = basename($iniFile);
-		$environs = \Qii\Config\Register::get(\Qii\Consts\Config::APP_ENVIRONS, array());
+		$environs = \Qii\Config\Register::get(\Qii\Config\Consts::APP_ENVIRONS, array());
 		$environs[$cacheName] = $environ;
-		\Qii\Config\Register::set(\Qii\Consts\Config::APP_ENVIRONS, $environs);
+		\Qii\Config\Register::set(\Qii\Config\Consts::APP_ENVIRONS, $environs);
 
 		$cacheName = $environ . '.' . $cacheName;
 		if (!is_file($iniFile)) return false;
-		$cacheFile = \Qii\Autoloader\Psr4::getInstance()->getFileByPrefix(\Qii\Config\Register::get(\Qii\Consts\Config::APP_CACHE_PATH) . DS . $cacheName . '.php');
-		if (\Qii\Config\Register::get(\Qii\Consts\Config::APP_CACHE_PATH)) {
+		$cacheFile = \Qii\Autoloader\Psr4::getInstance()->getFileByPrefix(\Qii\Config\Register::get(\Qii\Config\Consts::APP_CACHE_PATH) . DS . $cacheName . '.php');
+		if (\Qii\Config\Register::get(\Qii\Config\Consts::APP_CACHE_PATH)) {
 			if (is_file($cacheFile)) {
 				if (filemtime($cacheFile) == filemtime($iniFile)) {
 					$common = include($cacheFile);
@@ -281,7 +281,7 @@ class Register
 	public static function getIniConfigure($fileName)
 	{
 		$cacheName = basename($fileName);
-		$environs = \Qii\Config\Register::get(\Qii\Consts\Config::APP_ENVIRONS, array());
+		$environs = \Qii\Config\Register::get(\Qii\Config\Consts::APP_ENVIRONS, array());
 		if (isset($environs[$cacheName])) {
 			$cacheName = $environs[$cacheName] . '.' . $cacheName;
 		}
@@ -293,7 +293,7 @@ class Register
 	 *
 	 * @return Array
 	 */
-	public static function getAppConfigure($iniFile = \Qii\Consts\Config::APP_INI, $key = NULL)
+	public static function getAppConfigure($iniFile = \Qii\Config\Consts::APP_INI, $key = NULL)
 	{
 		$appConfigure = \Qii\Config\Register::getIniConfigure($iniFile);
 		if ($key == null) return $appConfigure;
@@ -320,9 +320,9 @@ class Register
 	 */
 	public static function getAppEnviron()
 	{
-		return isset(\Qii\Config\Register::$_cache[\Qii\Consts\Config::APP_ENVIRON]) ?
-                    \Qii\Config\Register::$_cache[\Qii\Consts\Config::APP_ENVIRON]
-                    : \Qii\Consts\Config::APP_DEFAULT_ENVIRON;
+		return isset(\Qii\Config\Register::$_cache[\Qii\Config\Consts::APP_ENVIRON]) ?
+                    \Qii\Config\Register::$_cache[\Qii\Config\Consts::APP_ENVIRON]
+                    : \Qii\Config\Consts::APP_DEFAULT_ENVIRON;
 	}
 
 	public function __call($method, $argvs)

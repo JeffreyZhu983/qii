@@ -1,7 +1,9 @@
 <?php
 namespace Qii\Request;
 
-final class Simple extends Base
+use Qii\Base\Request;
+
+final class Simple extends Request
 {
 	/**
 	 * __construct

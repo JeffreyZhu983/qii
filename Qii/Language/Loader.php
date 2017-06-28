@@ -75,12 +75,12 @@ class Loader
 	 */
 	protected function merge($fileName)
 	{
-		$data = \Qii\Config\Register::get(\Qii\Consts\Config::APP_LANGUAGE_CONFIG);
+		$data = \Qii\Config\Register::get(\Qii\Config\Consts::APP_LANGUAGE_CONFIG);
 		if (!is_file($fileName)) throw new Exceptions(\Qii::i(1405, $fileName));
 		$merge = (array) \Qii\Autoloader\Import::includes($fileName);
 		
 		if ($data) $merge = $data + $merge;
-		\Qii\Config\Register::set(\Qii\Consts\Config::APP_LANGUAGE_CONFIG, $merge);
+		\Qii\Config\Register::set(\Qii\Config\Consts::APP_LANGUAGE_CONFIG, $merge);
 	}
 
 	/**
@@ -90,7 +90,7 @@ class Loader
 	 */
 	public function get($code)
 	{
-		$data = \Qii\Config\Register::get(\Qii\Consts\Config::APP_LANGUAGE_CONFIG, array());
+		$data = \Qii\Config\Register::get(\Qii\Config\Consts::APP_LANGUAGE_CONFIG, array());
 		if (isset($data) && isset($data[$code])) {
 			return $data[$code];
 		}

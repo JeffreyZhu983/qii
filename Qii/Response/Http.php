@@ -1,7 +1,7 @@
 <?php
 namespace Qii\Response;
 
-class Http extends Base
+class Http extends \Qii\Base\Response
 {
     protected $_sendheader = true;
     protected $_responseCode = 200;
