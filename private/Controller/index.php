@@ -4,6 +4,7 @@ namespace Controller;
 class index extends \Qii\Base\Controller
 {
     public $enableDB = true;
+    public $enableView = true;
     public function indexAction()
     {
         $data = array();
@@ -21,5 +22,10 @@ class index extends \Qii\Base\Controller
     public function forwardAction()
     {
         $this->setForward('test', 'index');
+    }
+
+    public function displayAction()
+    {
+        $this->view->display('index.tpl');
     }
 }
