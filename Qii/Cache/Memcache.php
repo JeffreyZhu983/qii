@@ -74,7 +74,7 @@ class Memcache implements Intf
             $this->_default_policy['servers'][] = $this->_default_server;
         }
         if (!isset($this->_default_policy['persistent'])) $this->_default_policy['persistent'] = '';
-        $this->_conn = new Memcache();
+        $this->_conn = new \Memcache();
         foreach ($this->_default_policy['servers'] as $server) {
             $result = $this->_conn->addServer($server['host'], $server['port'], $this->_default_policy['persistent']);
             if (!$result) {

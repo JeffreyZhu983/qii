@@ -4,6 +4,11 @@
  */
 namespace Qii\Base;
 
+use \Qii\Autoloader\Psr4;
+
+use \Qi\Config\Register;
+use \Qi\Config\Consts;
+
 /**
  * Qii_Controller_Abstract class
  * @author Zhu Jinhui
@@ -68,8 +73,8 @@ abstract class Controller
 
     public function __construct()
     {
-        $this->load = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Autoloader\Loader');
-        $this->request = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Request\Http');
+        $this->load = Psr4::getInstance()->loadClass('\Qii\Autoloader\Loader');
+        $this->request = Psr4::getInstance()->loadClass('\Qii\Request\Http');
         $this->controllerId = $this->request->controller;
         $this->actionId = $this->request->action;
         //载入model
@@ -109,7 +114,7 @@ abstract class Controller
         if (!$policy) {
             $policy = array_merge($policy, $viewConfigure[$engine]);
         }
-        $viewEngine = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\View\Loader');
+        $viewEngine = Psr4::getInstance()->loadClass('\Qii\View\Loader');
         $viewEngine->setView($engine, $policy);
         $this->view = $viewEngine->getView();
         if(method_exists($this, 'initView'))
@@ -147,7 +152,7 @@ abstract class Controller
     {
         $data = array();
         if (!$cache) return $data;
-        $cacheInfo = \Qi\Config\Register::getAppConfigure(\Qi\Config\Register::get(\Qii\Config\Consts::APP_INI_FILE), $cache);
+        $cacheInfo = Register::getAppConfigure(Register::get(Consts::APP_INI_FILE), $cache);
         if (!$cacheInfo) return $data;
 
         $servers = explode(";", $cacheInfo['servers']);
@@ -162,7 +167,7 @@ abstract class Controller
      */
     final public function enableDB()
     {
-        return $this->db = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Driver\Model');
+        return $this->db = Psr4::getInstance()->loadClass('\Qii\Driver\Model');
     }
 
     /**

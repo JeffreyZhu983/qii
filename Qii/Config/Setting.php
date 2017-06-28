@@ -1,9 +1,15 @@
 <?php
-namespace Qii\Config;
 /**
  * 系统设置
  *
  */
+namespace Qii\Config;
+
+use \Qii\Autoloader\Psr4;
+
+use \Qii\Config\Register;
+use \Qii\Config\Consts;
+
 class Setting
 {
     protected static $instance;
@@ -33,7 +39,7 @@ class Setting
      */
     public function setDefaultLanguage()
     {
-        $this->language = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Language\Loader');
+        $this->language = Psr4::getInstance()->loadClass('\Qii\Language\Loader');
         //加载语言包
         $this->language->load('error', Qii_DIR);
         $this->language->load('exception', Qii_DIR);
@@ -59,12 +65,12 @@ class Setting
     public function setDefaultControllerAction()
     {
         //设置默认controller及controller方法前缀
-        \Qii\Config\Register::set(\Qii\Config\Consts::APP_DEFAULT_CONTROLLER, \Qii::getInstance()->appConfigure('controller')['default']);
-        \Qii\Config\Register::set(\Qii\Config\Consts::APP_DEFAULT_CONTROLLER_PREFIX, \Qii::getInstance()->appConfigure('controller')['prefix']);
+        Register::set(Consts::APP_DEFAULT_CONTROLLER, \Qii::getInstance()->appConfigure('controller')['default']);
+        Register::set(Consts::APP_DEFAULT_CONTROLLER_PREFIX, \Qii::getInstance()->appConfigure('controller')['prefix']);
 
         //设置默认action及方法名后缀
-        \Qii\Config\Register::set(\Qii\Config\Consts::APP_DEFAULT_ACTION, \Qii::getInstance()->appConfigure('action')['default']);
-        \Qii\Config\Register::set(\Qii\Config\Consts::APP_DEFAULT_ACTION_SUFFIX, \Qii::getInstance()->appConfigure('action')['suffix']);
+        Register::set(Consts::APP_DEFAULT_ACTION, \Qii::getInstance()->appConfigure('action')['default']);
+        Register::set(Consts::APP_DEFAULT_ACTION_SUFFIX, \Qii::getInstance()->appConfigure('action')['suffix']);
         return $this;
     }
 

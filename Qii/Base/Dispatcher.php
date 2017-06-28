@@ -1,6 +1,9 @@
 <?php
 namespace Qii\Base;
 
+use \Qii\Config\Register;
+use \Qii\Config\Consts;
+
 class Dispatcher
 {
     public $request;
@@ -31,7 +34,7 @@ class Dispatcher
         $controller = $controller != '' ? $controller : $this->request->getControllerName();
         $action = $action != '' ? $action : $this->request->getActionName();
 
-        $controllerName = \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_CONTROLLER_PREFIX) . '_' . $controller;
+        $controllerName = Register::get(Consts::APP_DEFAULT_CONTROLLER_PREFIX) . '_' . $controller;
         $funcArgs = array();
         if (count($args) > 2) {
             $funcArgs = array_slice($args, 2);
@@ -54,8 +57,8 @@ class Dispatcher
             $actionCls->actionId = $action;
             $actionCls->controllerId = $controllerCls->controllerId;
             //支持多个action对应到同一个文件，如果对应的文件中存在指定的方法就直接调用
-            if (method_exists($actionCls, $action . \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_ACTION_SUFFIX))) {
-                $actionCls->response = $response = call_user_func_array(array($actionCls, $action. \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_ACTION_SUFFIX)), $funcArgs);
+            if (method_exists($actionCls, $action . Register::get(Consts::APP_DEFAULT_ACTION_SUFFIX))) {
+                $actionCls->response = $response = call_user_func_array(array($actionCls, $action. Register::get(Consts::APP_DEFAULT_ACTION_SUFFIX)), $funcArgs);
             }
             if (!method_exists($actionCls, 'run')) {
                 throw new \Qii\Exceptions\MethodNotFound(\Qii::i(1101, $controllerCls->actions[$action] . '->run'), __LINE__);
@@ -63,7 +66,7 @@ class Dispatcher
             $response = call_user_func_array(array($actionCls, 'run'), $funcArgs);
         } else {
             array_shift($funcArgs);
-            $actionName = $action . \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_ACTION_SUFFIX);
+            $actionName = $action . Register::get(Consts::APP_DEFAULT_ACTION_SUFFIX);
             if (!method_exists($controllerCls, $actionName) && !method_exists($controllerCls, '__call')) {
                 throw new \Qii\Exceptions\MethodNotFound(\Qii::i(1101, $controller . '->' . $actionName), __LINE__);
             }
