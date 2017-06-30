@@ -42,8 +42,17 @@ class Qii extends Application
     {
         parent::__construct();
     }
+    /**
+     * Instance func
+     * 
+     **/
     public static function getInstance()
     {
+        if(func_num_args() > 0)
+        {
+            $args = func_get_args();
+            return call_user_func_array(array('\Qii\Autoloader\Factory', 'getInstance'), $args);    
+        }
 	    return Factory::getInstance('\Qii');
     }
     /**
