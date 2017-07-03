@@ -29,6 +29,7 @@ class Smarty extends \SmartyBC
 	public $cache_dir = 'tmp/cache/';//缓存目录
 	public $cache_id = '';//缓存文件ID
 	public $cache_lifetime = 3600;//缓存时间
+	public $allowTplExt = array('tpl', 'html', 'twig');//设置允许的文件后缀名，避免把PHP文件给输出出来了
 
 	/**
 	 * 用户直接输出这个实例化的类后会输出当前类的名称
@@ -110,7 +111,23 @@ class Smarty extends \SmartyBC
 		$this->disableSecurity();
 		$this->allow_php_templates = true;
 	}
-
+	 /**
+     * fetches a rendered Smarty template
+     *
+     * @param  string $template   the resource handle of the template file or template object
+     * @param  mixed  $cache_id   cache id to be used with this template
+     * @param  mixed  $compile_id compile id to be used with this template
+     * @param  object $parent     next higher level of Smarty variables
+     *
+     * @throws Exception
+     * @throws SmartyException
+     * @return string rendered template output
+     */
+    public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null)
+    {
+		$this->checkTplIsValid($template);
+        return parent::fetch($template, $cache_id, $compile_id, $parent);
+    }
 	/**
 	 * displays a Smarty template
 	 *
@@ -121,10 +138,34 @@ class Smarty extends \SmartyBC
 	 */
 	public function display($template = null, $cache_id = null, $compile_id = null, $parent = null)
 	{
+		$this->checkTplIsValid($template);
 		if (!empty($this->_blocks)) {
 			$this->assign($this->_blocks);
 		}
 		parent::display($template, $cache_id, $compile_id, $parent);
+	}
+	/**
+	 * 设置模板存放路径
+	 * @param string $template_dir 模板路径
+	 * @param book $isConfig 是否配置
+	 */
+	public function setTemplateDir($template_dir, $isConfig = false)
+	{
+		return parent::setTemplateDir($template_dir, $isConfig = false);
+	}
+	/**
+	 * 检查模板文件名称，只允许使用tpl
+	 * @param string $template 模板文件
+	 * @return bool | throw Exception
+	 */
+	protected function checkTplIsValid($template)
+	{
+		$extension = pathinfo($template, PATHINFO_EXTENSION);
+		if(!in_array($extension, $this->allowTplExt))
+		{
+			throw new \Exception('模板文件不合法 : 模板不允许使用除'.join('、', $this->allowTplExt).'以外的后缀名你');
+		}
+		return true;
 	}
 }
 
