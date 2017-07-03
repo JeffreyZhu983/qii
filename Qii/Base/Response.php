@@ -34,6 +34,7 @@ class Response
     protected $_sendHeader = false;
 	public function __construct($data = array())
 	{
+        $this->format = isset($data['format']) ? isset($data['format']) : FORMAT_HTML;
 		$this->data = $data;
 	}
 
@@ -145,7 +146,7 @@ class Response
                     echo json_encode($this->data['body'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
                 break;
                 default:
-                    echo $this->body;
+                    echo (IS_CLI ? (new \Qii\Response\Cli())->stdout($this->data['body']) : $this->data['body']);
                 break;
             }
             return;
@@ -154,7 +155,7 @@ class Response
             $this->sendHeaders();
         }
         foreach ($this->body as $key => $body) {
-            echo $body;
+            echo IS_CLI ? new \Qii\Response\Cli($body) : $body;
         }
     }
 

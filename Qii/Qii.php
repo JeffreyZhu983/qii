@@ -17,6 +17,11 @@ define('PS', PATH_SEPARATOR);
 define('OS', strtoupper(substr(PHP_OS, 0, 3)));
 
 define('IS_CLI', php_sapi_name() == 'cli' ? true : false);
+/**
+ * EOL 和 SPACE
+ */
+define('QII_EOL', IS_CLI ? PHP_EOL : '<br />');
+define('QII_SPACE', IS_CLI ? ' ' : '&nbsp;');
 
 require Qii_DIR . DS . 'Autoloader' . DS . 'Import.php';
 \Qii\Autoloader\Import::setFileLoaded(Qii_DIR . DS . 'Autoloader' . DS . 'Import.php');

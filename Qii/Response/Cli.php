@@ -3,6 +3,10 @@ namespace Qii\Response;
 
 class Cli extends \Qii\Base\Response
 {
+    public function __construct($body = null)
+    {
+        $this->body = $body;
+    }
     /**
      * Magic __toString functionality
      *
@@ -10,7 +14,7 @@ class Cli extends \Qii\Base\Response
      */
     public function __toString()
     {
-        $this->stdout($this->_body);
+        return $this->body;
     }
     /**
      * 在windows cmd 情况下的中文输出乱码问题
@@ -20,6 +24,6 @@ class Cli extends \Qii\Base\Response
     public function stdout($string)
     {
         $string = iconv('utf-8', 'gbk', $string);
-        return fwrite(\STDOUT, $string);
+        fwrite(\STDOUT, $string);
     }
 }

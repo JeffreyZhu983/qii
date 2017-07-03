@@ -7,6 +7,8 @@ class index extends \Qii\Base\Controller
     public $enableView = true;
     public function indexAction()
     {
+        return $this->setResponse(new \Qii\Base\Response(array('format' => 'html', 'body' => 'This is html')));
+        return;
         $data = array();
         $data['lists'][] = $this->db->getRow('SELECT * FROM ipAddress ORDER BY id DESC LIMIT 1');
         $data['lists'][] = $this->db->getRow('SELECT * FROM ipAddress ORDER BY id ASC LIMIT 1');

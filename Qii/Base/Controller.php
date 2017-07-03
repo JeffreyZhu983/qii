@@ -186,7 +186,7 @@ abstract class Controller
      */
     public function setResponse(\Qii\Base\Response $response)
     {
-        $this->response = $response;
+        return $this->response = $response;
     }
     /**
      * 设置request
@@ -194,7 +194,7 @@ abstract class Controller
      */
     public function setRequest(\Qii\Base\Request $request)
     {
-        $this->request = $request;
+        return $this->request = $request;
     }
 
 

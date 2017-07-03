@@ -47,14 +47,15 @@ class Errors extends \Exception
 			echo json_encode(array('code' => $e->getCode(), 'msg' => strip_tags($e->getMessage())), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 			return;
 		}
-		$message[] = \Qii::i('Error file', self::getRelatePath($_SERVER['SCRIPT_FILENAME'], $e->getFile()));
-		$message[] = \Qii::i('Error code', $e->getCode());
-		$message[] = \Qii::i('Error description', $e->getMessage());
-		$message[] = \Qii::i('Error line', $e->getLine() . ' on ' . self::getLineMessage($e->getFile(), $e->getLine()));
-		$traceString = \Qii::i('Trace as below') . '<br />';
+		$message[] = (IS_CLI ? QII_EOL : '') . \Qii::i('Error file', self::getRelatePath($_SERVER['SCRIPT_FILENAME'], $e->getFile())) . (IS_CLI ? QII_EOL : '');
+		$message[] = \Qii::i('Error code', $e->getCode()) . (IS_CLI ? QII_EOL : '');
+		$message[] = \Qii::i('Error description', $e->getMessage()) . (IS_CLI ? QII_EOL : '');
+		$message[] = \Qii::i('Error line', $e->getLine() . ' on ' . self::getLineMessage($e->getFile(), $e->getLine())) . (IS_CLI ? QII_EOL : '');
+		$traceString = \Qii::i('Trace as below') . QII_EOL;
 		$traces = explode("\n", $e->getTraceAsString());
-		foreach ($traces AS $trance) {
-			$traceString .= "&nbsp;&nbsp;&nbsp;&nbsp;" . $trance . '<br />';
+		foreach ($traces AS $trance) 
+		{
+			$traceString .= str_repeat(QII_SPACE, 4) . $trance . QII_EOL;
 		}
 		$message[] = $traceString;
 		if (\Qii::getInstance()->logerWriter != null) {
@@ -83,7 +84,22 @@ class Errors extends \Exception
 				die();
 			}
 		}
+		ob_start();
 		include(join(DS, array(Qii_DIR, 'Exceptions', 'View', 'error.php')));
+		$html = ob_get_contents();
+		ob_clean();
+		
+		if(!IS_CLI)
+		{
+			echo $html;
+			return;
+		}
+		return (new \Qii\Response\Cli())->stdout(
+			str_replace("&nbsp;"
+						, " "
+						, strip_tags(join(PHP_EOL, preg_replace("/[\n|\r\n]/", PHP_EOL, $message)))
+			)
+		);
 	}
 
 	/**
@@ -110,14 +126,29 @@ class Errors extends \Exception
 				$currentLine = $i + ($min < 0 ? abs($min) : 0) + 1;
 				$color = $currentLine == $line ? ' color="red"' : '';
 				if ($spl->eof()) break;
-				$code[] = '<font ' . $color . '>' . $currentLine . ':</font>' . "\t" . '<font ' . $color . '>' . htmlspecialchars(rtrim($spl->current())) . '</font>';
+				if(IS_CLI)
+				{
+					$code[] = $currentLine . ($color != '' ? ' 行发生错误' : '') . rtrim($spl->current());
+				}
+				else
+				{
+					$code[] = '<font ' . $color . '>' . $currentLine . ':</font>' . "\t" . '<font ' . $color . '>' . htmlspecialchars(rtrim($spl->current())) . '</font>';
+				}
 				$spl->next();
 			}
 		} else {
 			$spl->seek($seekline);
-			$code[] = htmlspecialchars(rtrim($spl->current()));
+			if(IS_CLI)
+			{
+				$code[] = rtrim($spl->current());
+			}
+			else
+			{
+				$code[] = htmlspecialchars(rtrim($spl->current()));
+			}
+			
 		}
-		return '<pre style="font-weight:bold;">' . join("<br />", $code) . '</pre>';
+		return IS_CLI ? PHP_EOL . join(PHP_EOL, $code) : '<pre style="font-weight:bold;">' . join("<br />", $code) . '</pre>';
 	}
 
 	/**
