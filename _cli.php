@@ -144,7 +144,7 @@ class cmd
                 $indexPage[] = '$env = getenv(\'WEB_ENVIRONMENT\') ? getenv(\'WEB_ENVIRONMENT\') : \'product\';';
                 $indexPage[] = '$app->setEnv($env);';
                 $indexPage[] = '$app->setCachePath(\''.$cache.'\');';
-                $indexPage[] = '$app->setAppConfigure(\'private/configure/app.ini\');';
+                $indexPage[] = '$app->setAppConfigure(\'../private/configure/app.ini\');';
                 if ($param['useDB']) $indexPage[] = '$app->setDB(\'../private/configure/db.ini\');';
                 $indexPage[] = '$app->setRouter(\'../private/configure/router.config.php\')';
                 $indexPage[] = '->run();';
