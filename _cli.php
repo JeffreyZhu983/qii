@@ -22,7 +22,7 @@ error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
 class cmd
 {
     const VERSION = '1.2';
-    public $dir = array('Configure', 'Controller', 'Model', 'View', 'Plugins', 'tmp');
+    public $dir = array('configure', 'controller', 'model', 'view', 'plugins', 'tmp');
 
     public function __construct($args)
     {
@@ -103,13 +103,13 @@ class cmd
                     $appIni = file_get_contents('_cli/app.ini');
                     $appIni = str_replace('tmp/compile', $cache . '/compile', $appIni);
                     $appIni = str_replace('tmp/cache', $cache . '/cache', $appIni);
-                    file_put_contents($param['workspace'] . '/private/Configure/app.ini', $appIni);
-                }else if (!copy("_cli/app.ini", $param['workspace'] . '/private/Configure/app.ini')) {
-                     $this->stdout('拷贝 app.ini 到 ' . $param['workspace'] . '/private/Configure/app.ini失败, 拒绝访问.');
+                    file_put_contents($param['workspace'] . '/private/configure/app.ini', $appIni);
+                }else if (!copy("_cli/app.ini", $param['workspace'] . '/private/configure/app.ini')) {
+                     $this->stdout('拷贝 app.ini 到 ' . $param['workspace'] . '/private/configure/app.ini失败, 拒绝访问.');
                     
                 }
-                if (!copy("_cli/router.config.php", $param['workspace'] . '/private/Configure/router.config.php')) {
-                    $this->stdout('拷贝 router.config.php 到' . $param['workspace'] . '/private/Configure/router.config.php 失败, 拒绝访问.');
+                if (!copy("_cli/router.config.php", $param['workspace'] . '/private/configure/router.config.php')) {
+                    $this->stdout('拷贝 router.config.php 到' . $param['workspace'] . '/private/configure/router.config.php 失败, 拒绝访问.');
                 }
                 if ($param['useDB'] != 'no') {
                     $dbIni = file_get_contents('_cli/db.ini');
@@ -118,7 +118,7 @@ class cmd
                     $dbIni = str_replace('DB_USER', $param['dbUser'], $dbIni);
                     $dbIni = str_replace('DB_PASSWORD', $param['dbPassword'], $dbIni);
                     
-                    file_put_contents($param['workspace'] . '/private/Configure/db.ini', $dbIni);
+                    file_put_contents($param['workspace'] . '/private/configure/db.ini', $dbIni);
                 }
 
                 //生成数据库文件
@@ -144,19 +144,19 @@ class cmd
                 $indexPage[] = '$env = getenv(\'WEB_ENVIRONMENT\') ? getenv(\'WEB_ENVIRONMENT\') : \'product\';';
                 $indexPage[] = '$app->setEnv($env);';
                 $indexPage[] = '$app->setCachePath(\''.$cache.'\');';
-                $indexPage[] = '$app->setAppConfigure(\'private/Configure/app.ini\');';
-                if ($param['useDB']) $indexPage[] = '$app->setDB(\'../private/Configure/db.ini\');';
-                $indexPage[] = '$app->setRouter(\'../private/Configure/router.config.php\')';
+                $indexPage[] = '$app->setAppConfigure(\'private/configure/app.ini\');';
+                if ($param['useDB']) $indexPage[] = '$app->setDB(\'../private/configure/db.ini\');';
+                $indexPage[] = '$app->setRouter(\'../private/configure/router.config.php\')';
                 $indexPage[] = '->run();';
                 if (!file_exists($realPath . "/public/index.php")) {
                     //如果文件不存在就写入
                     file_put_contents($realPath . "/public/index.php", join("\n", $indexPage));
                 }
                 //写入首页controller
-                if (!file_exists($realPath . "/private/Controller/index.php")) {
+                if (!file_exists($realPath . "/private/controller/index.php")) {
                     $indexContents = array();
                     $indexContents[] = "<?php";
-                    $indexContents[] = 'namespace Controller;' . PHP_EOL;
+                    $indexContents[] = 'namespace controller;' . PHP_EOL;
                     $indexContents[] = 'use \Qii\Base\Controller;' . PHP_EOL;
                     $indexContents[] = "class index extends Controller";
                     $indexContents[] = "{";
@@ -168,7 +168,7 @@ class cmd
                     $indexContents[] = "\t\t return new \Qii\Base\Response(array('format' => 'html', 'body' => '请重写 '. __FILE__ . ' 中的 indexAction 方法, 第 ' . __LINE__ . ' 行'));";
                     $indexContents[] = "\t}";
                     $indexContents[] = "}";
-                    file_put_contents($realPath . "/private/Controller/index.php", join("\n", $indexContents));
+                    file_put_contents($realPath . "/private/controller/index.php", join("\n", $indexContents));
                 }
                 //apache rewrite file
                 $htaccessFile = $param['workspace'] . "/public/.htaccess";
