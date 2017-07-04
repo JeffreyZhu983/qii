@@ -27,26 +27,44 @@ class cmd
     public function __construct($args)
     {
         $param = $this->parseArgvs($args);
-        if (sizeof($param) < 1) {
+        if (sizeof($param) < 1 || ($param['dbHost'] != '' && sizeof($param) < 7)) {
             $this->stdout("命令行使用如下:\n
->php -q _cli.php create=yes workspace=../project cache=tmp useDB=1\n
+>php -q _cli.php create=yes workspace=../project cache=tmp dbHost=localhost dbName=test dbUser=root dbPassword=test\n
  * create: 是否自动创建:yes; \n
  * workspace: 工作目录\n
  * cache : 缓存目录\n
- * useDB : 是否使用数据库 : 使用：1 不使用: 0\n
+ * dbHost : 数据库服务器IP\n
+ * dbName : 数据库名称 : \n
+ * dbUser : 数据库用户名\n
+ * dbPassword : 数据库密码 : \n
  ");
-            $this->stdout("创建 yes/no:");
+            $this->stdout("是否自动创建 yes/no:");
             $param['create'] = trim(fgets(\STDIN));
             $this->stdout("工作目录:");
             $param['workspace'] = trim(fgets(\STDIN));
             $this->stdout("缓存目录:");
             $param['cache'] = trim(fgets(\STDIN));
-            $this->stdout("是否使用数据库 使用：1 不使用 0:");
-            $param['useDB'] = trim(fgets(\STDIN));
+            
+            $this->stdout('数据库服务器IP:');
+            $param['dbHost'] = trim(fgets(\STDIN));
+            if(!$param['dbHost']) $param['dbHost'] = 'localhost';
+            $this->stdout("数据库名称:");
+            $param['dbName'] = trim(fgets(\STDIN));
+
+            $this->stdout('请输入数据库用户名:');
+            $param['dbUser'] = trim(fgets(\STDIN));
+
+            $this->stdout('请输入数据库密码:');
+            $param['dbPassword'] = trim(fgets(\STDIN));
 
             $this->stdout('将要在'. $param['workspace'] .'创建项目，确认请输入yes,取消请输入no:');
 
             $param['create'] = trim(fgets(\STDIN));
+        }
+        $param['useDB'] = 0;
+        if($param['dbName'] != '')
+        {
+            $param['useDB'] = 1;
         }
         if ($param['create'] == 'yes') {
             if ($this->workspace($param['workspace'])) {
@@ -94,9 +112,13 @@ class cmd
                     $this->stdout('拷贝 router.config.php 到' . $param['workspace'] . '/private/Configure/router.config.php 失败, 拒绝访问.');
                 }
                 if ($param['useDB'] != 'no') {
-                    if (!copy("_cli/db.ini", $param['workspace'] . '/private/Configure/db.ini')) {
-                        $this->stdout('拷贝 db.ini 到 ' . $param['workspace'] . '/private/Configure/db.ini false, 拒绝访问.');
-                    }
+                    $dbIni = file_get_contents('_cli/db.ini');
+                    $dbIni = str_replace('DB_NAME', $param['dbName'], $dbIni);
+                    $dbIni = str_replace('DB_HOST', $param['dbHost'], $dbIni);
+                    $dbIni = str_replace('DB_USER', $param['dbUser'], $dbIni);
+                    $dbIni = str_replace('DB_PASSWORD', $param['dbPassword'], $dbIni);
+                    
+                    file_put_contents($param['workspace'] . '/private/Configure/db.ini', $dbIni);
                 }
 
                 //生成数据库文件

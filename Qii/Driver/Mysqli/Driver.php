@@ -28,13 +28,13 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 	 *
 	 * @var unknown_type
 	 */
-	public $_queryTimes = 0;
+	public $queryTimes = 0;
 	/**
 	 * 查询耗时
 	 *
 	 * @var INT
 	 */
-	public $_querySeconds = array();
+	public $querySeconds = array();
 
 	/**
 	 * 最后一次执行的SQL
@@ -124,18 +124,18 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 			$error = $this->getError('error');
 			return \Qii::setError(false, __LINE__, 1509, $sql, $error[2] == '' ? 'NULL' : $error[2]);
 		}
-		$this->_queryTimes++;
 		/**
 		 * 如果调试SQL的话就启用时间的记录
 		 */
 		if ($this->_debugSQL) {
 			$endTime = microtime(true);
 			$costTime = sprintf('%.4f', ($endTime - $startTime));
-			$this->_querySeconds[$this->_queryTimes]['sql'] = $sql;
-			$this->_querySeconds[$this->_queryTimes]['costTime'] = $costTime;
-			$this->_querySeconds[$this->_queryTimes]['startTime'] = $startTime;
-			$this->_querySeconds[$this->_queryTimes]['endTime'] = $endTime;
+			$this->querySeconds[$this->queryTimes]['sql'] = $sql;
+			$this->querySeconds[$this->queryTimes]['costTime'] = $costTime;
+			$this->querySeconds[$this->queryTimes]['startTime'] = $startTime;
+			$this->querySeconds[$this->queryTimes]['endTime'] = $endTime;
 		}
+		$this->queryTimes++;
 		return $rs;
 	}
 
@@ -254,8 +254,8 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 	public function setError()//设置错误
 	{
 		if (\mysqli_errno($this->db['CURRENT'])) {
-			$this->_errorInfo[$this->_queryTimes]['sql'] = $this->sql;
-			$this->_errorInfo[$this->_queryTimes]['error'][2] = \mysqli_error($this->db['CURRENT']);
+			$this->_errorInfo[$this->queryTimes]['sql'] = $this->sql;
+			$this->_errorInfo[$this->queryTimes]['error'][2] = \mysqli_error($this->db['CURRENT']);
 			$this->response = \Qii\Driver\Response::Fail('pdo.error', $this->_errorInfo);
 		}
 	}
