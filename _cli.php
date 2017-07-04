@@ -54,8 +54,12 @@ class cmd
                 if (empty($param['cache'])) $cache = 'tmp';
                 $this->dir[5] = $cache;
                 //创建目录工作区目录
+                if(!is_dir($param['workspace'] . '/public'))
+                {
+                    mkdir($param['workspace'] . '/public', 0755);
+                }
                 foreach ($this->dir AS $d) {
-                    $path = $param['workspace'] . '/' . $d;
+                    $path = $param['workspace'] . '/private/' . $d;
                     if (!is_dir($path)) {
                         $date = date('Y-m-d H:i:s');
                         echo "create path {$path} success.\n";
@@ -81,17 +85,17 @@ class cmd
                     $appIni = file_get_contents('_cli/app.ini');
                     $appIni = str_replace('tmp/compile', $cache . '/compile', $appIni);
                     $appIni = str_replace('tmp/cache', $cache . '/cache', $appIni);
-                    file_put_contents($param['workspace'] . '/Configure/app.ini', $appIni);
-                }else if (!copy("_cli/app.ini", $param['workspace'] . '/Configure/app.ini')) {
-                     $this->stdout('拷贝 app.ini 到 ' . $param['workspace'] . '/Configure/app.ini失败, 拒绝访问.');
+                    file_put_contents($param['workspace'] . '/private/Configure/app.ini', $appIni);
+                }else if (!copy("_cli/app.ini", $param['workspace'] . '/private/Configure/app.ini')) {
+                     $this->stdout('拷贝 app.ini 到 ' . $param['workspace'] . '/private/Configure/app.ini失败, 拒绝访问.');
                     
                 }
-                if (!copy("_cli/router.config.php", $param['workspace'] . '/Configure/router.config.php')) {
-                    $this->stdout('拷贝 router.config.php 到' . $param['workspace'] . '/Configure/router.config.php 失败, 拒绝访问.');
+                if (!copy("_cli/router.config.php", $param['workspace'] . '/private/Configure/router.config.php')) {
+                    $this->stdout('拷贝 router.config.php 到' . $param['workspace'] . '/private/Configure/router.config.php 失败, 拒绝访问.');
                 }
                 if ($param['useDB'] != 'no') {
-                    if (!copy("_cli/db.ini", $param['workspace'] . '/Configure/db.ini')) {
-                        $this->stdout('拷贝 db.ini 到 ' . $param['workspace'] . '/Configure/db.ini false, 拒绝访问.');
+                    if (!copy("_cli/db.ini", $param['workspace'] . '/private/Configure/db.ini')) {
+                        $this->stdout('拷贝 db.ini 到 ' . $param['workspace'] . '/private/Configure/db.ini false, 拒绝访问.');
                     }
                 }
 
@@ -111,23 +115,23 @@ class cmd
                 $indexPage[] = " * @author Jinhui.zhu	<jinhui.zhu@live.cn>";
                 $indexPage[] = " * @version  \$Id: index.php,v 1.1 {$date} Jinhui.Zhu Exp $";
                 $indexPage[] = " */";
-                $indexPage[] = 'require("'.$QiiPath.'");';
+                $indexPage[] = 'require("../'.$QiiPath.'");';
                 $indexPage[] = '$app = \\Qii::getInstance();';
                 $indexPage[] = '//如需更改网站源代码存储路径，请修改此路径';
-                $indexPage[] = '$app->setWorkspace(\''.$param['workspace'].'\');';
-                $indexPage[] = '$app->setCachePath(\''.$cache.'\');';
-                $indexPage[] = '$app->setAppConfigure(\'Configure/app.ini\');';
+                $indexPage[] = '$app->setWorkspace(\'../private\');';
                 $indexPage[] = '$env = getenv(\'WEB_ENVIRONMENT\') ? getenv(\'WEB_ENVIRONMENT\') : \'product\';';
                 $indexPage[] = '$app->setEnv($env);';
-                if ($param['useDB']) $indexPage[] = '$app->setDB(\'Configure/db.ini\');';
-                $indexPage[] = '$app->setRouter(\'Configure/router.config.php\')';
+                $indexPage[] = '$app->setCachePath(\''.$cache.'\');';
+                $indexPage[] = '$app->setAppConfigure(\'private/Configure/app.ini\');';
+                if ($param['useDB']) $indexPage[] = '$app->setDB(\'../private/Configure/db.ini\');';
+                $indexPage[] = '$app->setRouter(\'../private/Configure/router.config.php\')';
                 $indexPage[] = '->run();';
-                if (!file_exists($realPath . "/index.php")) {
+                if (!file_exists($realPath . "/public/index.php")) {
                     //如果文件不存在就写入
-                    file_put_contents($realPath . "/index.php", join("\n", $indexPage));
+                    file_put_contents($realPath . "/public/index.php", join("\n", $indexPage));
                 }
                 //写入首页controller
-                if (!file_exists($realPath . "/Controller/index.php")) {
+                if (!file_exists($realPath . "/private/Controller/index.php")) {
                     $indexContents = array();
                     $indexContents[] = "<?php";
                     $indexContents[] = 'namespace Controller;' . PHP_EOL;
@@ -142,11 +146,10 @@ class cmd
                     $indexContents[] = "\t\t return new \Qii\Base\Response(array('format' => 'html', 'body' => '请重写 '. __FILE__ . ' 中的 indexAction 方法, 第 ' . __LINE__ . ' 行'));";
                     $indexContents[] = "\t}";
                     $indexContents[] = "}";
-                    $indexContents[] = "?>";
-                    file_put_contents($realPath . "/Controller/index.php", join("\n", $indexContents));
+                    file_put_contents($realPath . "/private/Controller/index.php", join("\n", $indexContents));
                 }
                 //apache rewrite file
-                $htaccessFile = $param['workspace'] . "/.htaccess";
+                $htaccessFile = $param['workspace'] . "/public/.htaccess";
                 if(!file_exists($htaccessFile)){
                     if(!copy('_cli/.htaccess', $htaccessFile)){
                         $this->stdout($this->stdout("拷贝 .htaccess 到 ". $htaccessFile . ' 失败, 拒绝访问') . PHP_EOL);
