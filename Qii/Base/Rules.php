@@ -56,17 +56,6 @@ class Rules
         return array();
     }
 
-    public function defaultValues()
-    {
-        $keys = $this->fields();
-        $values = array();
-        foreach($keys AS $key => $val)
-        {
-            $values[$val] = '';
-        }
-        return $values;
-    }
-
     /**
      * 获取所有字段中的数据
      *
