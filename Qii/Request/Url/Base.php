@@ -55,6 +55,14 @@ abstract class Base
 		}
 		$this->params = $this->getParams();
 	}
+	/**
+	 * 返回所有params参数
+	 * 
+	 */
+	public function params()
+	{
+		return $this->params;
+	}
 
 	/**
 	 * 根据给定的参数创建URL
