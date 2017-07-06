@@ -27,6 +27,7 @@ require Qii_DIR . DS . 'Autoloader' . DS . 'Import.php';
 \Qii\Autoloader\Import::setFileLoaded(Qii_DIR . DS . 'Autoloader' . DS . 'Import.php');
 
 \Qii\Autoloader\Import::requires(array(Qii_DIR . DS .'Consts'. DS . 'Config.php',
+                                Qii_DIR . DS . 'Functions'. DS . 'Funcs.php',
                                 Qii_DIR . DS .'Autoloader'. DS . 'Factory.php',
                                 Qii_DIR . DS . 'Application.php',
                                 Qii_DIR . DS .'Autoloader'. DS . 'Psr4.php',

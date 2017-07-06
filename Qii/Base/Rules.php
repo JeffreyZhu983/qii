@@ -204,7 +204,7 @@ class Rules
         {
             return $data;
         }
-        $valid = _loadClass('\Qii\Library\Validate');
+        $valid = \_loadClass('\Qii\Library\Validate');
         //将optionValidKey中不为空的字段添加到必须验证的字段中去
         //如果选择验证的都没数据就提示参数错误
         $options = array();
