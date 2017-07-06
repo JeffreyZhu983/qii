@@ -57,8 +57,6 @@ class Helper
         foreach (glob(str_replace("//", DS, $appPath . DS . 'helper' . DS . '*.php'), GLOB_BRACE) AS $file) {
             if(\Qii\Autoloader\Import::requires($file)){
                 //如果里边包含class的话就将class注册到Qii::instance('class');
-                $className = \Qii\Autoloader\Psr4::getInstance()->getClassName('helper\\' . str_replace(array('.php', '.'), array('', '_'), basename($file)));
-
                 if (class_exists($className, false)) {
                     self::$helpers[$className] = \Qii\Autoloader\Psr4::getInstance()->instance($className);
                 }
