@@ -149,10 +149,11 @@ class Smarty extends \SmartyBC
 	 * @param string $template_dir 模板路径
 	 * @param book $isConfig 是否配置
 	 */
+	/*
 	public function setTemplateDir($template_dir, $isConfig = false)
 	{
 		return parent::setTemplateDir($template_dir, $isConfig = false);
-	}
+	}*/
 	/**
 	 * 检查模板文件名称，只允许使用tpl
 	 * @param string $template 模板文件

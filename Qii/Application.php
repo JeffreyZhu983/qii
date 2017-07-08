@@ -348,7 +348,7 @@ class Application
         if ($this->request->controller != $rewrite['controller'] || $this->request->action != $rewrite['action']) {
             $this->request->setRouted(true);
         }
-        $this->request->controllerName($rewrite['controller']);
+        $this->request->setControllerName($rewrite['controller']);
         $this->request->setActionName($rewrite['action']);
         return $this;
     }
