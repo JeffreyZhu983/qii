@@ -44,7 +44,7 @@ abstract class Request
         }
         $rewriteRule = \Qii::getInstance()->appConfigure(\Qii\Config\Consts::APP_SITE_METHOD);
         $this->url = new \Qii\Request\Url($rewriteRule);
-        $this->host = $_SERVER['HTTP_HOST'];
+        $this->host = IS_CLI ? '' : $_SERVER['HTTP_HOST'];
         $params = (array)$this->url->getParams();
         if(count($params) > 0) $this->params = array_merge($this->params, $params);
         //处理url中的数据

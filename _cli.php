@@ -292,7 +292,7 @@ class cmd
      */
     public function stdout($string)
     {
-        $string = iconv('utf-8', 'gbk', $string);
+        if(OS == 'WIN') $string = iconv('utf-8', 'gbk', $string);
         fwrite(\STDOUT, $string);
     }
 }
