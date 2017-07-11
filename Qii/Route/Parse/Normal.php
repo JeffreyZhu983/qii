@@ -31,6 +31,7 @@ class Normal
 	/**
 	 * 路由转发， 转发对应的规则中xx不能为*
 	 *
+     * @param string $url url链接
 	 * @param String $controller
 	 * @param String $action
 	 * @return Array ($controller, $action);
@@ -42,58 +43,48 @@ class Normal
 	 * *:xxx => yy:yyy 所有Controller转发到 yy->yyy
 	 * xxx:*(yy):第三个参数 => {1}:* 转发xxx:yy => yy:第三个参数
 	 */
-	public function parse($controller, $action, $thirdParam = '')
+	public function parse($url, $controller, $action)
 	{
 		if (!$this->config) {
 			return array('controller' => $controller, 'action' => $action);
 		}
-		$routerArray = array();
-		if (is_array($this->config)) {
-			foreach ($this->config AS $key => $value) {
-				$keyArray = explode(":", $key);
-				$valueArray = explode(":", $value);
-				if (!isset($keyArray[1])) $keyArray[1] = '';
-				if (!isset($valueArray[1])) $valueArray[1] = '';
-				if ('' == $keyArray[1]) {
-					$keyArray[1] = "*";
-				}
-				$routerArray['controller'][$keyArray[0] . ":" . $keyArray[1]] = $valueArray[0];
-				if ($valueArray[1] == '*') $valueArray[1] = $action;
-				if ($keyArray[1] == "*") {
-					$routerArray['action'][$keyArray[0] . ":" . $keyArray[1]] = $valueArray[1];
-				} else {
-					$routerArray['action'][$keyArray[0] . ":" . $keyArray[1]] = $valueArray[1];
-				}
-			}
-		}
-		if (count($routerArray) == 0) {
-			return array('controller' => $controller, 'action' => $action);
-		}
-		if (isset($routerArray["controller"]["*:*"]) && '' != $routerArray["controller"]["*:*"])//*:*=>yyy:* or *:* => *:yyy mode
-		{
-			$controller = ($routerArray['controller']['*:*'] == '*' ? $controller : $routerArray["controller"]["*:*"]);
-			$action = ($routerArray['action']['*:*'] == '*' ? $action : $routerArray['action']['*:*']);
-		} elseif (isset($routerArray["action"][$controller . ":*"]) && '' != $routerArray["action"][$controller . ":*"])//xx:*=>yy:* mode
-		{
-			$action = $routerArray['action'][$controller . ":*"];
-			$controller = $routerArray["controller"][$controller . ":*"];
-			if (stristr($controller, '{1}')) {
-				$controller = str_replace('{1}', $action, $controller);
-				$action = $thirdParam ? $thirdParam : 'index';
-			}
-		} elseif (isset($routerArray["action"]["*:" . $action]) && '' != $routerArray["action"]["*:" . $action])//*:xxx=> yy:yyy mode
-		{
-			$controller = $routerArray["control"]["*:" . $action];
-			$action = $routerArray["action"]["*:" . $action];
-		} elseif (isset($routerArray["controller"][$controller . ":" . $action])) {
-			$tmpAction = $controller . ":" . $action;
-			$action = $routerArray["action"][$controller . ":" . $action];
-			$controller = $routerArray["controller"][$tmpAction];
-			if (stristr($action, '{1}')) {
-				$action = str_replace('{1}', $action, $thirdParam);
-			}
-		}
-		$action = !$action ? 'index' : $action;
-		return array('controller' => $controller, 'action' => $action);
+
+        $dirInfo = explode('/', pathinfo(ltrim($url, '/'), PATHINFO_DIRNAME));
+        $fileName = pathinfo(ltrim($url, '/'), PATHINFO_FILENAME);
+        $dirInfo[] = $fileName;
+        $dir = '';
+        $match = ['key' => '', 'val' => '', 'url' => $url];
+        foreach($dirInfo AS $path)
+        {
+            $dir[] = $path;
+            $joinPath = join($dir, ':') .":*";
+            if(isset($this->config[$joinPath]))
+            {
+                $config = $this->config[$joinPath];
+                //匹配最长的规则
+                if(strlen($config) > strlen($match['val'])) {
+                    $match = array_merge($match, ['key' => $joinPath, 'val' => $config]);
+                }
+            }
+        }
+        $match['dirInfo'] = $dirInfo;
+        //如果match到就解析match的内容
+        if($match['val']) {
+            $matches = explode(':', $match['val']);
+            $match['matches'] = $matches;
+            $action = array_pop($matches);
+            $controller = join('\\', $matches);
+            $controllerExplode = explode('\\', $controller);
+            if(stristr($controller, '{1}')){
+                $controller = join('\\', array_slice($dirInfo,0 , count($controllerExplode)));
+            }
+            $action = $action == '{1}' || $action == '*' ? isset($dirInfo[count($controllerExplode)]) ? $dirInfo[count($controllerExplode)] : 'index' : $action;
+            $match['controller'] = $controller;
+            $match['action'] = $action;
+        }else{
+            $match['controller'] = isset($dirInfo[0]) ? $dirInfo[0] : 'index';
+            $match['action'] = isset($dirInfo[1]) ? $dirInfo[1] : 'index';
+        }
+        return $match;
 	}
 }

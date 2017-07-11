@@ -20,6 +20,7 @@ class Import
                 return self::requires($n);
             }, $file);
         }
+        $file = str_replace(array('\\', '/'), DS, $file);
         if (self::getFileLoaded($file)) return true;
         if (file_exists($file)) {
             self::setFileLoaded($file);
@@ -41,6 +42,7 @@ class Import
                 return self::includes($n);
             }, $file);
         }
+        $file = str_replace(array('\\', '/'), DS, $file);
         if (self::getIncludeFiles($file) !== null) self::getIncludeFiles($file);
         if (file_exists($file)) {
             $configure = include($file);

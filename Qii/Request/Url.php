@@ -33,6 +33,15 @@ class Url
         return self::$_instance;
     }
 
+    /**
+     * 获取当前请求的URL
+     *
+     * @return mixed
+     */
+    public static function getPathInfo()
+    {
+        return PATH_INFO;
+    }
 
     /**
      * 获取当前连接地址

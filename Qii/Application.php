@@ -338,6 +338,7 @@ class Application
         $rewrite = Psr4::loadStatic(
             '\Qii\Route\Parse',
             'get',
+            \Qii\Request\Url::getPathInfo(),
             $this->request->controller,
             $this->request->action,
             $this->request->url->get(2)

@@ -17,6 +17,12 @@ define('PS', PATH_SEPARATOR);
 define('OS', strtoupper(substr(PHP_OS, 0, 3)));
 
 define('IS_CLI', php_sapi_name() == 'cli' ? true : false);
+if(IS_CLI) {
+    define('PATH_INFO', array_pop($argv));
+}else{
+    define('PATH_INFO', $_SERVER['PATH_INFO']);
+}
+
 /**
  * EOL 和 SPACE
  */

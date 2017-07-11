@@ -30,7 +30,7 @@ class Parse
      * xx:* => yy:yyy xxx Controller转发到 yy->yyy
      * *:xxx => yy:yyy 所有Controller转发到 yy->yyy
      */
-    public static function get($controller, $action = '', $thirdParam = '')
+    public static function get($url, $controller, $action = '', $thirdParam = '')
     {
         if ($controller == 'Qii') {
             return array('controller' => $controller, 'action' => $action);
@@ -46,7 +46,7 @@ class Parse
         }
         $class = new $className();
         $class->setConfig($router);
-        return $class->parse($controller, $action, $thirdParam);
+        return $class->parse($url, $controller, $action, $thirdParam);
     }
 }
 

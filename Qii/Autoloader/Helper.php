@@ -27,8 +27,8 @@ class Helper
      */
     public function __get($name)
     {
-        if (substr($name, 0, 7) == 'Helper\\') return $this->get($name);
-        return $this->get('Helper\\' . $name);
+        if (substr($name, 0, 7) == 'helper\\') return $this->get($name);
+        return $this->get('helper\\' . $name);
     }
 
     /**
@@ -58,8 +58,7 @@ class Helper
             if(\Qii\Autoloader\Import::requires($file)){
                 //如果里边包含class的话就将class注册到Qii::instance('class');
                 $className = 'helper\\'. pathinfo($file)['filename'];
-                //echo substr($file, stristr($file, 'helper'), strlen($file));
-                if (class_exists($className, false)) {
+                if (!isset(self::$helpers[$className]) && class_exists($className, false)) {
                     self::$helpers[$className] = \Qii\Autoloader\Psr4::getInstance()->instance($className);
                 }
             }
