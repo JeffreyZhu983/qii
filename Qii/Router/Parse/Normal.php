@@ -56,7 +56,7 @@ class Normal
             $dirInfo = array();
         }
         $dirInfo[] = $fileName;
-        $dir = '';
+        $dir = [];
         $match = ['key' => '', 'val' => '', 'url' => $url];
         foreach ($dirInfo AS $path) {
             $dir[] = $path;

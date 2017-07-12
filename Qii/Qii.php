@@ -20,7 +20,7 @@ define('IS_CLI', php_sapi_name() == 'cli' ? true : false);
 if(IS_CLI) {
     define('PATH_INFO', array_pop($argv));
 }else{
-    define('PATH_INFO', $_SERVER['PATH_INFO']);
+    define('PATH_INFO', isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '');
 }
 
 /**
