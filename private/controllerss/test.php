@@ -1,5 +1,5 @@
 <?php
-namespace Controller;
+namespace controller;
 
 class test extends \Qii\Base\Controller
 {

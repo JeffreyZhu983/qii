@@ -1,5 +1,5 @@
 <?php
-namespace Controller;
+namespace controller;
 
 class index extends \Qii\Base\Controller
 {
