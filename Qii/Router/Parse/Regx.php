@@ -1,5 +1,5 @@
 <?php
-namespace Qii\Route\Parse;
+namespace Qii\Router\Parse;
 
 /**
  * Route规则 支持正则表达式

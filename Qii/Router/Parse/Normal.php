@@ -1,5 +1,5 @@
 <?php
-namespace Qii\Route\Parse;
+namespace Qii\Router\Parse;
 
 /**
  * Route规则文件

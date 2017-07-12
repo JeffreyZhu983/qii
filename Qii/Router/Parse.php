@@ -1,5 +1,5 @@
 <?php
-namespace Qii\Route;
+namespace Qii\Router;
 
 use \Qii\Autoloader\Import;
 
@@ -39,8 +39,8 @@ class Parse
         $router = Register::getAppConfigure(Consts::APP_SITE_ROUTER);
         $rewriteRule = Register::getAppConfigure(Register::get(Consts::APP_INI_FILE), 'rewriteRule');
         if (!$rewriteRule) $rewriteRule = 'Normal';
-        Import::requires(Qii_DIR . DS . 'Route' . DS . 'Parse' .DS. $rewriteRule . '.php');
-        $className = '\Qii\Route\Parse\\' . $rewriteRule;
+        Import::requires(Qii_DIR . DS . 'Router' . DS . 'Parse' .DS. $rewriteRule . '.php');
+        $className = '\Qii\Router\Parse\\' . $rewriteRule;
         if (!class_exists($className, false)) {
             throw new \Qii\Exceptions\ClassNotFound(\Qii::i(1103, $className), __LINE__);
         }

@@ -121,6 +121,7 @@ class Url
         $url = preg_replace('/' . $ext . '$/', '', $url);
         return self::getFullUrl($url, $ext);
     }
+
     /**
      * 获取来源地址
      */
@@ -128,6 +129,7 @@ class Url
     {
         return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
     }
+
     /**
      * 来源地址是否是当前网站
      * @param string $currentURL 需要验证的网址，不传默认当前网址
@@ -135,20 +137,20 @@ class Url
      */
     public static function refererFromCurrentSite($currentURL = null)
     {
-		$referer = self::getRefererURL();
-        if(!$currentURL) $currentURL = self::getCurrentURL();
-		if(parse_url($referer, PHP_URL_HOST) != parse_url($currentURL, PHP_URL_HOST)){
-			return false;
-		}
+        $referer = self::getRefererURL();
+        if (!$currentURL) $currentURL = self::getCurrentURL();
+        if (parse_url($referer, PHP_URL_HOST) != parse_url($currentURL, PHP_URL_HOST)) {
+            return false;
+        }
         return true;
     }
+
     /**
      * 先看本方法中有没有静态方法可调用
      */
     public function __call($method, $args)
     {
-        if(method_exists($this, $method))
-        {
+        if (method_exists($this, $method)) {
             return call_user_func_array(array(self, $method), $args);
         }
         return call_user_func_array(array($this->request, $method), $args);

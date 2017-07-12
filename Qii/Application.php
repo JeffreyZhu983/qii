@@ -336,7 +336,7 @@ class Application
         );
         //载入rewrite规则后重写request
         $rewrite = Psr4::loadStatic(
-            '\Qii\Route\Parse',
+            '\Qii\Router\Parse',
             'get',
             \Qii\Request\Url::getPathInfo(),
             $this->request->controller,
