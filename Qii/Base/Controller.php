@@ -6,8 +6,8 @@ namespace Qii\Base;
 
 use \Qii\Autoloader\Psr4;
 
-use \Qi\Config\Register;
-use \Qi\Config\Consts;
+use \Qii\Config\Register;
+use \Qii\Config\Consts;
 
 /**
  * Qii_Controller_Abstract class

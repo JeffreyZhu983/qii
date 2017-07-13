@@ -89,19 +89,16 @@ trait Cache
             }
         }
 
-        if ($this->cache instanceof CacheItemPoolInterface) {
-            $item = $this->cache->getItem('whichbrowser_' . md5(serialize($headers)));
-
-            if ($item->isHit()) {
-                $this->applyCachedData($item->get());
+        if ($this->cache instanceof \Qii\Cache\Memcache) {
+            $cacheId = 'whichbrowser_' . md5(serialize($headers));
+            $item = unserialize($this->cache->get($cacheId));
+            if ($item) {
+                $this->applyCachedData($item);
             } else {
                 $analyser = new Analyser($headers, $options);
                 $analyser->setdata($this);
                 $analyser->analyse();
-
-                $item->set($this->retrieveCachedData());
-                $item->expiresAfter($this->expires);
-                $this->cache->save($item);
+                $this->cache->set($cacheId, serialize($this->retrieveCachedData()), ['expired' => time() + $this->expires]);
             }
 
             return true;
