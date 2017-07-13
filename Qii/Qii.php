@@ -190,11 +190,11 @@ if (!function_exists('catch_fatal_error')) {
     ->setUseNamespace('Qii\Loger', true)
     ->setUseNamespace('Qii\Plugin', true)
     ->setUseNamespace('Qii\Request', false)
-    ->setUseNamespace('Qii\Route', true)
+    ->setUseNamespace('Qii\Router', true)
     ->setUseNamespace('Qii\View', true)
+    ->setUseNamespace('WhichBrowser', true)
     ->setUseNamespace('Smarty\\', false)
     ->setUseNamespace('Smarty\\Internal', false);
-    ;
 
 
 \Qii\Autoloader\Psr4::getInstance()
@@ -212,10 +212,12 @@ if (!function_exists('catch_fatal_error')) {
     ->addNamespace('Qii\Plugin', Qii_DIR . DS . 'Plugin')
     ->addNamespace('Qii\Request', Qii_DIR . DS . 'Request')
     ->addNamespace('Qii\Response', Qii_DIR . DS . 'Response')
-    ->addNamespace('Qii\Route', Qii_DIR . DS . 'Route')
+    ->addNamespace('Qii\Router', Qii_DIR . DS . 'Router')
     ->addNamespace('Qii\View', Qii_DIR . DS . 'View')
     ->addNamespace('Smarty', Qii_DIR . DS . 'View' . DS . 'smarty')
-    ->addNamespace('Smarty', Qii_DIR . DS . 'View' . DS . 'smarty' . DS . 'sysplugins');
+    ->addNamespace('Smarty', Qii_DIR . DS . 'View' . DS . 'smarty' . DS . 'sysplugins')
+    ->addNamespace('WhichBrowser', Qii_DIR . DS . 'Library'. DS . 'Third'. DS . 'WhichBrowser')
+;
 
 //加载默认语言包
 \Qii\Autoloader\Factory::getInstance('\Qii\Language\Loader')->load('error', Qii_DIR . DS . 'Language');
