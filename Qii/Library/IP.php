@@ -120,12 +120,12 @@ class IP
 	{
 		if (!$dotip) return;
 
-		if (ereg("^(127)", $dotip)) {
+		if (preg_match("/^(127)/", $dotip)) {
 			$this->Country = '本地网络';
-			return;
-		} else if (ereg("^(192)", $dotip)) {
+			return $this;
+		} else if (preg_match("/^(192)/", $dotip)) {
 			$this->Country = '局域网';
-			return;
+			return $this;
 		}
 		$ip = $this->IpToInt($dotip);
 		$this->fp = fopen(__QQWRY__, "rb");
@@ -176,6 +176,7 @@ class IP
 		}
 
 		fclose($this->fp);
+              return $this;
 	}
 
 	public function IpToInt($Ip)
