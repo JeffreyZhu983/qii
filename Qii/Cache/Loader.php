@@ -35,9 +35,9 @@ class Loader
     public function setCache($cache)
     {
         $this->cache = $cache;
-        $cacheFile = dirname(__FILE__) . DS . 'Cache' . DS . ucwords($cache) . '.php';
+        $cacheFile = dirname(__FILE__) . DS . DS . ucwords($cache) . '.php';
         if (!is_file($cacheFile)) {
-            $cacheFile = dirname(__FILE__) . DS . 'Cache' . DS . 'Memcache.php';
+            throw new \Exception('Unsupport cache class '. $cacheFile);
         }
         \Qii\Autoloader\Import::requires($cacheFile);
     }

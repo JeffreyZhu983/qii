@@ -89,7 +89,7 @@ trait Cache
             }
         }
 
-        if ($this->cache instanceof \Qii\Cache\Memcache) {
+        if ($this->cache instanceof \Qii\Cache\Memcached) {
             $cacheId = 'whichbrowser_' . md5(serialize($headers));
             $item = unserialize($this->cache->get($cacheId));
             if ($item) {
@@ -98,7 +98,8 @@ trait Cache
                 $analyser = new Analyser($headers, $options);
                 $analyser->setdata($this);
                 $analyser->analyse();
-                $this->cache->set($cacheId, serialize($this->retrieveCachedData()), ['expired' => time() + $this->expires]);
+                $data = serialize($this->retrieveCachedData());
+                $this->cache->set($cacheId, $data, ['life_time' => time() + $this->expires]);
             }
 
             return true;

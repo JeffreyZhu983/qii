@@ -20,7 +20,7 @@ class Import
                 return self::requires($n);
             }, $file);
         }
-        $file = str_replace(array('\\', '/'), DS, $file);
+        $file = str_replace(DS . DS , DS, str_replace(array('\\', '/'), DS, $file));
         if (self::getFileLoaded($file)) return true;
         if (file_exists($file)) {
             self::setFileLoaded($file);

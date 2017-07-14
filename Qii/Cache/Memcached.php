@@ -6,7 +6,7 @@
  */
 namespace Qii\Cache;
 
-class Memcache implements Intf
+class Memcached implements Intf
 {
     const VERSION = '1.2';
     /**
@@ -64,7 +64,7 @@ class Memcache implements Intf
 
     public function __construct(array $policy = null)
     {
-        if (!extension_loaded('memcache')) {
+        if (!extension_loaded('memcached')) {
             return \Qii::setError(false, __LINE__, 1004);
         }
         if (is_array($policy)) {
@@ -74,7 +74,7 @@ class Memcache implements Intf
             $this->_default_policy['servers'][] = $this->_default_server;
         }
         if (!isset($this->_default_policy['persistent'])) $this->_default_policy['persistent'] = '';
-        $this->_conn = new \Memcache();
+        $this->_conn = new \Memcached();
         foreach ($this->_default_policy['servers'] as $server) {
             $result = $this->_conn->addServer($server['host'], $server['port'], $this->_default_policy['persistent']);
             if (!$result) {
@@ -93,10 +93,9 @@ class Memcache implements Intf
      */
     public function set($id, $data, array $policy = null)
     {
-        if (!isset($policy['compressed'])) $policy['compressed'] = $this->_default_policy['compressed'];
         if (!isset($policy['life_time'])) $policy['life_time'] = $this->_default_policy['life_time'];
 
-        return $this->_conn->set($id, $data, $policy['compressed'] ? MEMCACHE_COMPRESSED : 0, $policy['life_time']);
+        return $this->_conn->set($id, $data, $policy['life_time']);
     }
 
     /**

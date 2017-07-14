@@ -596,6 +596,17 @@ class Base
 	{
 		return $this->_response;
 	}
+
+	public function iconv($str)
+	{
+		if (is_array($str)) {
+            return array_map(function ($n) {
+                return iconv('GB2312', 'UTF-8', $n);
+            }, $str);
+        }
+
+		return iconv('GB2312', 'UTF-8', $str);
+	}
 	/**
 	 * 如果不存在指定的方法则调用提示错误
 	 *
