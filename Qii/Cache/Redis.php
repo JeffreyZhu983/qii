@@ -19,7 +19,7 @@ class Redis implements Intf
          * 缓存服务器配置，参看$_default_server
          * 允许多个缓存服务器
          */
-        'servers' => array('127.0.0.1:6379'),
+        'servers' => array(['host' => '127.0.0.1', 'port' => '6379']),
 
         /**
          * 缓存有效时间
@@ -35,17 +35,16 @@ class Redis implements Intf
             throw new \Qii\Exceptions\MethodNotFound(\Qii::i(1006), __LINE__);
         }
 
+
         if (!empty($policy)) {
             $this->policy = array_merge($this->policy, $policy);
         }
 
         $redisServer = array();
-
         foreach ($this->policy['servers'] AS $value) {
-            $host = explode(':', $value);
-            $redisServer[] = array('host' => $host[0], 'port' => $host[1]);
+            $redisServer[] = array('host' => $value['host'], 'port' => $host['port']);
         }
-        $this->redis = new \Redis\Credis\Cluster($redisServer, 128);
+        $this->redis = new \Qii\Cache\Redis\Cluster($redisServer, 128);
     }
 
     /**
@@ -60,7 +59,7 @@ class Redis implements Intf
                 $this->redis->setTimeout($id, $policy['life_time']);
             }
         } catch (\CredisException $e) {
-            throw new Errors(\Qii::i(-1, $e->getMessage()), __LINE__);
+            throw new \Qii\Exceptions\Errors(\Qii::i(-1, $e->getMessage()), __LINE__);
         }
     }
 

@@ -1,4 +1,5 @@
 <?php
+namespace Qii\Cache\Redis;
 /**
  * Credis_Client (a fork of Redisent)
  *
@@ -25,7 +26,7 @@ if (!defined('CRLF')) define('CRLF', sprintf('%s%s', chr(13), chr(10)));
 /**
  * Credis-specific errors, wraps native Redis errors
  */
-class CredisException extends Exception
+class CredisException extends \Exception
 {
 
 	const CODE_TIMED_OUT = 1;
@@ -149,7 +150,7 @@ class CredisException extends Exception
  * @method string|int|array|bool eval(string $script, array $keys = NULL, array $args = NULL)
  * @method string|int|array|bool evalSha(string $script, array $keys = NULL, array $args = NULL)
  */
-class Redis_Credis_Client
+class Client
 {
 
 	const TYPE_STRING = 'string';
@@ -437,7 +438,7 @@ class Redis_Credis_Client
 			try {
 				$result = $this->standalone ? fclose($this->redis) : $this->redis->close();
 				$this->connected = FALSE;
-			} catch (Exception $e) {
+			} catch (\Exception $e) {
 				; // Ignore exceptions on close
 			}
 		}

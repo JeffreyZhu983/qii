@@ -67,7 +67,7 @@ class Import
      * 载入文件夹中所有文件
      *
      * @param string $dir 目录
-     * @throws Qii_Exceptions_FileNotFound
+     * @throws Qii\Exceptions\FileNotFound
      */
     public static function requireByDir($dir)
     {
