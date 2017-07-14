@@ -90,6 +90,21 @@ class Normal
         } else {
             $match['controller'] = isset($dirInfo[0]) ? $dirInfo[0] : 'index';
             $match['action'] = isset($dirInfo[1]) ? $dirInfo[1] : 'index';
+            //匹配配置文件中以 * 开头的规则
+            foreach($this->config as $key => $config)
+            {
+                if(stristr($key, '*:'))
+                {
+                    list($sourceController, $sourceAction) = explode(':', $key);
+                    list($destController, $destAction) = explode(":", $config);
+                    $match['controller'] = $destController;
+                    if($sourceAction == '*') {
+                        $map['action'] = $destAction;
+                    }else if($map['action'] == $sourceAction){
+                        $map['action'] = $destAction;
+                    }
+                }
+            }
         }
         return $match;
     }
