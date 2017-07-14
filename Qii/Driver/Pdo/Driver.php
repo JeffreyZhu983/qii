@@ -284,7 +284,7 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
     {
         if ($this->connection->getConnectionBySQL($this->sql)->errorCode() != '00000') {
             $this->_errorInfo[$this->queryTimes]['sql'] = $this->sql;
-            $this->_errorInfo[$this->queryTimes]['error'] = $this->connection->getConnectionBySQL($this->sql)->errorInfo();
+            $this->_errorInfo[$this->queryTimes]['error'] = iconv('GB2312', 'UTF-8', $this->connection->getConnectionBySQL($this->sql)->errorInfo());
             $this->response = \Qii\Driver\Response::Fail('pdo.error', $this->_errorInfo);
         }
     }

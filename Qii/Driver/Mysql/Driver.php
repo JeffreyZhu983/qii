@@ -234,8 +234,8 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 	{
 		if (\mysql_errno($this->db['CURRENT'])) {
 			$this->_errorInfo[$this->queryTimes]['sql'] = $this->sql;
-			$this->_errorInfo[$this->queryTimes]['error'][2] = \mysql_error($this->db['CURRENT']);
-			$this->response = \Qii\Driver\Response::Fail('pdo.error', $this->_errorInfo);
+			$this->_errorInfo[$this->queryTimes]['error'][2] = iconv('GB2312', 'UTF-8', \mysql_error($this->db['CURRENT']));
+			$this->response = \Qii\Driver\Response::Fail('mysql.error', $this->_errorInfo);
 		}
 	}
 
