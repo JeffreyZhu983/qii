@@ -32,9 +32,10 @@ class Response
      * @var unknown_type
      */
     protected $_sendHeader = false;
+    
 	public function __construct($data = array())
 	{
-        $this->format = isset($data['format']) ? isset($data['format']) : FORMAT_HTML;
+        $this->format = isset($data['format']) ? isset($data['format']) : self::FORMAT_HTML;
 		$this->data = $data;
 	}
 

@@ -77,6 +77,8 @@ abstract class Controller
         $this->request = Psr4::getInstance()->loadClass('\Qii\Request\Http');
         $this->controllerId = $this->request->controller;
         $this->actionId = $this->request->action;
+        $this->language = \Qii\Autoloader\Factory::getInstance('\Qii\Language\Loader');
+        $this->response = \Qii\Autoloader\Factory::getInstance('\Qii\Base\Response');;
         //载入model
         if ($this->enableDB) {
             $this->enableDB();
