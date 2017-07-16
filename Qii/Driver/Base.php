@@ -40,7 +40,65 @@ class Base
 		$this->load = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Autoloader\Loader');
 		$this->_response = new \Qii\Driver\Response();
 	}
+	/**
+	 * 获取当前数据库中所有的表
+	 * @return array
+	 */
+	public function getAllTables()
+	{
+		$sql = "SHOW TABLES";
+		$rs = $this->setQuery($sql);
+		$tables = array();
+		while($row = $this->fetch($rs))
+		{
+            if(is_array($row)) {
+                foreach($row AS $val) {
+                    $tables[] = $val;
+                }
+            }
+		}
+		return $tables;
+	}
+	/**
+	 * 查询数据库中是否有指定的表
+	 * @param string $tableName 表名
+	 * @return bool
+	 */
+	public function hasTable($tableName)
+	{
+		$sql = "SHOW TABLES LIKE '".$tableName."'";
+		$rs = $this->setQuery($sql);
 
+		$tables = array();
+		while($row = $this->fetch($rs))
+		{
+            if(is_array($row)) {
+                foreach($row AS $val) {
+                    if($val == $tableName) return true;
+                }
+            }
+		}
+		return false;
+	}
+	/**
+	 * 获取创建表的SQL语句
+	 * @param string $tableName 表名
+	 * @param int|null $autoIncr 自增长的值，null的话就不使用
+	 * @return string
+	 */
+	public function getTableSQL($tableName, $autoIncr = null)
+	{
+		$row = $this->getRow("SHOW CREATE TABLE `".$tableName."`");
+		if(!$row) {
+			throw new \Exception('数据表不存在', __LINE__);
+		}
+		$sql = $row['Create Table'];
+		if($autoIncr === null) {
+			return $sql;
+		}
+		return preg_replace("/AUTO_INCREMENT=[\d]{1,}/", "AUTO_INCREMENT=". intval($autoIncr), $sql);
+	}
+	
 	final public function getAlias($alias)
 	{
 		return isset($this->_modelAlias[$alias]) ? $this->_modelAlias[$alias] : null;
