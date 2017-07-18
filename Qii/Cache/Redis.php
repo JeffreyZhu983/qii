@@ -91,4 +91,9 @@ class Redis implements Intf
     {
         $this->redis->flushdb();
     }
+    
+    public function __call($method, $args)
+    {
+        return call_user_func_array(array($this->redis, $method), $args);
+    }
 }

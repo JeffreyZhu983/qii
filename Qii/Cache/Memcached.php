@@ -130,6 +130,10 @@ class Memcached implements Intf
     {
         return $this->_conn->flush();
     }
+    public function __call($method, $args)
+    {
+        return call_user_func_array(array($this->_conn, $method), $args);
+    }
 }
 
 ?>
