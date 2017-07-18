@@ -370,7 +370,7 @@ class Client
 			$result = $this->redis = @stream_socket_client($remote_socket, $errno, $errstr, $this->timeout !== null ? $this->timeout : 2.5, $flags);
 		} else {
 			if (!$this->redis) {
-				$this->redis = new Redis;
+				$this->redis = new \Redis;
 			}
 			$result = $this->persistent
 				? $this->redis->pconnect($this->host, $this->port, $this->timeout, $this->persistent)

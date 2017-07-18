@@ -170,6 +170,14 @@ if (!function_exists('catch_fatal_error')) {
             $message[] = 'Error file : ' . ltrim($error['file'], Psr4::realpath($_SERVER['DOCUMENT_ROOT']));
             $message[] = 'Error line : ' . $error['line'] . ' on ' . \Qii\Exceptions\Errors::getLineMessage($error['file'], $error['line']);
             $message[] = 'Error description : ' . $error['message'];
+            if(IS_CLI) {
+                return (new \Qii\Response\Cli())->stdout(
+                    str_replace("&nbsp;"
+                                , " "
+                                , strip_tags(join(PHP_EOL, preg_replace("/[\n|\r\n]/", PHP_EOL, $message)))
+                    )
+                );
+            }
             \Qii\Exceptions\Error::showError($message);
         }
     }
