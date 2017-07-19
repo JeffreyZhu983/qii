@@ -58,7 +58,7 @@ class Normal
         $dirInfo[] = $fileName;
         $dir = [];
         $match = ['key' => '', 'val' => '', 'url' => $url];
-        if($this->config['*:*']) {
+        if(isset($this->config['*:*'])) {
             list($controller, $action) = explode(':', $this->config['*:*']);
             $match['match'] = '*:*';
             $match['controller'] = $controller ? $controller : 'index';
