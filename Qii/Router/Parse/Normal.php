@@ -58,6 +58,13 @@ class Normal
         $dirInfo[] = $fileName;
         $dir = [];
         $match = ['key' => '', 'val' => '', 'url' => $url];
+        if($this->config['*:*']) {
+            list($controller, $action) = explode(':', $this->config['*:*']);
+            $match['match'] = '*:*';
+            $match['controller'] = $controller ? $controller : 'index';
+            $match['action'] = $action ? $action : 'index';
+            return $match;
+        }
         foreach ($dirInfo AS $path) {
             $dir[] = $path;
             $joinPath = join($dir, ':') . ":*";
