@@ -42,7 +42,7 @@ class Redis implements Intf
 
         $redisServer = array();
         foreach ($this->policy['servers'] AS $value) {
-            $redisServer[] = array('host' => $value['host'], 'port' => $host['port']);
+            $redisServer[] = array('host' => $value['host'], 'port' => $value['port']);
         }
         $this->redis = new \Qii\Cache\Redis\Cluster($redisServer, 128);
     }
