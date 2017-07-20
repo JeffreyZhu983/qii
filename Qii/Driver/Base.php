@@ -173,7 +173,7 @@ class Base
 		if (empty($table)) {
 			return -1;
 		}
-		if (sizeof($dataArray) > 0 || get_object_vars($dataArray) > 0) {
+		if (sizeof($dataArray) > 0 || (is_object($dataArray) && get_object_vars($dataArray)) > 0) {
 			$keys = array();
 			$values = array();
 			foreach ($dataArray AS $key => $value) {
