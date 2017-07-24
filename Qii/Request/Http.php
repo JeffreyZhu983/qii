@@ -55,7 +55,7 @@ final class Http extends Request
                         }
                     } else {
                         if ($pos = strstr($request_uri, '?')) {
-                            $request_uri = substr($request_uri, 0, $pos - 1);
+                            $request_uri = substr($request_uri, 0, strlen($pos) - 1);
                         }
                     }
                     break;
