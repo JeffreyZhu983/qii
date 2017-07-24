@@ -78,7 +78,8 @@ abstract class Controller
         $this->controllerId = $this->request->controller;
         $this->actionId = $this->request->action;
         $this->language = \Qii\Autoloader\Factory::getInstance('\Qii\Language\Loader');
-        $this->response = \Qii\Autoloader\Factory::getInstance('\Qii\Base\Response');;
+        $this->response = \Qii\Autoloader\Factory::getInstance('\Qii\Base\Response');
+        $this->cache = new \stdClass();
         //载入model
         if ($this->enableDB) {
             $this->enableDB();
@@ -142,7 +143,7 @@ abstract class Controller
             $policy = array_merge($basicPolicy, $policy);
         }
         $loader = new \Qii\Cache\Loader($engine);
-        return $this->cache = $loader->initialization($policy);
+        return $this->cache->$engine = $loader->initialization($policy);
     }
 
     /**

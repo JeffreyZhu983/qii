@@ -52,10 +52,10 @@ class Redis implements Intf
      */
     public function set($id, $data, array $policy = null)
     {
-        if (!isset($policy['life_time'])) $policy['life_time'] = $this->_default_policy['life_time'];
+        if (!isset($policy['life_time'])) $policy['life_time'] = $this->policy['life_time'];
         try {
             $this->redis->hMset($id, $data);
-            if ($policy['lift_time'] > 0) {
+            if (isset($policy['life_time']) && $policy['life_time'] > 0) {
                 $this->redis->setTimeout($id, $policy['life_time']);
             }
         } catch (\CredisException $e) {
@@ -66,10 +66,20 @@ class Redis implements Intf
     /**
      * 获取指定key的数据
      */
-    public function get($id)
+    public function hGet($id)
     {
         if ($this->redis->exists($id)) {
             return $this->redis->hGetAll($id);
+        }
+        return null;
+    }
+    /**
+     * 获取指定key的数据
+     */
+    public function get($id)
+    {
+        if ($this->redis->exists($id)) {
+            return $this->redis->get($id);
         }
         return null;
     }

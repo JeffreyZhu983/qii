@@ -40,6 +40,10 @@ class Application
      * Qii\Request\Url
      */
     public $request;
+    /**
+     * 分发器
+     */
+    public $dispatcher = null;
 
 	public function __construct()
 	{
