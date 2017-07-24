@@ -78,10 +78,15 @@ class Base
 	}
 	/**
 	 * 获取当前数据库中所有的表
+	 * @param null|string $database 数据库
 	 * @return array
 	 */
-	public function getAllTables()
+	public function getAllTables($database = null)
 	{
+		if($database)
+		{
+			$this->setQuery('USE '. $database);
+		}
 		$sql = "SHOW TABLES";
 		$rs = $this->setQuery($sql);
 		$tables = array();
@@ -96,12 +101,51 @@ class Base
 		return $tables;
 	}
 	/**
+	 * 获取指定数据表的所有字段
+	 * @param string $table 表名
+	 * @param string $database 数据库名 
+	 * @return array
+	 */
+	public function getTableInfo($table, $database = null)
+	{
+		if(!$database) $database = $this->currentDB;
+		$sql = "SELECT * from information_schema.COLUMNS where table_name = '".$table."' and table_schema = '".$database."'";
+		$data = ['fields' => [], 'pri' => [], 'maxlen' => []];
+		
+		$rs = $this->setQuery($sql);
+		while($row = $rs->fetch())
+		{
+			$data['fields'][] = $row['COLUMN_NAME'];
+			if($row['COLUMN_KEY'] == 'PRI') $data['pri'][] = $row['COLUMN_NAME'];
+			if(in_array($row['DATA_TYPE'], ['varchar', 'char']))
+			{
+				$data['maxlen'][$row['COLUMN_NAME']] = $row['CHARACTER_MAXIMUM_LENGTH'];
+			}
+			if(in_array($row['DATA_TYPE'], ['int', 'bigint', 'smallint', 'tinyint']))
+			{
+				preg_match('/[\d]{1,}/', $row['COLUMN_TYPE'], $matches);
+				$data['int'][$row['COLUMN_NAME']] = $matches[0];
+			}
+			if(in_array($row['DATA_TYPE'], ['timestamp', 'datatime']))
+			{
+				$data['timestamp'][] = $row['COLUMN_NAME'];
+			}
+		}
+		$data['sql'] = $this->getTableSQL($table, $database);
+		return $data;
+	}
+	/**
 	 * 查询数据库中是否有指定的表
 	 * @param string $tableName 表名
+	 * @param null|string $database 数据库
 	 * @return bool
 	 */
-	public function hasTable($tableName)
+	public function hasTable($tableName, $database = null)
 	{
+		if($database)
+		{
+			$this->setQuery('USE '. $database);
+		}
 		$sql = "SHOW TABLES LIKE '".$tableName."'";
 		$rs = $this->setQuery($sql);
 
@@ -119,11 +163,16 @@ class Base
 	/**
 	 * 获取创建表的SQL语句
 	 * @param string $tableName 表名
+	 * @param null|string $database 数据库
 	 * @param int|null $autoIncr 自增长的值，null的话就不使用
 	 * @return string
 	 */
-	public function getTableSQL($tableName, $autoIncr = null)
+	public function getTableSQL($tableName, $database = null, $autoIncr = null)
 	{
+		if($database)
+		{
+			$this->setQuery('USE '. $database);
+		}
 		$row = $this->getRow("SHOW CREATE TABLE `".$tableName."`");
 		if(!$row) {
 			throw new \Exception('数据表不存在', __LINE__);

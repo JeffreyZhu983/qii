@@ -122,9 +122,9 @@ class Model
     /**
      * 获取当前使用的数据库
      */
-    public function getUseDB()
+    public function getCurrentDB()
     {
-        return $this->db->useDB;
+        return $this->db->currentDB;
     }
 
     /**

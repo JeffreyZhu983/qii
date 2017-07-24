@@ -32,6 +32,7 @@ class Response
      * @var unknown_type
      */
     protected $_sendHeader = false;
+	
     
 	public function __construct($data = array())
 	{
@@ -147,7 +148,17 @@ class Response
                     echo json_encode($this->data['body'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
                 break;
                 default:
-                    echo (IS_CLI ? (new \Qii\Response\Cli())->stdout($this->data['body']) : $this->data['body']);
+					$body = $this->data['body'];
+					if(is_array($this->data['body'])) {
+						$body = '';
+						if(isset($this->data['body']['render']) && $this->data['body']['render'] instanceof  \Qii\View\Intf)
+						{
+							$tplData = isset($this->data['body']['tplData']) ? $this->data['body']['tplData'] : [];
+							$this->data['body']['render']->assign($tplData);
+							$body = $this->data['body']['render']->fetch($this->data['body']['tpl']);
+						}
+					}
+                    echo (IS_CLI ? (new \Qii\Response\Cli())->stdout($body) : $body);
                 break;
             }
             return;

@@ -56,7 +56,7 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
     /**
      * 当前使用的db信息
      */
-    public $useDB;
+    public $currentDB;
     /**
      * @var string $markKey debug信息保存用的key
      */
@@ -75,7 +75,7 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
         parent::__construct();
         $this->connection = $connection;
         $this->sysConfigure = $this->connection->getDBInfo();
-        $this->useDB = $this->sysConfigure['master']['db'];
+        $this->currentDB = $this->sysConfigure['master']['db'];
         $this->response = new \Qii\Driver\Response();
     }
 

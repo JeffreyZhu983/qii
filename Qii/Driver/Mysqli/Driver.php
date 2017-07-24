@@ -60,9 +60,9 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 	 */
 	public $charset = 'UTF8';
 	/**
-	 * @var array $useDB 当前数据库信息
+	 * @var array $currentDB 当前数据库信息
 	 */
-	public $useDB;
+	public $currentDB;
 	/**
 	 * @var string $markKey 用于保存数据库执行相关信息
 	 */
@@ -77,7 +77,7 @@ class Driver extends \Qii\Driver\Base implements \Qii\Driver\Intf
 		parent::__construct();
 		$this->connection = $connection;
 		$this->sysConfigure = $this->connection->getDBInfo();
-		$this->useDB = $this->sysConfigure['master']['db'];
+		$this->currentDB = $this->sysConfigure['master']['db'];
 		$this->response = new \Qii\Driver\Response();
 	}
 
