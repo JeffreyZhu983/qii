@@ -41,6 +41,42 @@ class Base
 		$this->_response = new \Qii\Driver\Response();
 	}
 	/**
+	 * 获取数据库中所有的数据表
+	 * @return array
+	 */
+	public function getAllDatabases()
+	{
+		$sql = "SHOW DATABASES";
+		$rs = $this->setQuery($sql);
+		
+		$database = array();
+		while($row = $rs->fetch())
+		{
+			$database[] = $row['Database'];
+		}
+		return $database;
+	}
+	/**
+	 * 数据库中是否包含指定库
+	 * @param string $database 数据库名
+	 * @return bool
+	 */
+	public function hasDatabase($database)
+	{
+		if(!$database) return false;
+		$sql = "SHOW DATABASES LIKE '". $database ."'";
+		$rs = $this->setQuery($sql);
+		while($row = $rs->fetch())
+		{
+			$val = array_values($row);
+			if(in_array($database, $val))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
 	 * 获取当前数据库中所有的表
 	 * @return array
 	 */
@@ -49,7 +85,7 @@ class Base
 		$sql = "SHOW TABLES";
 		$rs = $this->setQuery($sql);
 		$tables = array();
-		while($row = $this->fetch($rs))
+		while($row = $rs->fetch($rs))
 		{
             if(is_array($row)) {
                 foreach($row AS $val) {
