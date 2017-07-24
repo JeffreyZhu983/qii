@@ -8,7 +8,7 @@
  */
 namespace Qii\View;
 
-class Requires
+class Requires implements \Qii\View\Intf
 {
 	const VERSION = '1.2';
 	public $data;

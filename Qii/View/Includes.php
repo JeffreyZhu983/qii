@@ -8,7 +8,7 @@
  */
 namespace Qii\View;
 
-class Includes
+class Includes implements \Qii\View\Intf
 {
 	const VERSION = '1.2';
 	public $data;

@@ -14,7 +14,7 @@ namespace Qii\View;
 \Qii\Autoloader\Import::requires(Qii_DIR . DS . DS . 'View' . DS . 'smarty' . DS . 'sysplugins' .DS. 'smartyexception.php');
 \Qii\Autoloader\Import::requires(Qii_DIR . DS . DS . 'View' . DS . 'smarty' . DS . 'sysplugins' .DS. 'smartycompilerexception.php');
 
-class Smarty extends \SmartyBC
+class Smarty extends \SmartyBC implements \Qii\View\Intf
 {
 	const VERSION = '1.2';
 	public $caching = false;//是否缓存
