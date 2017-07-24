@@ -85,7 +85,7 @@ class Base
 		$sql = "SHOW TABLES";
 		$rs = $this->setQuery($sql);
 		$tables = array();
-		while($row = $rs->fetch($rs))
+		while($row = $rs->fetch())
 		{
             if(is_array($row)) {
                 foreach($row AS $val) {
