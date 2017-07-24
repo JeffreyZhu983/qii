@@ -45,9 +45,10 @@ class Dispatcher
         }
         array_unshift($funcArgs, $controllerName);
         $psr4 = \Qii\Autoloader\Psr4::getInstance();
-        $this->controllerCls = call_user_func_array(array($psr4, 'loadClass'), $funcArgs);
+        $controllerCls = call_user_func_array(array($psr4, 'loadClass'), $funcArgs);
+        $this->controllerCls = $controllerCls;
         $this->controllerCls->setRequest($this->request);
-        $this->controllerCls->controller = $this->controllerCls;
+        $this->controllerCls->controller = $controllerCls;
         $this->controllerCls->controllerId = $controller;
         $this->controllerCls->actionId = $action;
         $response = null;
@@ -55,7 +56,8 @@ class Dispatcher
         if ($this->controllerCls->actions && isset($this->controllerCls->actions[$action]) && $this->controllerCls->actions[$action]) {
             $actionArgs = array();
             $actionArgs[] = $this->controllerCls->actions[$action];
-            $this->actionCls = call_user_func_array(array($psr4, 'loadClass'), $actionArgs);
+            $actionCls = call_user_func_array(array($psr4, 'loadClass'), $actionArgs);
+            $this->actionCls = $actionCls;
             $this->actionCls->setRequest($this->request);
             $this->actionCls->controller = $this->controllerCls;
             $this->actionCls->actionId = $action;
@@ -64,11 +66,19 @@ class Dispatcher
             if (method_exists($this->actionCls, $action . Register::get(Consts::APP_DEFAULT_ACTION_SUFFIX))) {
                 $this->actionCls->response = $response = call_user_func_array(array($this->actionCls, $action. Register::get(Consts::APP_DEFAULT_ACTION_SUFFIX)), $funcArgs);
             }
+            if(method_exists($this->actionCls, 'initialization'))
+            {
+                call_user_func_array(array($this->actionCls, 'initialization'), array($this->actionCls));
+            }
             if (!method_exists($this->actionCls, 'run')) {
                 throw new \Qii\Exceptions\MethodNotFound(\Qii::i(1101, $this->controllerCls->actions[$action] . '->run'), __LINE__);
             }
             $response = call_user_func_array(array($this->actionCls, 'run'), $funcArgs);
         } else {
+            if(method_exists($this->controllerCls, 'initialization'))
+            {
+                call_user_func_array(array($this->controllerCls, 'initialization'), array($this->controllerCls));
+            }
             array_shift($funcArgs);
             $actionName = $action . Register::get(Consts::APP_DEFAULT_ACTION_SUFFIX);
             if (!method_exists($this->controllerCls, $actionName) && !method_exists($this->controllerCls, '__call')) {
