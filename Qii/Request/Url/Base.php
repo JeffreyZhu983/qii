@@ -348,7 +348,15 @@ abstract class Base
             throw new \Qii\Exceptions\Unsupport("链接模式错误，链接格式只能为 '<u><font color=\"green\">" . join("', '", $this->_allowMode) . "</font></u>'，当前模式为 '<font color=\"red\">" . $mode . "</font>'", __LINE__);
         }
     }
-
+    /**
+     * 页面重定向
+     * @param string $url 重定向的URL
+     */
+    public function redirect($url)
+    {
+        ob_clean();
+        header('Location:'. $url);
+    }
     public function __call($method, $args)
     {
         //防止掉用不存在的方法

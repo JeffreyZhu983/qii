@@ -90,6 +90,12 @@ abstract class Request
         return $this->uri;
     }
 
+    public function redirect($url)
+    {
+        ob_clean();
+        header('Location:'. $url);
+    }
+
     /**
      * isGet
      *
