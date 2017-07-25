@@ -55,7 +55,7 @@ return array(
 	1001 => 'Error page <font color="red">%s</font> does not exist',
 	1002 => 'Security check failure',
 	1003 => 'Undefined variable',
-	1004 => 'The memcache extension must be loaded before use',
+	1004 => 'The memcached extension must be loaded before use',
 	1005 => 'Connect memcached server [%s:%s] failed',
 	1006 => 'The redis extension must be loaded before use',
 	1007 => 'Undefined cache policy',
