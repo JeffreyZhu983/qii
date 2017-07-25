@@ -67,6 +67,7 @@ class Validate
 		'cn' => '中文',
 		'account' => '账户',
 		'date' => '日期',
+		'datetime' => '日期',
 		'safe' => '安全字符',
 		'password' => '密码',
 		'maxlength' => '最大长度',
@@ -351,6 +352,16 @@ class Validate
 	public function date($str)
 	{
 		return preg_match("/^[\d]{4}\-[\d]{2}\-[\d]{2}/", $str);
+	}
+	/**
+	 * 验证日期
+	 * Y-m-d H:i:s
+	 * @param string $str
+	 * @return bool
+	 */
+	public function datetime($str)
+	{
+		return date('Y-m-d H:i:s', strtotime($str)) == $str;
 	}
 
 	/**

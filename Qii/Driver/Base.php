@@ -110,29 +110,94 @@ class Base
 	{
 		if(!$database) $database = $this->currentDB;
 		$sql = "SELECT * from information_schema.COLUMNS where table_name = '".$table."' and table_schema = '".$database."'";
-		$data = ['fields' => [], 'pri' => [], 'maxlen' => []];
+		$data = ['fields' => [], 
+					'rules' => [
+						'pri' => [], 'required' => []
+					]
+				];
 		
 		$rs = $this->setQuery($sql);
 		while($row = $rs->fetch())
 		{
 			$data['fields'][] = $row['COLUMN_NAME'];
-			if($row['COLUMN_KEY'] == 'PRI') $data['pri'][] = $row['COLUMN_NAME'];
+			if($row['EXTRA'])
+			{
+				$data['rules']['extra'][$row['EXTRA']][] = $row['COLUMN_NAME'];
+			}
+			if($row['COLUMN_KEY'] == 'PRI') 
+			{
+				$data['rules']['pri'][] = $row['COLUMN_NAME'];
+				$data['rules']['required'][] = $row['COLUMN_NAME'];
+			}
+			if($row['IS_NULLABLE'] == 'NO')
+			{
+				$data['rules']['required'][] = $row['COLUMN_NAME'];
+			}
 			if(in_array($row['DATA_TYPE'], ['varchar', 'char']))
 			{
-				$data['maxlen'][$row['COLUMN_NAME']] = $row['CHARACTER_MAXIMUM_LENGTH'];
+				$data['rules']['maxlength'][$row['COLUMN_NAME']] = $row['CHARACTER_MAXIMUM_LENGTH'];
 			}
-			if(in_array($row['DATA_TYPE'], ['int', 'bigint', 'smallint', 'tinyint']))
+			if(in_array($row['DATA_TYPE'], ['mediumtext', 'TINYTEXT', 'text', 'longtext']))
+			{
+				$data['rules']['text'][] = $row['COLUMN_NAME'];
+			}
+			if(in_array($row['DATA_TYPE'], ['bigint', 'int', 'smallint', 'tinyint', 'integer']))
 			{
 				preg_match('/[\d]{1,}/', $row['COLUMN_TYPE'], $matches);
-				$data['int'][$row['COLUMN_NAME']] = $matches[0];
+				$data['rules']['int'][$row['COLUMN_NAME']] = $matches[0];
+				$data['rules']['number'][] = $row['COLUMN_NAME'];
+			}
+			if(in_array($row['DATA_TYPE'], ['float', 'double', 'decimal']))
+			{
+				$data['rules']['float'][$row['COLUMN_NAME']] = $this->getValueFromBrackets($row['COLUMN_TYPE']);
 			}
 			if(in_array($row['DATA_TYPE'], ['timestamp', 'datatime']))
 			{
-				$data['timestamp'][] = $row['COLUMN_NAME'];
+				$data['rules']['timestamp'][] = $row['COLUMN_NAME'];
+			}
+			if(in_array($row['DATA_TYPE'], ['enum', 'set']))
+			{
+				$data['rules']['sets'][$row['COLUMN_NAME']] = $this->getValueFromBrackets($row['COLUMN_TYPE']);
+			}
+			if(isset($row['COLUMN_DEFAULT']))
+			{
+				$data['rules']['default'][$row['COLUMN_NAME']] = $row['COLUMN_DEFAULT'];
 			}
 		}
 		$data['sql'] = $this->getTableSQL($table, $database);
 		return $data;
+	}
+	/**
+	 * 从括号中获取指定的值
+	 * @param string $str 需要获取的内容
+	 * @return array
+	 */
+	public function getValueFromBrackets($str)
+	{
+		preg_match("/(?:\()(.*)(?:\))/i", $str, $matches);
+		$str = $matches[1];
+		$a = explode(",", $str);
+		for($i=0; $i<count($a); $i++)
+		{
+			$this->removeQuote($a[$i]);//从字符串中去除单引号
+		}
+		return $a;
+	}
+	/**
+	 * 去除双引号
+	 * @param string $str 去除双引号 
+	 */
+	public function removeQuote(&$str) 
+	{
+		if(preg_match("/^\'/",$str))
+		{
+			$str = substr($str, 1, strlen($str)-1);
+		}
+		if(preg_match("/\'$/",$str))
+		{
+			$str = substr($str, 0, strlen($str)-1);
+		}
+		return $str;
 	}
 	/**
 	 * 查询数据库中是否有指定的表
@@ -182,6 +247,44 @@ class Base
 			return $sql;
 		}
 		return preg_replace("/AUTO_INCREMENT=[\d]{1,}/", "AUTO_INCREMENT=". intval($autoIncr), $sql);
+	}
+	/**
+	 * 通过数据表名称获取规则
+	 * @param string $table 表名
+	 * @param string $database 数据库名 
+	 */
+	public function buildRulesForTable($table, $database = null)
+	{
+		if(!$database) $database = $this->currentDB;
+		$tableInfo = $this->getTableInfo($table, $database);
+		$rules = new \Qii\Base\Rules();
+		$rules->addFields($tableInfo['fields']);
+		if($tableInfo['rules']['required'])
+		{
+			$rules->addForceValidKey($tableInfo['rules']['required']);
+		}
+		if(isset($tableInfo['rules']['number']))
+		{
+			foreach ($tableInfo['rules']['number'] as $key => $value) 
+			{
+				$rules->addRules($value, 'number', true, $value . '字段必须是数字');
+			}
+		}
+		if(isset($tableInfo['rules']['maxlength']))
+		{
+			foreach ($tableInfo['rules']['maxlength'] as $key => $value) 
+			{
+				$rules->addRules($key, 'maxlength', $value, $key . '字段内容长度不能大于'. $value .'个字符');
+			}
+		}
+		if(isset($tableInfo['rules']['timestamp']))
+		{
+			foreach ($tableInfo['rules']['timestamp'] as $key => $value) 
+			{
+				$rules->addRules($value, 'datetime', true, $value . '字段必须为日期格式');
+			}
+		}
+		return $rules;
 	}
 	
 	final public function getAlias($alias)

@@ -22,6 +22,10 @@ class Rules
      * 选择其中一个去验证
      */
     private $optionValidKey = array();
+    /**
+     * 字段名称
+     */
+    private $files = array();
 
     public function __construct()
     {
@@ -46,7 +50,22 @@ class Rules
      */
     public function fields()
     {
-        return array();
+        return $this->fields;
+    }
+    /**
+     * 添加字段
+     * @param string | array $fields 字段名
+     */
+    public function addFields($fields)
+    {
+        if(empty($fields)) return;
+        if(is_array($fields))
+        {
+            return array_map(function ($n) {
+                return $this->addFields($n);
+            }, $fields);
+        }
+        $this->fields[] = $fields;
     }
     /**
      * 定义规则
@@ -83,6 +102,7 @@ class Rules
     public function clean()
     {
         $this->data = array();
+        $this->fields = array();
         $this->forceValidKey = array();
     }
     /**
@@ -124,6 +144,25 @@ class Rules
         $this->message[$field][$key] = $message;
     }
     /**
+     * 移除规则
+     * @param string $fields 字段名
+     */
+    public function removeRules($fields)
+    {
+        if(!$fields) return;
+        if(is_array($fields))
+        {
+            return array_map(function ($n) {
+                return $this->removeRules($n);
+            }, $fields);
+        }
+        if(isset($this->rules[$fields])) 
+        {
+            unset($this->rules[$fields]);
+            unset($this->message[$fields]);
+        }
+    }
+    /**
      * 添加必须验证用的字段
      * @param string $key 字段名
      */
@@ -142,6 +181,17 @@ class Rules
             if(!in_array($key, $this->forceValidKey))
             {
                 $this->forceValidKey[] = $key;
+            }
+        }
+    }
+
+    public function removeForceValidKey($key)
+    {
+        foreach ($this->forceValidKey as $key => $value) 
+        {
+            if($value == $key)
+            {
+                unset($this->forceValidKey);
             }
         }
     }
