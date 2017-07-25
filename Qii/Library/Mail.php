@@ -8,7 +8,7 @@ namespace Qii\Library;
  * @version  $Id: mail.plugin.php,v 1.1 2010/04/23 06:02:12 Jinhui.Zhu Exp $
  */
 _require(Qii_DIR . "/Library/Third/phpmailer/class.phpmailer.php");
-class Mail extends PHPMailer
+class Mail extends \PHPMailer
 {
 	private $mailConfig;
 	private $_error;
