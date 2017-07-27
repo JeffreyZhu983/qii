@@ -10,6 +10,8 @@ class Response
     const FORMAT_JSON = 'json';
     const FORMAT_HTML = 'html';
 
+    public static $render = null;
+
     /**
      * Body content
      * @var array
@@ -39,6 +41,14 @@ class Response
         $this->format = isset($data['format']) ? isset($data['format']) : self::FORMAT_HTML;
 		$this->data = $data;
 	}
+    /**
+     * 设置页面渲染类
+     * @param \Qii\View\Intf $render 渲染类
+     */
+    public function setRender(\Qii\View\Intf $render)
+    {
+        \Qii\Base\Response::$render = $render;
+    }
 
     /**
      * Append content to the body content
@@ -153,10 +163,15 @@ class Response
 						$body = '';
 						if(isset($this->data['body']['render']) && $this->data['body']['render'] instanceof  \Qii\View\Intf)
 						{
-							$tplData = isset($this->data['body']['tplData']) ? $this->data['body']['tplData'] : [];
-							$this->data['body']['render']->assign($tplData);
-							$body = $this->data['body']['render']->fetch($this->data['body']['tpl']);
+                            \Qii\Base\Response::$render = $this->data['body']['render'];
 						}
+
+                        if(\Qii\Base\Response::$render != null && \Qii\Base\Response::$render instanceof  \Qii\View\Intf)
+                        {
+                            $tplData = isset($this->data['body']['tplData']) ? $this->data['body']['tplData'] : [];
+                            \Qii\Base\Response::$render->assign($tplData);
+                            $body = \Qii\Base\Response::$render->fetch($this->data['body']['tpl']);
+                        }
 					}
                     echo (IS_CLI ? (new \Qii\Response\Cli())->stdout($body) : $body);
                 break;

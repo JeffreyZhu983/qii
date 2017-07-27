@@ -124,6 +124,7 @@ abstract class Controller
         {
             $this->initView();
         }
+        $this->response->setRender($this->view);
         return $this->view ;
     }
 
