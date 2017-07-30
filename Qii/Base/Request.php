@@ -63,9 +63,9 @@ abstract class Request
     /**
      * 获取POST数据
      */
-    public function post($name, $default = null)
+    public function post($name = null, $default = null)
     {
-        return isset($_POST[$name]) ? $_POST[$name] : $default;
+        return call_user_func_array(array($this->url, 'post'), func_get_args());
     }
     /**
      * 默认controller
