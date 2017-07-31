@@ -44,7 +44,9 @@ class Errors extends \Exception
 	{
 		$message = array();
 		if (isset($_GET['isAjax']) && $_GET['isAjax'] == 1) {
-			echo json_encode(array('code' => $e->getCode(), 'msg' => strip_tags($e->getMessage())), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+			$code = $e->getCode();
+			if($code == 0) $code = 1;
+			echo json_encode(array('code' => $code, 'line' => $e->getFile() . ' line :' . $e->getLine(), 'msg' => strip_tags($e->getMessage())), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 			return;
 		}
 		$message[] = (IS_CLI ? QII_EOL : '') . \Qii::i('Error file', self::getRelatePath($_SERVER['SCRIPT_FILENAME'], $e->getFile())) . (IS_CLI ? QII_EOL : '');
