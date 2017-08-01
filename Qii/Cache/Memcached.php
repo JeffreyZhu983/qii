@@ -64,7 +64,7 @@ class Memcached implements Intf
 
     public function __construct(array $policy = null)
     {
-        if (!extension_loaded('memcached')) {
+        if (!extension_loaded('memcached') && extension_loaded('memcache')) {
             return \Qii::setError(false, __LINE__, 1004);
         }
         if (is_array($policy)) {
@@ -74,7 +74,14 @@ class Memcached implements Intf
             $this->_default_policy['servers'][] = $this->_default_server;
         }
         if (!isset($this->_default_policy['persistent'])) $this->_default_policy['persistent'] = '';
-        $this->_conn = new \Memcached();
+        if(extension_loaded('memcached'))
+        {
+	        $this->_conn = new \Memcached();
+        }
+        else
+        {
+	        $this->_conn = new \Memcache();
+        }
         foreach ($this->_default_policy['servers'] as $server) {
             $result = $this->_conn->addServer($server['host'], $server['port'], $this->_default_policy['persistent']);
             if (!$result) {
