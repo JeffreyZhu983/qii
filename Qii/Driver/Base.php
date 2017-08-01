@@ -689,7 +689,15 @@ class Base
 		$this->cleanData();
 		return $this->getOne($sql);
 	}
-
+	/**
+	 * 创建SQL
+	 */
+	final function createSQL($table)
+	{
+		$sql = sprintf($this->_query['SELECT'], ((trim($this->fields) != '') ? $this->fields : "*"), $table) . $this->where . $this->groupBy . $this->orderBy . $this->limit;
+		$this->cleanData();
+		return $sql;
+	}
 	/**
 	 *
 	 * 查询所有
