@@ -560,10 +560,29 @@ class Base
 	 */
 	final function orderBy($field, $orderBy)
 	{
-		$this->orderBy = null;
-		if (!empty($field)) {
+		if(!empty($field)) return $this;
+
+		if($this->orderBy != '') {
+			$this->orderBy .= $field .' '. $orderBy;
+		}else{
 			$this->orderBy = sprintf($this->_query['ORDER'], $field, $orderBy);
 		}
+	}
+	
+	final function orderByArr($map)
+	{
+		if(empty($map)) return $this;
+		foreach($map AS $val)
+		{
+			$this->orderBy($val['field'], $val['orderBy']);
+		}
+		return $this;
+	}
+
+	final function orderByStr($orderBy)
+	{
+		if(!$orderBy) return $this;
+		$this->orderBy = $orderBy;
 		return $this;
 	}
 
