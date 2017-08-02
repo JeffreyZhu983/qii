@@ -203,7 +203,7 @@ class Psr4
     /**
      * 从Map中获取文件
      */
-    protected function searchMappedFile($class)
+    public function searchMappedFile($class)
     {
         $prefix = $class;
         // work backwards through the namespace names of the fully-qualified
