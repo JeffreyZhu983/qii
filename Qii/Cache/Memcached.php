@@ -64,7 +64,7 @@ class Memcached implements Intf
 
     public function __construct(array $policy = null)
     {
-        if (!extension_loaded('memcached') && extension_loaded('memcache')) {
+        if (!extension_loaded('memcached') && !extension_loaded('memcache')) {
             return \Qii::setError(false, __LINE__, 1004);
         }
         if (is_array($policy)) {
@@ -101,7 +101,10 @@ class Memcached implements Intf
     public function set($id, $data, array $policy = null)
     {
         if (!isset($policy['life_time'])) $policy['life_time'] = $this->_default_policy['life_time'];
-
+        if($this->_conn instanceof \Memcache){
+            $data = serialize($data);
+            return $this->_conn->set($id, $data, MEMCACHE_COMPRESSED, $policy['life_time']);
+        }
         return $this->_conn->set($id, $data, $policy['life_time']);
     }
 
@@ -114,7 +117,11 @@ class Memcached implements Intf
      */
     public function get($id)
     {
-        return $this->_conn->get($id);
+        $data = $this->_conn->get($id);
+        if($this->_conn instanceof \Memcache){
+            $data = unserialize($data);
+        }
+        return $data;
     }
 
     /**
