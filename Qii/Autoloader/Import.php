@@ -48,6 +48,9 @@ class Import
             $configure = include($file);
             self::setIncludeFiles($file, $configure);
             return $configure;
+        }else{
+            //print_r(debug_backtrace());
+            throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $file), __LINE__);
         }
         return false;
     }

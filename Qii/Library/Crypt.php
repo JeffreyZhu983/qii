@@ -6,7 +6,7 @@ namespace Qii\Library;
  *
  * 加密类
  * 用法：
- * $crypt = new \Qii\Library\BootstrapCrypt();
+ * $crypt = new \Qii\Library\Crypt();
  * 设置密钥
  * $crypt->setSecurityKey('密钥');
  * 加密字符串
@@ -20,7 +20,7 @@ class Crypt
 	//密匙
 	private $securityKey = 'qii.v.1.3';
 	private $keyLength = 4;
-	private $iv = 'w2wJCnctEG09danPPI7SxQ==';
+	private $iv = 'sdEKw2wJCnctEG09';
 
 	public function __construct()
 	{
@@ -37,8 +37,10 @@ class Crypt
 	 */
 	public function setSecurityKey($key)
 	{
+		if(!$key) return;
 		$len = strlen($key);
 		if ($len < 16) $key = str_pad($key, 16, '.');
+		if($len > 16) $key = substr($key, 0, 16);
 		$this->securityKey = $key;
 		return $this;
 	}
@@ -48,7 +50,7 @@ class Crypt
 	 */
 	public function setIv($iv)
 	{
-		if(strlen($iv) > 16) $iv = substr(0, 16);
+		if(strlen($iv) > 16) $iv = substr($iv, 0, 16);
 		if(strlen($iv) < 16) $iv = str_pad($iv, 16, '.');
 		$this->iv = $iv;
 	}
@@ -57,6 +59,7 @@ class Crypt
 	 */
 	public function getIv()
 	{
+		$this->iv = $this->iv;
 		if(!$this->iv < 16) $this->iv = str_pad($this->iv, 16, '.');
 		if(strlen($this->iv) == 16) return $this->iv;
 		return substr($this->iv, 0, 16);

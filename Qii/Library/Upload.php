@@ -221,6 +221,7 @@ class Upload
 		if ($files['error'] != UPLOAD_ERR_OK) {
 			$data['code'] = $files['error'];
 			$data['src'] = '';
+			$data['size'] = 0;
 			$data['msg'] = $this->errorMessage[$files['error']];
 			$this->setError($index, 100008);
 			return $data;
@@ -236,8 +237,8 @@ class Upload
 		{
 			$data['code'] = 1407;
 			$data['src'] = '';
+			$data['size'] = 0;
 			$data['msg'] = 'Not Allowed';
-			return $data;
 			return $data;
 		}
 
@@ -254,7 +255,7 @@ class Upload
 		if (!is_dir($fillPath)) {
 			if (!mkdir($fillPath, 0777, true)) {
 				$data['code'] = 100007;
-				$data['src'] = '';
+				$data['src'] = 0;
 				$data['msg'] = 'Access Denied';
 				$this->setError($index, 100007);
 				return $data;
@@ -271,10 +272,14 @@ class Upload
 		if ($result) {
 			$data['code'] = 0;
 			$data['src'] = $fillPath . '/' . $configure['fileName'];
+			$data['file_type'] = $files['type'];
+			$data['file_hash'] = md5_file($data['src']);
+			$data['size'] = $files['size'];
 		} else {
 			$data['src'] = '';
 			$data['code'] = 100005;
 			$data['msg'] = 100005;
+			$data['size'] = 0;
 			$this->setError($index, 100005);
 		}
 		return $data;
@@ -424,7 +429,7 @@ class Upload
 			//根据比例，计算新图片的尺寸
 			$height = ($width / $widthOrig) * $heightOrig;
 			//新建一个真彩色图像
-			$destImage = imagecreatetruecolor($width, $height);
+			$destImage = imagecreate($width, $height);
 			//从 JPEG 文件或 URL 新建一图像
 			$imageInfo = getimagesize($bigImg);//获取大图信息
 			switch ($imageInfo[2]) {//判断图像类型
@@ -479,6 +484,9 @@ class Upload
 				break;
 			case 3:
 				$im = imagecreatefrompng($bigImg);
+				$color = imagecolorallocate($im, 255, 255, 255);
+				imagecolortransparent($im, $color);
+				imagefill($im, 0, 0, $color);
 				break;
 		}
 
@@ -530,10 +538,24 @@ class Upload
 		}
 		//echo "<p>SW:" . $src_W ."W:" .$myW . "</p><p>X".$myX."</p><p>SH".$src_H.";H:" . $myH ."<p>Y".$myY."</p>";
 		//从中间截取图片
-
-		$tn = imagecreatetruecolor($myW, $myH);//创建小图
+		if($image[2] == 3)
+		{
+			$tn = imagecreate($myW, $myH);//创建小图
+		}
+		else
+		{
+			$tn = imagecreatetruecolor($myW, $myH);
+		}
+		
 		imagecopy($tn, $im, 0, 0, $myX, $myY, $myW, $myH);
-		imagejpeg($tn, $smallImg, 100);//输出图像
+		if($image[2] == 3)
+		{
+			imagepng($tn, $smallImg, 9);
+		}else{
+			imagejpeg($tn, $smallImg, 100);//输出图像
+		}
+		
+		imagedestroy($im);
 	}
 
 	/**
@@ -565,9 +587,23 @@ class Upload
 		}
 		$src_W = imagesx($im);//获取大图宽
 		$src_H = imagesy($im);//获取大图高
-		$tn = imagecreatetruecolor($width, $height);//创建小图
+		if($image[2] == 3)
+		{
+			$tn = imagecrate($width, $height);//创建小图
+		}
+		else
+		{
+			$tn = imagecreatetruecolor($width, $height);
+		}
+		
 		imagecopy($tn, $im, 0, 0, 0, 0, $width, $height);
-		imagejpeg($tn, $smallImg, 100);//输出图像
+		if($image[2] == 3)
+		{
+			imagepng($tn, $smallImg, 9);
+		}else{
+			imagejpeg($tn, $smallImg, 100);//输出图像
+		}
+		imagedestroy($im);
 	}
 
 	/**
@@ -604,7 +640,7 @@ class Upload
 			//$height = ($width / $widthOrig) * $heightOrig;
 
 			//新建一个真彩色图像
-			$destImage = imagecreatetruecolor($width, $height);
+			$destImage = imagecreate($width, $height);
 			//从 JPEG 文件或 URL 新建一图像
 			$imageInfo = getimagesize($bigImg);//获取大图信息
 			switch ($imageInfo[2]) {//判断图像类型
