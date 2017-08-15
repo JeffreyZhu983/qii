@@ -270,10 +270,6 @@ class Application
      */
     public function setLoger($logerCls)
     {
-        if (!class_exists($logerCls, false)) {
-            throw new \Qii_Exceptions_ClassNotFound(Qii::i(1405, $logerCls), __LINE__);
-        }
-
         $this->logerWriter = Instance::instance(
             '\Qii\Loger\Instance',
             Instance::instance($logerCls)

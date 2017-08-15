@@ -1,5 +1,6 @@
 <?php
-namespace Plugins;
+namespace plugins;
+
 class loger implements \Qii\Loger\Writer
 {
 	public $logerPath = 'tmp';

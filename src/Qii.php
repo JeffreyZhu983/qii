@@ -157,7 +157,6 @@ class Qii extends Application
         return call_user_func_array($className . '::' . $method, $args);
     }
 }
-
 if (!function_exists('catch_fatal_error')) {
     function catch_fatal_error()
     {

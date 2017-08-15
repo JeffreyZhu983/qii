@@ -61,7 +61,7 @@
 			}
 		}
 		第二步，使用user_model
-		class user_controler extends Qii_Controller_Abstract
+		class user_controler extends \Qii\Controller\Abstract
 		{
 			public function __construct()
 			{
@@ -186,7 +186,7 @@
 		}
 		第三步，使用user_model：
 		
-		class index_controller extends Qii_Controller_Abstract
+		class index_controller extends \Qii\Controller\Abstract
 		{
 			public function __construct()
 			{
@@ -197,7 +197,7 @@
 		}
 	7) View的支持
 		view支持smarty及php
-		class index_controller extends Qii_Controller_Abstract
+		class index_controller extends \Qii\Controller\Abstract
 		{
 			public function __construct()
 			{
@@ -206,7 +206,7 @@
 			}
 		}
 	8) Controller的使用
-	class test_controller extends Qii_Controller_Abstract
+	class test_controller extends \Qii\Controller\Abstract
 	{
 		//为了避免Controller逻辑过于复杂，可以将Action拆到单独的文件
 		//当在调用dummy方法的时候会自动执行actions/dummy_action.php中的execute方法

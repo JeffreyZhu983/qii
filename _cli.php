@@ -74,7 +74,7 @@ class cmd
                 //创建目录工作区目录
                 if(!is_dir($param['workspace'] . '/public'))
                 {
-                    mkdir($param['workspace'] . '/public', 0755);
+                    mkdir($param['workspace'] . '/public', 0777);
                 }
                 foreach ($this->dir AS $d) {
                     $path = $param['workspace'] . '/private/' . $d;
@@ -126,7 +126,7 @@ class cmd
                 //--获取文件的相对路径
                 $realPath = $this->getRealPath($param['workspace']);
                 $this->stdout("真实路径 " . $realPath . "\n");
-                $QiiPath = $this->getRelatePath($realPath . "/index.php", dirname(__FILE__) . "/Qii/Qii.php");
+                $QiiPath = $this->getRelatePath($realPath . "/index.php", dirname(__FILE__) . "/src/Qii.php");
                 $this->stdout("Qii 路径 " . $QiiPath . "\n");
                 $date = date("Y/m/d H:i:s");
                 $indexPage = array();
@@ -292,7 +292,7 @@ class cmd
      */
     public function stdout($string)
     {
-        if(OS == 'WIN') $string = iconv('utf-8', 'gbk', $string);
+        if(strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') $string = iconv('utf-8', 'gbk', $string);
         fwrite(\STDOUT, $string);
     }
 }
