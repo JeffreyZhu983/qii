@@ -1,0 +1,15 @@
+<?php
+namespace Model;
+
+use \Qii\Model;
+
+class {#$code.className#} extends Model
+{
+	public function __construct()
+	{
+		parent::__construct();
+		$this->setRules(new \Qii\Driver\Rules(\Qii\Import::includes('configure/table/{#$code.database#}.{#$code.className#}.config.php')));
+	}
+}
+
+?>

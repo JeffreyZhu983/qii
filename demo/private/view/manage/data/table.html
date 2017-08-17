@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>数据生成器</title>
+    <link href="{#helper\globals::getCss("style")#}" rel="stylesheet" type="text/css" />
+    <link href="{#helper\globals::getCss("select")#}" rel="stylesheet" type="text/css" />
+    <link href="{#helper\globals::getCss("jquery.multiSelect")#}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{#helper\globals::getJs("jquery.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("ajaxfileupload")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("jquery.idTabs.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("select-ui.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("jquery.bgiframe.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("jquery.multiSelect")#}"></script>
+	<script type="text/javascript" src="{#helper\globals::getJs("notify-custom.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("tips")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getSourceFullUrl("static/layer/layer.js")#}"></script>
+</head>
+
+
+<body>
+{#if $loadDatabase#}
+<div class="place">
+    <span>位置：</span>
+    <ul class="placeul">
+        <li><a href="{#$pathes.index#}">首页</a></li>
+        <li><a href="{#helper\globals::getFullUrl("database/creator")#}?database={#$database#}&tableName={#$tableName#}">规则管理</a></li>
+        <li>数据管理</li>
+    </ul>
+</div>
+{#/if#}
+<div class="rightinfo">
+    {#if $loadDatabase#}
+    <div class="tools">
+        <select id="database" name="database" onchange="if(this.value != ''){window.location.href = '{#helper\globals::getFullUrl("database/table")#}?database='+ $('#database').val()}">
+        <option value="">请选择数据库</option>
+        {#foreach key=key item=item from=$databases#}
+        <option value="{#$item#}" {#if $database == $item#}selected{#/if#}>{#$item#}</option>
+        {#/foreach#}
+        </select>
+        <select name="tableName" onchange="if(this.value != ''){window.location.href = '{#helper\globals::getFullUrl("database/table")#}?tableName='+ this.value +'&database='+ $('#database').val() }">
+        <option value="">请选择数据表</option>
+        {#foreach key=key item=item from=$tables#}
+        <option value="{#$item#}" {#if $tableName == $item#}selected{#/if#}>{#$item#}</option>
+        {#/foreach#}
+        </select>
+        {#if $tables|count > 0#}
+        <a href="{#helper\globals::getFullUrl("database/add")#}?database={#$database#}&tableName={#$tableName#}">添加数据</a>
+        {#/if#}
+    </div>
+    {#/if#}
+    {#if $tableName#}
+    <table class="tablelist">
+        <thead>
+        <tr>
+            {#foreach key=rkey item=ritem from=$data.rules.end#}
+            <th>{#if isset($data.rules.alias[$rkey]) && $data.rules.alias[$rkey] != ''#}{#$data.rules.alias[$rkey]#}{#else#}{#$rkey#}{#/if#}</th>
+            {#/foreach#}
+            {#if !$data.rules#}
+            <th><a href="{#helper\globals::getFullUrl("database/creator")#}?database={#$database#}&tableName={#$tableName#}">请先去数据生成器中生成数据</a></th>
+            {#else#}
+            <th>操作</th>
+            {#/if#}
+        </tr>
+        </thead>
+        <tbody>
+        {#foreach key=key item=item from=$data.rows#}
+        <tr>
+            {#foreach key=rkey item=ritem from=$data.rules.end#}
+            <td>{#if isset($item[$rkey])#}{#$item[$rkey]|strip_tags|trim|htmlspecialchars|truncate:50#}{#else#}&nbsp;{#/if#}</td>
+            {#/foreach#}
+            <td><a data-operate="modify" data-src="{#$item['__updateFields']#}">修改</a> <a data-operate="remove" data-src="{#$item['__updateFields']#}">删除</a></td>
+        </tr>
+        {#/foreach#}
+        </tbody>
+    </table>
+    
+    {#include file="manage/data/pages.html" pagesData=$pages pagesRef="{#helper\globals::getFullUrl("database/$_action")#}?database={#$database#}&tableName={#$tableName#}"#}
+    </form>
+    <div class="pagin">
+        <div class="message">&nbsp;</div>
+        <ul class="paginList">
+            <li>
+                <input type="file" id="fileUpload" name="restoreSQL" value=""/>
+                <input type="button" name="restoreTable" value="还原数据" class="btn" />
+                <input type="button" name="backupTable" value="备份数据" class="btn" />
+            </li>
+        </ul>
+    </div>
+    {#/if#}
+</div>
+
+<script type="text/javascript">
+    $('.tablelist tbody tr:odd').addClass('odd');
+    $('[data-operate=modify]').on('click', function(){
+        var pri = $(this).attr('data-src');
+        var url = '{#helper\globals::getFullUrl("database/update")#}?' + pri;
+        window.location.href = url;
+    });
+    $('[data-operate=remove]').on('click', function(){
+        var pri = $(this).attr('data-src');
+        var url = '{#helper\globals::getFullUrl("api/database/table")#}?operate=remove&database={#$database#}&tableName={#$tableName#}';
+        layer.confirm("数据一旦删除，将无法恢复，请确认", {
+          btn: ['确认','取消'] //按钮
+        }, function(){
+            $.get(url, pri, function(r){
+                    if(typeof r.code != 'undefined' && r.code == 0){
+                        r.code == 0 ? layer.msg('删除成功') : layer.msg(data.msg);
+                        setTimeout(function(){window.location.href = window.location.href;}, 2000);
+                    }else{
+                        layer.msg("删除失败");
+                    }
+                }, 'json');
+        });
+    });
+    $('input[name=backupTable]').on('click', function(){
+    	window.location.href = "{#\helper\globals::getFullUrl('api/database/backup')#}?database={#$database#}&tableName={#$tableName#}";
+    });
+    $('input[name=restoreTable]').on('click', function(){
+        var data = {};
+        data.database = '{#$database#}';
+        data.tableName = '{#$tableName#}';
+        data.security_sid = '{#\Qii::getSecurity()#}'
+        $.ajaxFileUpload({
+            url : '{#\helper\globals::getFullUrl('api/database/restore')#}?random='+ Math.random(),
+            data : data,
+            type : 'POST',
+            secureuri : false,
+            fileElementId : 'fileUpload',
+            dataType : 'json',
+            success : function(msg){
+                if(msg.code == 0){
+                	$.notify("还原成功", "success");
+                	return;
+                }
+                $.notify(msg.msg, "error");
+            },
+            error : function(data, status, e){
+                $.notify("系统错误", "error");
+            }
+        });
+    });
+</script>
+</body>
+
+</html>

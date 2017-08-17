@@ -74,7 +74,7 @@ function _loader($class = null)
 }
 /**
  * 简便的loadClass方法
- * Qii\Autoloader\Psr4::getInstance()->loadClass(.., ..);
+ * \Qii\Autoloader\Psr4::getInstance()->loadClass(.., ..);
  */
 function _loadClass()
 {

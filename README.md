@@ -5,16 +5,12 @@
 1、创建项目
    通过命令行进入当前目录，并执行：php -q _cli.php create=yes workspace=../project cache=tmp useDB=1
 	Command line usage:
-	>php -q _cli.php create=yes workspace=../project cache=tmp useDB=1
-	* create: is auto create default:yes;
-	* workspace: workspace
-	* cache : cache dir
-	* useDB : use db or not 
+	>php -q _cli.php 并根据提示完成网站的配置
 	程序将自动创建工作目录，并生成首页及配置相关文件。设置好Web网站目录，开启.htaccess即可直接访问。
 	相关的配置文件见 configure/app.ini及configure/db.ini文件
 
 2、框架的使用
-	1) 命令行运行程序
+	1) 命令行运行程序, 推荐使用short模式
 		仅支持GET方法
 		1. normal模式
 		php -q index.php control=index/action=home/id=100
@@ -28,28 +24,28 @@
 		php -q index.php index/home/100
 		php -q index.php plugins/page/2.html
 	2) 自动加载类
-		new Controller\User(); === require("Controller<?=DS?>User.php"); new Controller\User();
-		new Model\User(); === require("Model<?=DS?>User.php"); new Model\User();
-		new Model\Test\User(); === require("Model<?=DS?>Test<?=DS?>User.php"); new Model\Test\User();
+		new controller\user(); === require("controller<?=DS?>user.php"); new controller\user();
+		new model\user(); === require("model<?=DS?>user.php"); new model\user();
+		new model\test\user(); === require("model<?=DS?>test<?=DS?>user.php"); new model\test\user();
 
 	3) Qii 基本功能：
-		Qii::Instance(className, param1, param2, param3[,...]); === ($class = new className(param1, param2, param3[,...]));
-		Qii::load(className)->method(); === $class->method();
-		Qii::import(fileName); 如果指定的文件无法找到则会在get_include_path()和站点配置文件的[path]的目录中去搜索，直到搜索到一个则停止。
-		Qii::includes(fileName); == include(fileName);
-		Qii::setPrivate($key, $value);保存到私有变量 $_global[$key]中, $value可以为数组,如果是数组的话会将数组合并到已经存在$key的数组中去。
-		Qii::getPrivate($key, $index);获取$_global[$key][$index]的值
-		Qii::setError($condition, $code, $argvs); 检查$condition是否成立，成立就没有错，返回false，否则有错，返回true并将错误信息，详细代码错误$code详情见<?php echo Qii::getPrivate('qii_sys_language');?>。
+		\Qii::getInstance(className, param1, param2, param3[,...]); === ($class = new className(param1, param2, param3[,...]));
+		_loadClass(className)->method(); === $class->method();
+		_require(fileName); 如果指定的文件无法找到则会在get_include_path()和站点配置文件的[path]的目录中去搜索，直到搜索到一个则停止。
+		_include(fileName); == include(fileName);
+		_config($key, $value);保存到私有变量 $_global[$key]中, $value可以为数组,如果是数组的话会将数组合并到已经存在$key的数组中去。
+		_config($key);获取$_global[$key][$index]的值
+		\Qii::setError($condition, $code, $argvs); 检查$condition是否成立，成立就没有错，返回false，否则有错，返回true并将错误信息，详细代码错误$code详情见<?php echo \Qii::getPrivate('qii_sys_language');?>。
 	4) 多域名支持：
 		开启多域名支持，不同域名可以访问不同目录中的controller，在app.ini中的common下添加以下内容，注意：hosts中的内容会覆盖网站中对应的配置
         hosts[0.domain] = test.xxx.wang
-        hosts[0.ext] = test
+        hosts[0.path] = test
 
         hosts[1.domain] = admin.xxx.wang
-        hosts[1.ext] = admin
+        hosts[1.path] = admin
 	5) Module用法示例：
 		第一步，创建一个user的model
-		class user_model extends Model
+		class user extends \Qii\Driver\Model
 		{
 			public function __construct()
 			{
@@ -57,23 +53,35 @@
 			}
 			public function userInfo($uid)
 			{
-				return $this->getRow("SELECT * FROM user WHERE uid = '{$uid}'");
+				reutrn $this->db->where(['uid' => $uid])->selectRow('user');
+				//或者
+				return $this->db->getRow("SELECT * FROM user WHERE uid = '{$uid}'");
+			}
+
+			public function updateUserInfo($uid, $map)
+			{
+				return $this->db->updateObject('user', $map, array('uid' => $uid));
+			}
+
+			public function removeUser($uid)
+			{
+				return $this->db->exec("DELETE FROM user WHERE uid = ". intval($uid));
+				//或
+				return $this->db->where(['uid' => $uid])->deleteRows('user');
 			}
 		}
-		第二步，使用user_model
-		class user_controler extends \Qii\Controller\Abstract
+		第二步，使用user model
+		namespace controler;
+
+		class user extends \Qii\Base\Controller
 		{
 			public function __construct()
 			{
-					$this->Qii('Model');
-					$userClass = new user_module();
-					$userInfo = $userClass->userInfo(10);
+				$userClass = new \model\user();
+				$userInfo = $userClass->userInfo(10);
 
-					或
-					$this->Qii("user_module")->userInfo(10);
-					或
-					$this->Qii("user_module");
-					$this->user_module->userInfo(10);
+				或
+				_loadClass("model\user")->userInfo(10);
 			}
 		}
 	6) ORM的使用示例：
@@ -107,7 +115,8 @@
 			}
 		}
 		第二步，创建User Model：
-		class user_model extends Model
+		namespace model;
+		class user extends \Qii\Driver\Model
 		{
 		    public function __construct()
 		    {
