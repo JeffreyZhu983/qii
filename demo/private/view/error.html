@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>{#if $code == 0#}提示{#else#}出错了{#/if#}</title>
+<link href="{#helper\globals::getCss("style")#}" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="{#helper\globals::getJs("jquery")#}"></script>
+
+<script language="javascript">
+	$(function(){
+    $('.error').css({'position':'absolute','left':($(window).width()-490)/2});
+	$(window).resize(function(){  
+    $('.error').css({'position':'absolute','left':($(window).width()-490)/2});
+    })  
+});  
+</script> 
+
+
+</head>
+
+
+<body style="background:#edf6fa;">
+
+	<div class="place">
+    <span>位置：</span>
+    <ul class="placeul">
+    <li><a href="{#helper\globals::getFullUrl("main/index")#}">首页</a></li>
+    <li>{#if $code == 0#}提示{#else#}错误提示{#/if#}</li>
+    </ul>
+    </div>
+    
+    <div class="error {#if $code == 404#}error404{#/if#}">
+    
+    <h2>{#if $code != 0#}非常遗憾，{#/if#}{#$desc|default:'您访问的页面存在问题！'#}</h2>
+    <p>{#if $code != 0#}看到这个提示，就自认倒霉吧!{#/if#}</p>
+    {#if $code != 0#}
+    <div class="reindex"><a href="{#helper\globals::getFullUrl("/main/index")#}" target="_parent">返回首页
+    {#/if#}
+    </a></div>
+    
+    </div>
+
+
+</body>
+
+</html>

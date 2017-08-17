@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>数据编辑器</title>
+    <link href="{#helper\globals::getCss("style")#}" rel="stylesheet" type="text/css" />
+    <link href="{#helper\globals::getCss("select")#}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{#helper\globals::getJs("jquery.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("jquery.idTabs.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("select-ui.min")#}"></script>
+	<script type="text/javascript" src="{#helper\globals::getJs("notify-custom.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs('xheditor/xheditor-1.2.2.min')#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs('xheditor/xheditor_lang/zh-cn')#}"></script>
+	<script>
+	$(document).ready(function(){
+		$("#modifyForm").submit(function()
+		{
+			$.post($(this).attr('action'), $(this).serialize(), function(r)
+		    {
+				if(r == null)
+				{
+					$.notify("系统错误，请重试", "error");
+				};
+				console.log(r);
+
+				if(typeof r.code != 'undefined' && r.code == 0)
+		        {
+					$.notify("保存成功", "success");
+		        }
+		        else
+		        {
+					$.notify("保存失败", "error");
+		        }
+			}, 'json');
+			return false;
+		});
+	});
+	</script>
+</head>
+
+<body>
+
+<div class="place">
+    <span>位置：</span>
+    <ul class="placeul">
+        <li><a href="{#$pathes.index#}">首页</a></li>
+        <li><a href="{#$pathes.creator#}?database={#$database#}&tableName={#$tableName#}">规则管理</a></li>
+        <li><a href="{#$pathes.table#}?database={#$database#}&tableName={#$tableName#}">数据管理</a></li>
+        <li>数据编辑</li>
+    </ul>
+</div>
+
+<div class="formbody">
+
+    <div class="formtitle"><span>基本信息</span></div>
+    <form name="modifyForm" id="modifyForm" method="POST" action="{#helper\globals::getFullUrl("api/database/update", ".json")#}?isAjax=1">
+		{#helper\globals::safeForm()#}
+		<input type="hidden" name="__database" value="{#$database#}" id="__database" />
+		<input type="hidden" name="__tableName" value="{#$tableName#}" id="__tableName" />
+		<input type="hidden" name="__pri" value="{#$pri|join:","#}" id="__pri" />
+		{#foreach key=key item=item from=$val#}
+		<input type="hidden" name="{#$key#}" value="{#$item#}" />
+		{#/foreach#}
+	    <ul class="forminfo">
+	        {#foreach key=key item=item from=$data#}
+	        <li><label>{#if isset($rules['rules']['alias'][$key]) && $rules['rules']['alias'][$key] != ''#}{#$rules['rules']['alias'][$key]#}{#else#}{#$key#}{#/if#}</label>
+	            {#if isset($rules['rules']['type'][$key]) && ($rules['rules']['type'][$key] == 'mediumtext' || $rules['rules']['type'][$key] == 'text')#}
+	            <textarea name="fields[{#$key#}]" cols="100" rows="20" class="textinput overflow-auto {#if helper\globals::hasHtmlTag($item)#}xheditor{#/if#}">{#$item#}</textarea>
+	            {#else if isset($rules['rules']['type'][$key]) && $rules['rules']['type'][$key] == 'enum'#}
+	            <div class="vocation">
+	            <select class="select1" name="fields[{#$key#}]" id="fields[{#$key#}]">
+	            {#foreach key=set item=sitem from=$rules['rules']['setsArray'][$key]#}
+	            	<option value="{#$sitem#}"  {#if $item == $sitem#}selected{#/if#}>{#$sitem#}</option>
+	            {#/foreach#}
+	            </select>
+	            </div>
+	            {#else#}
+	            <input name="fields[{#$key#}]" type="text" class="dfinput" value="{#$item#}" />
+	            {#/if#}
+	            <i>{#if isset($rules['rules']['length'][$key]) && $rules['rules']['length'][$key] > 0 #}最大长度{#$rules['rules']['length'][$key]#}个字符{#else#}{#/if#}</i></li>
+	        {#/foreach#}
+	        <li><label>&nbsp;</label><input name="submit" type="submit" class="btn" value="确认保存"/></li>
+	    </ul>
+    </form>
+
+</div>
+<script>
+$('.xheditor').xheditor({skin:'nostyle'});
+$(".select1").uedSelect({
+	width : 345			  
+});
+</script>
+
+</body>
+
+</html>

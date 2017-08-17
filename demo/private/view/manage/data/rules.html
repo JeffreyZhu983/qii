@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>规则管理</title>
+    <link href="{#helper\globals::getCss("style")#}" rel="stylesheet" type="text/css" />
+    <link href="{#helper\globals::getCss("select")#}" rel="stylesheet" type="text/css" />
+    <link href="{#helper\globals::getCss("jquery.multiSelect")#}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{#helper\globals::getJs("jquery.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("jquery.idTabs.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("select-ui.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("jquery.bgiframe.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("jquery.multiSelect")#}"></script>
+	<script type="text/javascript" src="{#helper\globals::getJs("notify-custom.min")#}"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("tips")#}"></script>
+
+    <script type="text/javascript">
+            $(document).ready(function(){
+				$(".multi").multiSelect({selectAllText: '选择所有', noneSelected: '请选择', oneOrMoreSelected:'共选择%项'}, function(el){
+
+				});
+
+				$("#creatorForm").submit( function()
+                {
+					$.post($(this).attr('action'), $(this).serialize(), function(r)
+                    {
+						if(typeof r.code != 'undefined' && r.code == 0)
+                        {
+                			$.notify("保存成功", "success");
+                        }
+                        else
+                        {
+                			$.notify("保存失败", "error");
+                        }
+					}, 'json');
+					return false;
+				});
+            });
+    </script>
+
+
+</head>
+
+
+<body>
+
+{#if $loadDatabase#}
+<div class="place">
+    <span>位置：</span>
+    <ul class="placeul">
+        <li><a href="{#$pathes.index#}">首页</a></li>
+        <li><a href="{#$pathes.creator#}?database={#$database#}&tableName={#$tableName#}">规则管理</a></li>
+        <li>规则管理</li>
+    </ul>
+</div>
+{#/if#}
+<div class="rightinfo">
+    {#if $loadDatabase#}
+    <div class="tools">
+    	<select id="database" name="database" onchange="if(this.value != ''){window.location.href = '{#helper\globals::getFullUrl("database/rules")#}?database='+ $('#database').val()}">
+    		<option value="">请选择数据库</option>
+            {#foreach key=key item=item from=$databases#}
+            <option value="{#$item#}" {#if $database == $item#}selected{#/if#}>{#$item#}</option>
+            {#/foreach#}
+    	</select>
+        <select name="tableName" onchange="if(this.value != ''){window.location.href = '{#helper\globals::getFullUrl("database/rules")#}?tableName='+ this.value +'&database='+ $('#database').val() }">
+            <option value="">请选择数据表</option>
+            {#foreach key=key item=item from=$tables#}
+            <option value="{#$item#}" {#if $tableName == $item#}selected{#/if#}>{#$item#}</option>
+            {#/foreach#}
+        </select>
+        {#if $tables|count > 0#}
+        <a href="{#$pathes.table#}?database={#$database#}&tableName={#$tableName#}">数据管理</a>
+        {#/if#}
+    </div>
+    {#/if#}
+    {#if $fields#}
+    <form name="creatorForm" id="creatorForm" action="{#helper\globals::getFullUrl("api/database/rules", ".json")#}?isAjax=1" method="POST">
+    {#helper\globals::safeForm()#}
+    <input type="hidden" name="tableName" value="{#$tableName#}"  />
+    <input type="hidden" name="database" value="{#$database#}"  />
+    <ul class="forminfo">
+        {#foreach key=key item=item from=$validateRules#}
+        <li>
+            <label>{#if isset($rules['alias'][$key])#}{#$rules['alias'][$key]#}{#/if#}</label>
+            {#assign var=item value=$item#}
+            {#foreach key=k item=it from=$item#}
+            {#helper\globals::rules($it, $key, $validate, $invalidMessage, $extRules)#}
+            {#/foreach#}
+        </li>
+        {#foreachelse#}
+        <li><a href="{#$pathes.creator#}?database={#$database#}&tableName={#$tableName#}" class="red bold">请先添加规则，再设置详细规则，点击添加。</a></li>
+        {#/foreach#}
+        <li><label>&nbsp;</label><input name="submit" type="submit" class="btn" value="确认保存"/>  <input type="button" name="download" value="下载规则" class="btn" /></li>
+    </ul>
+    {#/if#}
+	</form>
+</div>
+
+<script type="text/javascript">
+    $('.tablelist tbody tr:odd').addClass('odd');
+
+    $('input[name="download"]').on('click', function(){
+        var database = '{#$database#}';
+        var tableName = '{#$tableName#}';
+        var url = '{#helper\globals::getFullUrl("api/database/downloadConfig", ".json")#}?database='+ database + '&tableName='+ tableName;
+        window.location.href = url;
+    });
+</script>
+</body>
+
+</html>

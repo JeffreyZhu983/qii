@@ -27,6 +27,64 @@ class Download
 		header("Content-Disposition: attachment; filename=". $fileName);
 		echo $string;
 	}
+
+	/**
+	 * 断点续传
+	 *
+	 * @param string $filePath 文件路径
+	 * @param string $fileName 下载后的文件名
+	 * @param string $mime 文件类型，如果是空的话就直接下载
+	 * @return bool
+	 */
+	public function downResume($filePath, $fileName = '', $mime = '')
+	{
+		if (!file_exists($filePath)) {
+			return false;
+		}
+		if ($fileName == '') {
+			$fileName = basename($filePath);
+		}
+		$size = filesize($filePath);
+		$size2 = $size - 1;
+		$range = 0;
+		if (isset($_SERVER['HTTP_RANGE']))
+		{
+			header('HTTP /1.1 206 Partial Content');
+			$range = str_replace('=', '-', $_SERVER['HTTP_RANGE']);
+			$range = explode('-', $range);
+			$range = trim($range[1]);
+			header('Content-Length:' . $size);
+			header('Content-Range: bytes ' . $range . '-' . $size2 . '/' . $size);
+		}
+		else
+		{
+			header('Content-Length:' . $size);
+			header('Content-Range: bytes 0-' . $size2 . '/' . $size);
+		}
+		header('Accenpt-Ranges: bytes');
+		if ($mime != '' && $mime != 'unlink')
+		{
+			header("Content-type: {$mime}");
+		}
+		else
+		{
+			header("Content-type: application/octet-stream");
+		}
+		header("Cache-control: public");
+		header("Pragma: public");
+		$fileName = iconv("UTF-8", "GB2312//TRANSLIT", $fileName);
+		header('Content-Dispositon:attachment; filename=' . $fileName);
+		$fp = fopen($filePath, 'rb+');
+		fseek($fp, $range);
+		while (!feof($fp))
+		{
+			set_time_limit(0);
+			print(fread($fp, 1024));
+			flush();
+			ob_flush();
+		}
+		fclose($fp);
+	}
 	/**
 	 * 指定文件路径下载指定文件
 	 *

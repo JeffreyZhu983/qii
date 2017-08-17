@@ -1,0 +1,22 @@
+<script type="text/javascript" src="{#helper\globals::getJs("pages")#}"></script>
+<div class="pagin" data-js="page" data-total="{#$pagesData.totalPage#}" data-current="{#$pagesData.currentPage#}" data-ref="{#$pagesRef#}">
+<div class="message">{#if $pagesData.total > 0#}共&nbsp;<i class="blue">{#$pagesData.total#}</i>&nbsp;条记录{#else#}无相关记录{#/if#}，当前显示第&nbsp;<i class="blue"><span class="inner" data-page="{#$pagesData.currentPage#}">{#$pagesData.currentPage#}</span>&nbsp;{#if $pagesData.totalPage >= 1#}/&nbsp;<span class="inner" data-page="{#$pagesData.totalPage#}">{#$pagesData.totalPage#}</span>{#/if#}</i>&nbsp;页</div>
+<ul class="paginList">
+    {#if $pagesData.totalPage > 1#}
+    <li class="paginItem" data-page="pre"><a href="javascript:;"><span class="{#if $pagesData.currentPage == 1 || $pagesData.totalPage == 1#}pagepre{#else#}pagepre_highlight{#/if#}"></span></a></li>
+    {#if $pagesData.currentPage - 5 > 1#}
+    <li data-page="less" class="paginItem less"><a href="javascript:;">...</a></li>
+    {#/if#}
+    {#section name="loop" loop=$pagesData.totalPage start=$start max=10 #}
+    <li data-page="{#$smarty.section.loop.index  + 1#}" class="paginItem {#if $smarty.section.loop.index + 1 == $pagesData.currentPage#}current{#/if#}"><a href="javascript:;">{#$smarty.section.loop.index  + 1#}</a></li>
+    {#/section#}
+    {#if $pagesData.totalPage >= $pagesData.currentPage + 10#}
+    <li data-page="more" class="paginItem more"><a href="javascript:;">...</a></li>
+    {#/if#}
+    <li data-page="next" class="paginItem"><a href="javascript:;"><span class="{#if $pagesData.totalPage == 1 || $pagesData.currentPage >= $pagesData.totalPage#}pagenxt{#else#}pagenxt_highlight{#/if#}"></span></a></li>
+    {#/if#}
+</ul>
+</div>
+<script>
+$('[data-js=page]').pages({ref : 'data-ref', total : 'data-total', current : 'data-current'});
+</script>
