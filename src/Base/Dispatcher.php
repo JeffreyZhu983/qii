@@ -46,6 +46,13 @@ class Dispatcher
         array_unshift($funcArgs, $controllerName);
         $psr4 = \Qii\Autoloader\Psr4::getInstance();
         $controllerCls = call_user_func_array(array($psr4, 'loadClass'), $funcArgs);
+
+        $method = new \ReflectionMethod($this, 'dispatch');
+        foreach($method->getParameters() as $property)
+        {
+        	$param = $property->getName();
+        	$this->request->setParam($param, $$param);
+        }
         $this->controllerCls = $controllerCls;
         $this->controllerCls->setRequest($this->request);
         $this->controllerCls->controller = $controllerCls;
