@@ -726,7 +726,7 @@ class Base
 	/**
 	 *
 	 * 查询所有
-	 * @param String $table
+	 * @param String $table 数据表名称
 	 * @return Array
 	 */
 	final function selectAll($table)
@@ -735,11 +735,21 @@ class Base
 		$this->cleanData();
 		return $this->getAll($sql);
 	}
+	/**
+	 * 返回resource资源
+	 * @param string $table 数据表名称
+	*/
+	final function rs($table)
+	{
+		$this->modelSQL = $sql = sprintf($this->_query['SELECT'], ((trim($this->fields) != '') ? $this->fields : "*"), $table) . $this->where . $this->groupBy . $this->orderBy . $this->limit;
+		$this->cleanData();
+		return $this->setQuery($sql);
+	}
 
 	/**
 	 * 将指定字段减指定值
 	 *
-	 * @param $data
+	 * @param array $data 数据
 	 * @return $this
 	 */
 	final function downsetCounter($data)
