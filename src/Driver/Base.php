@@ -13,6 +13,7 @@ class Base
 		"UPDATE" => "UPDATE %s SET ",
 		"DELETE" => "DELETE FROM %s %s",
 		"WHERE" => " WHERE %s",
+		"LIKE" => " `%s` LIKE '%s'",
 		"ORDER" => " ORDER BY %s %s",
 		"GROUP" => " GROUP BY %s",
 		"LIMIT" => " LIMIT %d, %d"
@@ -601,6 +602,30 @@ class Base
 			} else {
 				$this->limit = sprintf($this->_query["LIMIT"], $limit, $offset);
 			}
+		}
+		return $this;
+	}
+
+	final function like($like)
+	{
+		if(empty($like)) return $this;
+		$likeArray = array();
+		if($like && !is_array($like))
+		{
+			$likeArray[] = $like;
+		}
+		else
+		{
+			foreach($like AS $key => $val)
+			{
+				$likeArray[] = sprintf($this->_query['LIKE'], $key, "%". $this->setQuote($val) . "%");
+			}
+		}
+		if(count($likeArray) > 0)
+		{
+			$likeSQL = join(" OR ", $likeArray);
+			echo $likeSQL;
+			$this->where = sprintf($this->_query["WHERE"], $likeSQL);
 		}
 		return $this;
 	}
