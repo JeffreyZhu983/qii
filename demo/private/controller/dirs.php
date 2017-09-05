@@ -89,4 +89,16 @@ class dirs extends base
 		$download = new \Qii\Library\Download();
 		$download->download($file);
 	}
+
+	protected function echoJson($data)
+	{
+		echo $this->jsonEncode($data);
+	}
+
+	protected function jsonEncode($data)
+	{
+		if (empty($data)) return '{}';
+		if (isset($data['code']) && $data['code'] > 0 && !isset($data['msg'])) $data['msg'] = _i($data['code']);
+		return json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+	}
 }
