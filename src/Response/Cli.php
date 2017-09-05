@@ -23,7 +23,7 @@ class Cli extends \Qii\Base\Response
      */
     public function stdout($string)
     {
-        $string = iconv('utf-8', 'gbk', $string);
+        if(strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') $string = iconv('utf-8', 'gbk', $string);
         fwrite(\STDOUT, $string);
     }
 }

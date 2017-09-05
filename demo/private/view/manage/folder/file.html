@@ -3,18 +3,18 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>文件管理</title>
-    <link href="{#helper\globals::getCss("style")#}" rel="stylesheet" type="text/css" />
-    <link href="{#helper\globals::getCss("select")#}" rel="stylesheet" type="text/css" />
-    <link href="{#helper\globals::getCss("jquery.multiSelect")#}" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="{#helper\globals::getJs("jquery.min")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("jquery.idTabs.min")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("select-ui.min")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("jquery.bgiframe.min")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("jquery.multiSelect")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("tips")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("notify-custom.min")#}"></script>
-    <link href="{#\helper\globals::getFullUrl('static/js/google-code-prettify/prettify', '.css')#}" type="text/css" rel="stylesheet" />
-    <script type="text/javascript" src="{#\helper\globals::getFullUrl('static/js/google-code-prettify/prettify', '.js')#}"></script>
+    <link href="{#_link("static/css/style.css")#}" rel="stylesheet" type="text/css" />
+    <link href="{#_link("static/css/select.css")#}" rel="stylesheet" type="text/css" />
+    <link href="{#_link("static/css/jquery.multiSelect.css")#}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{#_link("static/js/jquery.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.idTabs.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/select-ui.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.bgiframe.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.multiSelect.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/tips.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/notify-custom.min.js")#}"></script>
+    <link href="{#_link('static/js/google-code-prettify/prettify.css')#}" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="{#_link('static/js/google-code-prettify/prettify.js')#}"></script>
     <style>
     pre span{display:inline;font-size:14px;}
     pre.prettyprint{border:0px;}
@@ -25,7 +25,7 @@
    <span>位置：</span> 
    <ul class="placeul"> 
     <li><a href="{#$pathes.index#}">首页</a></li> 
-    <li><a href="{#\helper\globals::getFullUrl('/dirs')#}?path={#$defaultPath#}">文件管理</a></li> 
+    <li><a href="{#_link('/dirs')#}?path={#$defaultPath#}">文件管理</a></li> 
     {#foreach item=item from=$visitPathes#}
     <li><a href="{#$item.url#}">{#$item.name#}</a></li>
     {#/foreach#}
