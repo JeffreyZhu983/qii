@@ -48,6 +48,7 @@ class Normal
         if (!$this->config) {
             return array('controller' => $controller, 'action' => $action);
         }
+        if($url == '') $url = 'index/index.html';
         $url = ltrim($url, '/');
         $dirName = pathinfo($url, PATHINFO_DIRNAME);
         $dirInfo = explode('/', $dirName);
@@ -56,6 +57,12 @@ class Normal
             $dirInfo = array();
         }
         $dirInfo[] = $fileName;
+        //补全路径
+        if(count($dirInfo) == 1)
+        {
+        	$dirInfo[] = 'index';
+        }
+
         $dir = [];
         $match = ['key' => '', 'val' => '', 'url' => $url];
         if(isset($this->config['*:*'])) {
@@ -67,6 +74,14 @@ class Normal
         }
         foreach ($dirInfo AS $path) {
             $dir[] = $path;
+            $notAll = join($dir, ':');
+            if (isset($this->config[$notAll])) {
+                $config = $this->config[$notAll];
+                //匹配最长的规则
+                if (strlen($config) > strlen($match['val'])) {
+                    $match = array_merge($match, ['key' => $notAll, 'val' => $config]);
+                }
+            }
             $joinPath = join($dir, ':') . ":*";
             if (isset($this->config[$joinPath])) {
                 $config = $this->config[$joinPath];

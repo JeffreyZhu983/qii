@@ -10,7 +10,7 @@ class Http extends \Qii\Base\Response
      * Set HTTP response code to use with headers
      *
      * @param int $code
-     * @return Yaf_Response_Http
+     * @return Qii_Response_Http
      */
     public function setResponseCode($code)
     {
@@ -39,7 +39,7 @@ class Http extends \Qii\Base\Response
      * If an {@link setResponseCode() HTTP response code}
      * has been specified, it is sent with the first header.
      *
-     * @return Yaf_Response_Http
+     * @return Qii_Response_Http
      */
     protected function sendHeaders()
     {
@@ -68,7 +68,7 @@ class Http extends \Qii\Base\Response
      * Sets Location header. Forces replacement of any prior redirects.
      *
      * @param string $url
-     * @return Yaf_Response_Abstract
+     * @return Qii_Response_Abstract
      */
     public function setRedirect($url)
     {
