@@ -115,7 +115,7 @@ class tools
 			if ($filter != '*' && !$isDir && !preg_match('/' . $filter . '$/', $file)) continue;
 			$array = array();
 			$type = self::fileType($fullPath);
-			$array['name'] = $file;
+			$array['name'] = iconv('GBK', 'UTF-8', $file);
 			if (!in_array($type, $filetype)) {
 				$array['icon'] = _link('filetype/unknow.png');
 			} else {
