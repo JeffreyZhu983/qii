@@ -1,0 +1,13 @@
+##
+#
+#	$Id: .htaccess 268 2009-12-16 06:18:19Z Jinhui.Zhu $
+#
+#	Copyright (C) 2008-2009 www.qiiframework.com. All Rights Reserved.
+#  
+##
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+RewriteCond $1 !^(index.php|images|robots.txt)
+RewriteRule (.*)$ index.php/$1 [L,QSA,PT]
