@@ -139,7 +139,7 @@ class Hash
     public function MD5Hash($str) // 0.050
     {
         $hash = md5($str);
-        $hash = $hash[0] | ($hash[1] << 8) | ($hash[2] << 16) | ($hash[3] << 24) | ($hash[4] << 32) | ($hash[5] << 40) | ($hash[6] << 48) | ($hash[7] << 56);
+        $hash = ord($hash[0]) | (ord($hash[1]) << 8) | (ord($hash[2]) << 16) | (ord($hash[3]) << 24) | (ord($hash[4]) << 32) | (ord($hash[5]) << 40) | (ord($hash[6]) << 48) | (ord($hash[7]) << 56);
         return $hash % self::HASH_MODE;
     }
 }
