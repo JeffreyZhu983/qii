@@ -1,1 +1,0 @@
-<p><?php echo $_SERVER['SERVER_SOFTWARE'];?> , Page rendered in <?php echo Benchmark::Caculate('site');?> seconds, Use memory <?php echo Qii::useMemory();?>. Author: jinhui zhu Email : jinhui.zhu@live.cn</p>

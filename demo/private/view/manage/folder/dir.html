@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>文件管理</title>
+    <link href="{#_link("static/css/style.css")#}" rel="stylesheet" type="text/css" />
+    <link href="{#_link("static/css/select.css")#}" rel="stylesheet" type="text/css" />
+    <link href="{#_link("static/css/jquery.multiSelect.css")#}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{#_link("static/js/jquery.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.idTabs.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/select-ui.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.bgiframe.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.multiSelect.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/tips.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/notify-custom.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/layer/layer.js")#}"></script>
+</head>
+ <body>
+  <div class="place"> 
+   <span>位置：</span> 
+   <ul class="placeul"> 
+    <li><a href="{#$pathes.index#}">首页</a></li> 
+    <li><a href="{#_link('/dirs')#}?path={#$defaultPath#}">文件管理</a></li> 
+    {#foreach item=item from=$visitPathes#}
+    <li><a href="{#$item.url#}">{#$item.name#}</a></li>
+    {#/foreach#}
+   </ul> 
+  </div> 
+  <table class="filetable"> 
+   <thead> 
+    <tr> 
+     <th width="25%">名称</th> 
+     <th width="21%">修改日期</th> 
+     <th width="10%">类型</th> 
+     <th width="6%">大小</th> 
+     <th width="38%">操作</th>
+    </tr> 
+   </thead> 
+   <tbody> 
+   {#foreach item=item from=$files#}
+    <tr data-js="link" data-url="{#$item.url#}"> 
+     <td><img src="{#$item.icon#}" />{#if $item.isImage#}<img src="{#$item.path#}" height="20" style="vertical-align:middle;" />{#/if#}<a href="{#$item.url#}">{#$item.name#}</a></td> 
+     <td>{#$item.updateAt|date_format:'Y-m-d H:i:s'#}</td> 
+     <td>{#if $item.type == 'folder'#}文件夹{#else#}文件{#/if#}</td> 
+     <td class="tdlast">{#$item.size#}</td> 
+     <td><a href="{#$item.url#}">查看</a>  <a data-js="remove" data-ref="{#$item.remove#}">删除</a></td>
+    </tr> 
+    {#foreachelse#}
+    <tr>
+    	<td colspan="5">此文件夹下没有文件</td>
+    </tr>
+    {#/foreach#}
+   </tbody> 
+  </table>
+  <script>
+  $('[data-js=link]').on('click', function(event){
+    if($(event.target).attr('data-js') == 'remove') return;
+  	window.location.href =$(this).attr('data-url');
+  });
+  $('[data-js=remove]').on('click', function(event){
+    var _this = $(this);
+    layer.confirm('确定要删除此文件？', {
+      btn: ['确认','取消'] //按钮
+    }, function(){
+      $.ajax({
+          url : _this.attr('data-ref'),
+          method : 'GET',
+          dataType : 'json',
+          success: function(data){
+            if(typeof data.code != 'undefined'){
+              data.code == 0 ? layer.msg('删除成功') : layer.msg(data.msg);
+              setTimeout(function(){window.location.href=window.location.href;}, 2000);
+            }else{
+              layer.msg(data);
+            }
+          },
+          error : function(){
+            layer.msg('系统错误');
+          }
+      });0 
+    });
+  });
+  </script>
+ </body>
+</html>

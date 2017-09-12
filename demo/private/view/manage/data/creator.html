@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>规则生成</title>
+    <link href="{#_link("static/css/style.css")#}" rel="stylesheet" type="text/css" />
+    <link href="{#_link("static/css/select.css")#}" rel="stylesheet" type="text/css" />
+    <link href="{#_link("static/css/jquery.multiSelect.css")#}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{#_link("static/js/jquery.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.idTabs.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/select-ui.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.bgiframe.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.multiSelect.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/tips.js")#}"></script>
+	<script type="text/javascript" src="{#_link("static/js/notify-custom.min.js")#}"></script>
+
+    <script type="text/javascript">
+            $(document).ready(function(){
+				$(".multi").multiSelect({selectAllText: '选择所有', noneSelected: '请选择', oneOrMoreSelected:'共选择%项'});
+
+				$("#creatorForm").submit( function()
+                {
+					$.post($(this).attr('action'), $(this).serialize(), function(r)
+                    {
+						if(typeof r.code != 'undefined' && r.code == 0)
+                        {
+							$.notify("保存成功", "success");
+                        }
+                        else
+                        {
+							$.notify("保存失败", "error");
+                        }
+					}, 'json');
+					return false;
+				});
+				
+	            $('input[name="download"]').on('click', function(){
+	            	var database = $('input[name="database"]').val();
+	            	var tableName = $('input[name="tableName"]').val();
+	            	var url = '{#_link("api/database/downloadConfig.json")#}?database='+ database + '&tableName='+ tableName;
+	            	window.location.href = url;
+	            });
+                $('input[name="creatBasicCode"]').on('click', function(){
+                    var database = $('input[name="database"]').val();
+                    var tableName = $('input[name="tableName"]').val();
+                    var url = '{#_link("api/database/creatBasicCode.json")#}?database='+ database + '&tableName='+ tableName;
+                    window.location.href = url;
+                });
+            });
+    </script>
+
+
+</head>
+
+
+<body>
+
+{#if $loadDatabase#}
+<div class="place">
+    <span>位置：</span>
+    <ul class="placeul">
+        <li><a href="{#$pathes.index#}">首页</a></li>
+        <li><a href="{#$pathes.creator#}?database={#$database#}&tableName={#$tableName#}">规则管理</a></li>
+        <li>规则生成器</a></li>
+    </ul>
+</div>
+{#/if#}
+<div class="rightinfo">
+    {#if $loadDatabase#}
+    <div class="tools">
+    	<select id="database" name="database" onchange="if(this.value != ''){window.location.href = '{#_link("database/creator")#}?database='+ $('#database').val()}">
+    		<option value="">请选择数据库</option>
+            {#foreach key=key item=item from=$databases#}
+            <option value="{#$item#}" {#if $database == $item#}selected{#/if#}>{#$item#}</option>
+            {#/foreach#}
+    	</select>
+        <select name="tableName" onchange="if(this.value != ''){window.location.href = '{#_link("database/creator")#}?tableName='+ this.value +'&database='+ $('#database').val() }">
+            <option>请选择数据表</option>
+            {#foreach key=key item=item from=$tables#}
+            <option value="{#$item#}" {#if $tableName == $item#}selected{#/if#}>{#$item#}</option>
+            {#/foreach#}
+        </select>
+        {#if $tables|count > 0#}
+        <a href="{#_link("database/table")#}?database={#$database#}&tableName={#$tableName#}">数据管理</a>
+        {#/if#}
+    </div>
+    {#/if#}
+    {#if $fields#}
+    <form name="creatorForm" id="creatorForm" action="{#_link("api/database/creator.json")#}?isAjax=1" method="POST">
+    <input type="hidden" name="tableName" value="{#$tableName#}"  />
+    <input type="hidden" name="database" value="{#$database#}"  />
+    <table class="tablelist">
+        <thead>
+        <tr>
+            <th>字段名</th>
+            <th>显示名</th>
+            <th><input type="checkbox" name="selectFrontAll">前端使用</th>
+            <th><input type="checkbox" name="selectEndAll">后端使用</th>
+            <th>默认值</th>
+            <th>验证类型</th>
+            <th><input type="checkbox" name="selectSaveAll">保存验证</th>
+            <th><input type="checkbox" name="selectSaveAllValid">保存查询字段</th>
+            <th><input type="checkbox" name="selectUpdateAll">更新验证</th>
+            <th><input type="checkbox" name="selectUpdateAllValid">更新查询字段</th>
+            <th><input type="checkbox" name="selectRemoveAll">删除验证</th>
+            <th><input type="checkbox" name="selectRemoveAllValid">删除查询字段</th>
+        </tr>
+        </thead>
+        <tbody>
+        {#foreach item=item key=key from=$fields#}
+    	<input type="hidden" name="{#$tableName#}[length][{#$key#}]" value="{#$item.length#}"  />
+    	<input type="hidden" name="{#$tableName#}[type][{#$key#}]" value="{#$item.type#}"  />
+        <input type="hidden" name="{#$tableName#}[fields][]" value="{#$key#}" />
+    	{#if isset($item.pri)#}<input type="hidden" name="{#$tableName#}[pri][{#$key#}]" value="{#$item.pri#}"  />{#/if#}
+    	{#if isset($item.uni)#}<input type="hidden" name="{#$tableName#}[uni][{#$key#}]" value="{#$item.uni#}"  />{#/if#}
+        <tr>
+            <td>{#$key#}</td>
+            <td><input type="text" name="{#$tableName#}[alias][{#$key#}]" class="dfinputmin" value="{#if isset($rules['alias'][$key])#}{#$rules['alias'][$key]#}{#/if#}" /></td>
+            <td><input class="selectFrontFields" type="checkbox" name="{#$tableName#}[front][{#$key#}]" value="1" {#if isset($rules['front'][$key])#} checked="checked"{#/if#} /></td>
+            <td><input class="selectEndFields" type="checkbox" name="{#$tableName#}[end][{#$key#}]" value="1" {#if isset($rules['end'][$key])#} checked="checked"{#/if#} /></td>
+            <td><input type="text" name="{#$tableName#}[default][{#$key#}]" class="dfinputmin" value="{#if isset($rules['default'][$key])#}{#$rules['default'][$key]#}{#elseif isset($item.default)#}{#$item.default#}{#/if#}" /></td>
+            <td>
+			<select id="{#$tableName#}[validate][{#$key#}]" name="{#$tableName#}[validate][{#$key#}]" class="multi" multiple="multiple" size="1">
+                	<option value=""></option>
+                    {#foreach from=$validate key=k item=v#}
+					<option value="{#$k#}"{#if isset($validateRules[$key]) && ($k|in_array:$validateRules[$key])#} selected{#/if#}>{#$v#}</option>
+                    {#/foreach#}
+                </select>
+            </td>
+            <td><input class="selectSaveFields" type="checkbox" name="{#$tableName#}[save][{#$key#}]" value="1" {#if isset($rules['save'][$key])#} checked="checked"{#/if#} /></td>
+            <td><input class="selectSaveFieldsValid" type="checkbox" name="{#$tableName#}[saveValid][{#$key#}]" value="1" {#if isset($rules['saveValid'][$key])#} checked="checked"{#/if#} /></td>
+            <td><input class="selectUpdateFields" type="checkbox" name="{#$tableName#}[update][{#$key#}]" value="1" {#if isset($rules['update'][$key])#} checked="checked"{#/if#} /></td>
+            <td><input class="selectUpdateFieldsValid" type="checkbox" name="{#$tableName#}[updateValid][{#$key#}]" value="1" {#if isset($rules['updateValid'][$key])#} checked="checked"{#/if#} /></td>
+            <td><input class="selectRemoveFields" type="checkbox" name="{#$tableName#}[remove][{#$key#}]" value="1" {#if isset($rules['remove'][$key])#} checked="checked"{#/if#} /></td>
+            <td><input class="selectRemoveFieldsValid" type="checkbox" name="{#$tableName#}[removeValid][{#$key#}]" value="1" {#if isset($rules['removeValid'][$key])#} checked="checked"{#/if#} /></td>
+        </tr>
+        {#/foreach#}
+        </tbody>
+    </table>
+
+
+    <div class="pagin">
+        <div class="message">&nbsp;</div>
+        <ul class="paginList">
+           <li><input type="button" name="rulesManager" value="详细规则管理" class="btn" /> <input type="submit" name="submit" value="保存规则" class="btn" /> <input type="button" name="download" value="下载规则" class="btn" /> <input type="button" name="creatBasicCode" value="生成基础代码" class="btn" /></li>
+        </ul>
+    </div>
+    {#/if#}
+	</form>
+</div>
+
+<script type="text/javascript">
+    $('.tablelist tbody tr:odd').addClass('odd');
+    $('input[name="rulesManager"]').on('click', function(){
+    	window.location.href = '{#_link("database/rules")#}?database={#$database#}&tableName={#$tableName#}';
+    });
+    $('input[name="selectFrontAll"]').on('click', function(){
+    	$('.selectFrontFields').prop('checked', $('input[name="selectFrontAll"]').prop('checked'));
+    });
+    $('input[name="selectEndAll"]').on('click', function(){
+    	$('.selectEndFields').prop('checked', $('input[name="selectEndAll"]').prop('checked'));
+    });
+    $('input[name="selectSaveAll"]').on('click', function(){
+    	$('.selectSaveFields').prop('checked', $('input[name="selectSaveAll"]').prop('checked'));
+    });
+    $('input[name="selectSaveAllValid"]').on('click', function(){
+    	$('.selectSaveFieldsValid').prop('checked', $('input[name="selectSaveAllValid"]').prop('checked'));
+    });
+    $('input[name="selectUpdateAll"]').on('click', function(){
+    	$('.selectUpdateFields').prop('checked', $('input[name="selectUpdateAll"]').prop('checked'));
+    });
+    $('input[name="selectUpdateAllValid"]').on('click', function(){
+    	$('.selectUpdateFieldsValid').prop('checked', $('input[name="selectUpdateAllValid"]').prop('checked'));
+    });
+    $('input[name="selectRemoveAll"]').on('click', function(){
+    	$('.selectRemoveFields').prop('checked', $('input[name="selectRemoveAll"]').prop('checked'));
+    });
+    $('input[name="selectRemoveAllValid"]').on('click', function(){
+    	$('.selectRemoveFieldsValid').prop('checked', $('input[name="selectRemoveAllValid"]').prop('checked'));
+    });
+</script>
+</body>
+
+</html>

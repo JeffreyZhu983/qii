@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>文件管理</title>
+    <link href="{#_link("static/css/style.css")#}" rel="stylesheet" type="text/css" />
+    <link href="{#_link("static/css/select.css")#}" rel="stylesheet" type="text/css" />
+    <link href="{#_link("static/css/jquery.multiSelect.css")#}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{#_link("static/js/jquery.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.idTabs.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/select-ui.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.bgiframe.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.multiSelect.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/tips.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/notify-custom.min.js")#}"></script>
+    <link href="{#_link('static/js/google-code-prettify/prettify.css')#}" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="{#_link('static/js/google-code-prettify/prettify.js')#}"></script>
+    <style>
+    pre span{display:inline;font-size:14px;}
+    pre.prettyprint{border:0px;}
+    </style>
+</head>
+ <body>
+  <div class="place"> 
+   <span>位置：</span> 
+   <ul class="placeul"> 
+    <li><a href="{#$pathes.index#}">首页</a></li> 
+    <li><a href="{#_link('/dirs')#}?path={#$defaultPath#}">文件管理</a></li> 
+    {#foreach item=item from=$visitPathes#}
+    <li><a href="{#$item.url#}">{#$item.name#}</a></li>
+    {#/foreach#}
+    <li>{#$file#}</li>
+   </ul> 
+  </div> 
+  <table class="filetable"> 
+   <thead>
+   <tr>
+    <td><h3>&nbsp;&nbsp;&nbsp;&nbsp;文件内容:</h3></td>
+   </tr>
+   </thead> 
+   <tbody>
+   <tr>
+       <td width="100%">
+       <pre class="prettyprint linenums Lang-html">
+{#$code|htmlspecialchars#}
+       </pre>
+       </td>
+   </tr>
+   </tbody> 
+  </table>
+  <script>
+  $(function(){
+  prettyPrint();
+  });
+  </script>
+ </body>
+</html>

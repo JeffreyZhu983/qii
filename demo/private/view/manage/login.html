@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>欢迎登录后台管理系统</title>
+<link href="{#helper\globals::getCss("style")#}" rel="stylesheet" type="text/css" />
+<script language="JavaScript" src="{#helper\globals::getJs("jquery")#}"></script>
+<script src="{#helper\globals::getJs("cloud")#}" type="text/javascript"></script>
+    <script type="text/javascript" src="{#helper\globals::getJs("tips")#}"></script>
+	<script type="text/javascript" src="{#helper\globals::getJs("notify-custom.min")#}"></script>
+
+<script language="javascript">
+	$(function(){
+    $('.loginbox').css({'position':'absolute','left':($(window).width()-692)/2});
+	$(window).resize(function(){  
+    $('.loginbox').css({'position':'absolute','left':($(window).width()-692)/2});
+    })  
+});  
+</script> 
+
+</head>
+
+<body style="background-color:#1c77ac; background-image:url(images/light.png); background-repeat:no-repeat; background-position:center top; overflow:hidden;">
+
+
+
+    <div id="mainBody">
+      <div id="cloud1" class="cloud"></div>
+      <div id="cloud2" class="cloud"></div>
+    </div>  
+
+
+<div class="logintop">    
+    <span>欢迎登录后台管理界面平台</span>    
+    <ul>
+	    <li><a href="#">回首页</a></li>
+	    <li><a href="#">帮助</a></li>
+	    <li><a href="#">关于</a></li>
+    </ul>    
+    </div>
+    
+    <div class="loginbody">
+    
+    <span class="systemlogo"></span> 
+       
+    <div class="loginbox">
+    	{#helper\globals::safeForm()#}
+	    <ul>
+		    <li><input name="user" id="user" type="text" class="loginuser" value="admin"  placeholder="请输入用户名" /></li>
+		    <li><input name="password" id="passwrod" type="password" class="loginpwd" placeholder="请输入密码" /></li>
+		    <li><input name="login" type="button" class="loginbtn" value="登录"  /><label><input name="" type="checkbox" value="" checked="checked" />记住密码</label><label><a href="#">忘记密码？</a></label></li>
+	    </ul>
+    </div>
+    <p style="text-align:center;">请在配置文件中设置登录密码</p>
+    </div>
+    <div class="loginbm">2016  <a href="{#$pathes.weburl#}">{#$pathes.weburl#}</a> </div>
+	<script>
+		$('input[name="login"]').on('click', function(){
+			var user = $('input[name="user"]').val();
+			var password = $('input[name="password"]').val();
+			var security_sid = $('input[name="security_sid"]').val();
+			if(user == '' || password == '')
+			{
+				$.notify('用户名和密码不能为空', 'error');
+				return;
+			}
+			$.ajax({
+					url : '{#$pathes.loginCheck#}?isAjax=1',
+					data : {user: user, password : password, security_sid : security_sid},
+					method : 'POST',
+					dataType : 'json',
+					success : function(data)
+					{
+						if(data.code == 0)
+						{
+							$.notify("登录成功", "success", {callback: function(){window.location.href = window.location.href;}});
+						}
+						else
+						{
+							$.notify(data.msg, "error");
+						}
+					},
+					error : function()
+					{
+						$.notify("网络连接失败，请重试", "error");
+					}
+			});
+		});
+	</script>
+    
+</body>
+
+</html>
