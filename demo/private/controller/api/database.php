@@ -11,7 +11,7 @@ class database extends base
 	public function __construct()
 	{
 		parent::__construct();
-		$this->_load->model('table')->checkRuleTable();
+		$this->load->model('table')->checkRuleTable();
 	}
 
 	/**
@@ -20,20 +20,20 @@ class database extends base
 	public function creatorAction()
 	{
 		$data = array();
-		$database = $this->_request->post('database');
-		$tableName = $this->_request->post('tableName');
-		$rules = $this->_request->post($tableName);
+		$database = $this->request->post('database');
+		$tableName = $this->request->post('tableName');
+		$rules = $this->request->post($tableName);
 		if (!$rules) {
 			$data['code'] = 1;
 			echo $this->Json($data);
 			return;
 		}
-		$result = $this->_load->model('table')->saveRules($database, $tableName, $rules);
+		$result = $this->load->model('table')->saveRules($database, $tableName, $rules);
 		if ($result) {
 			$data['code'] = 0;
 		} else {
 			$data['code'] = 1;
-			$data['error'] = $this->_load->model('table')->tablesError;
+			$data['error'] = $this->load->model('table')->tablesError;
 		}
 		$this->echoJson($data);
 	}
@@ -44,20 +44,20 @@ class database extends base
 	public function rulesAction()
 	{
 		$data = array();
-		$database = $this->_request->post('database');
-		$tableName = $this->_request->post('tableName');
-		$rules = $this->_request->post('rules');
+		$database = $this->request->post('database');
+		$tableName = $this->request->post('tableName');
+		$rules = $this->request->post('rules');
 		if (!$rules) {
 			$data['code'] = 1;
 			echo $this->Json($data);
 			return;
 		}
-		$result = $this->_load->model('table')->updateRules($database, $tableName, $rules);
+		$result = $this->load->model('table')->updateRules($database, $tableName, $rules);
 		if ($result) {
 			$data['code'] = 0;
 		} else {
 			$data['code'] = 1;
-			$data['error'] = $this->_load->model('table')->tablesError;
+			$data['error'] = $this->load->model('table')->tablesError;
 		}
 		$this->echoJson($data);
 	}
@@ -67,8 +67,8 @@ class database extends base
 	 */
 	public function tableListsAction()
 	{
-		$tableName = $this->_request->get('tableName', '');
-		$this->echoJson($this->_load->model('table')->getTableLists($this->_load->model('table')->getUseDB(), $tableName));
+		$tableName = $this->request->get('tableName', '');
+		$this->echoJson($this->load->model('table')->getTableLists($this->load->model('table')->getUseDB(), $tableName));
 	}
 
 	/**
@@ -76,8 +76,8 @@ class database extends base
 	 */
 	public function fieldsListsAction()
 	{
-		$tableName = $this->_request->get('tableName');
-		$this->echoJson($this->_load->model('table')->getFieldsLists($this->_load->model('table')->getUseDB(), $tableName));
+		$tableName = $this->request->get('tableName');
+		$this->echoJson($this->load->model('table')->getFieldsLists($this->load->model('table')->getUseDB(), $tableName));
 	}
 
 	/**
@@ -86,8 +86,8 @@ class database extends base
 	public function tableAction()
 	{
 		$data = array();
-		$database = $this->_request->get('__database', $this->_load->model('table')->getUseDB());
-		$tableName = $this->_request->get('__tableName', '');
+		$database = $this->request->get('__database', $this->load->model('table')->getUseDB());
+		$tableName = $this->request->get('__tableName', '');
 		if (!$database || !$tableName) {
 			$data['code'] = 1;
 			$data['msg'] = '参数不全';
@@ -95,22 +95,22 @@ class database extends base
 			return;
 		}
 
-		$pri = explode(',', $this->_request->get('__pri'));
+		$pri = explode(',', $this->request->get('__pri'));
 
 		$priVal = array();
 		foreach ($pri as $val) {
-			if (!$this->_request->keyExists($_GET, $val)) {
+			if (!$this->request->keyExists($_GET, $val)) {
 				$data['code'] = 1;
 				break;
 			}
-			$priVal[$val] = $this->_request->get($val);
+			$priVal[$val] = $this->request->get($val);
 		}
-		$result = $this->_load->model('table')->removeTableData($database, $tableName, $priVal);
+		$result = $this->load->model('table')->removeTableData($database, $tableName, $priVal);
 		if ($result) {
 			$data['code'] = 0;
 		} else {
 			$data['code'] = 1;
-			$data['error'] = $this->_load->model('table')->getError() === false ? '删除数据失败' : $this->_load->model('table')->getError();
+			$data['error'] = $this->load->model('table')->getError() === false ? '删除数据失败' : $this->load->model('table')->getError();
 		}
 		$this->echoJson($data);
 	}
@@ -124,22 +124,22 @@ class database extends base
 
 			$data = array();
 			$data['code'] = 0;
-			$database = $this->_request->post('__database');
-			$tableName = $this->_request->post('__tableName');
-			$pri = explode(',', $this->_request->post('__pri'));
+			$database = $this->request->post('__database');
+			$tableName = $this->request->post('__tableName');
+			$pri = explode(',', $this->request->post('__pri'));
 
 
-			$fields = $this->_request->post('fields');
+			$fields = $this->request->post('fields');
 			$priVal = array();
 			foreach ($pri as $val) {
-				if (!$this->_request->keyExists($_POST, $val)) {
+				if (!$this->request->keyExists($_POST, $val)) {
 					$data['code'] = 1;
 					break;
 				}
-				$priVal[$val] = $this->_request->post($val);
+				$priVal[$val] = $this->request->post($val);
 			}
 			if ($data['code'] != 1) {
-				$result = $this->_load->model('table')->updateTableData($database, $tableName, $priVal, $fields);
+				$result = $this->load->model('table')->updateTableData($database, $tableName, $priVal, $fields);
 				if (!$result->isError()) {
 					$data['code'] = 0;
 				} else {
@@ -165,13 +165,13 @@ class database extends base
 
 			$data = array();
 			$data['code'] = 0;
-			$database = $this->_request->post('database');
-			$tableName = $this->_request->post('tableName');
+			$database = $this->request->post('database');
+			$tableName = $this->request->post('tableName');
 
 
-			$fields = $this->_request->post('fields');
+			$fields = $this->request->post('fields');
 			if ($data['code'] != 1) {
-				$result = $this->_load->model('table')->addTableData($database, $tableName, $fields);
+				$result = $this->load->model('table')->addTableData($database, $tableName, $fields);
 				if ($result->getCode() == 0) {
 					$data['code'] = 0;
 				} else {
@@ -193,21 +193,21 @@ class database extends base
 	 */
 	public function downloadConfigAction()
 	{
-		$database = $this->_request->get('database');
-		$tableName = $this->_request->get('tableName');
+		$database = $this->request->get('database');
+		$tableName = $this->request->get('tableName');
 		try {
 			if (!$database || !$tableName) {
 				$data['code'] = 1;
 				$data['msg'] = '参数不全';
 				throw new Exception($data['msg'], $data['code']);
 			}
-			$result = $this->_load->model('table')->autoRules($database, $tableName);
+			$result = $this->load->model('table')->autoRules($database, $tableName);
 			if ($result) {
-				$tableStruct = $this->_load->model('table')->getTableSQL($database, $tableName);
+				$tableStruct = $this->load->model('table')->getTableSQL($database, $tableName);
 				$result['sql'] = '';
 				if ($tableStruct['sql']) $result['sql'] = str_replace("'", "\'", $tableStruct['sql']);
 				$downloadStr = "<?php\n\t return " . var_export($result, true) . ';';
-				$this->_load->library('download')->downloadByString($database . '.' . $tableName . '.config.php', $downloadStr);
+				_loadClass('\Qii\Library\Download')->downloadByString($database . '.' . $tableName . '.config.php', $downloadStr);
 			}
 		} catch (Exception $e) {
 			$this->showErrorPage($e->getMessage());
@@ -221,11 +221,11 @@ class database extends base
 	 */
 	public function tableSQLAction()
 	{
-		$database = $this->_request->get('database');
-		$tableName = $this->_request->get('tableName');
+		$database = $this->request->get('database');
+		$tableName = $this->request->get('tableName');
 		$data = array();
 		try {
-			$data = $this->_load->model('table')->getTableSQL($database, $tableName);
+			$data = $this->load->model('table')->getTableSQL($database, $tableName);
 			$data['code'] = 0;
 		} catch (Exception $e) {
 			$data['code'] = 1;
@@ -239,11 +239,11 @@ class database extends base
 	 */
 	public function backupAction()
 	{
-		$database = $this->_request->get('database');
-		$tableName = $this->_request->get('tableName');
+		$database = $this->request->get('database');
+		$tableName = $this->request->get('tableName');
 		try {
-			$downloadStr = $this->_load->model('table')->backupTable($database, $tableName);
-			$this->_load->library('download')->downloadByString($database . '.' . $tableName . '.sql', $downloadStr);
+			$downloadStr = $this->load->model('table')->backupTable($database, $tableName);
+			_loadClass('\Qii\Library\Download')->downloadByString($database . '.' . $tableName . '.sql', $downloadStr);
 		} catch (Exception $e) {
 			$data['code'] = 1;
 			$data['msg'] = $e->getMessage();
@@ -253,8 +253,8 @@ class database extends base
 
 	public function restoreAction()
 	{
-		$database = $this->_request->post('database');
-		$tableName = $this->_request->post('tableName');
+		$database = $this->request->post('database');
+		$tableName = $this->request->post('tableName');
 		if (!$database || !$tableName || !isset($_FILES['restoreSQL']) ||
 			!isset($_FILES['restoreSQL']['tmp_name']) ||
 			$_FILES['restoreSQL']['tmp_name'] == '' ||
@@ -266,21 +266,21 @@ class database extends base
 			return;
 		}
 		$fileName = $_FILES['restoreSQL']['tmp_name'];
-		$data = $this->_load->model('table')->restore($database, $tableName, $fileName);
+		$data = $this->load->model('table')->restore($database, $tableName, $fileName);
 		echo $this->Json($data);
 	}
 
 	public function creatBasicCodeAction()
 	{
-		$database = $this->_request->get('database');
-		$tableName = $this->_request->get('tableName');
+		$database = $this->request->get('database');
+		$tableName = $this->request->get('tableName');
 		try {
 			if (!$database || !$tableName) {
 				$data['code'] = 1;
 				$data['msg'] = '参数或文件错误';
 				throw new \Exception($data['msg'], $data['code']);
 			}
-			$rules = $this->_load->model('table')->getRules($database, $tableName);
+			$rules = $this->load->model('table')->getRules($database, $tableName);
 			if(!isset($rules['rules']))
 			{
 				$data['code'] = 1;
@@ -288,15 +288,15 @@ class database extends base
 				throw new \Exception($data['msg'], $data['code']);
 			}
 			$privateKeys = 'array(\'' . join('\', \'', array_keys($rules['rules']['pri'])) . '\')';
-			$this->_view->assign('privateKeys', $privateKeys);
-			$code = $this->_load->model('code');
+			$this->view->assign('privateKeys', $privateKeys);
+			$code = $this->load->model('code');
 			$code->setDatabase($database);
 			$code->setClass($tableName);
-			$this->_view->assign('code', $code->output());
-			$sampleCode = $this->_view->fetch('manage/data/code.html');
-			$this->_load->library('download')->downloadByString($tableName . '.php', $sampleCode);
+			$this->view->assign('code', $code->output());
+			$sampleCode = $this->view->fetch('manage/data/code.html');
+			_loadClass('\Qii\Library\Download')->downloadByString($tableName . '.php', $sampleCode);
 		} catch (\Exception $e) {
-			$this->showErrorPage($e->getMessage());
+			echo $e->getMessage();
 		}
 	}
 }

@@ -4,9 +4,9 @@
  *
  * @author Jinhui Zhu<jinhui.zhu@live.cn> 2015-08-23 10:07
  */
-namespace Model;
+namespace model;
 
-use \Qii\Model;
+use \Qii\Driver\Model;
 use \Qii\Driver\Response;
 
 class table extends Model
@@ -20,8 +20,8 @@ class table extends Model
 	}
 	public function getRuleTableInfo()
 	{
-		$table = \Qii\Import::includes('configure/table.rules.config.php');
-		$table['database'] = $this->db->useDB;
+		$table = _include('../private/configure/table.rules.config.php');
+		$table['database'] = $this->db->currentDB;
 		return $table;
 	}
 	public function checkRuleTable()
@@ -42,8 +42,8 @@ class table extends Model
 		$databases = array();
 		$sql = "SHOW DATABASES";
 
-		$this->db->setQuery($sql);
-		while ($row = $this->db->fetch()) {
+		$rs = $this->db->setQuery($sql);
+		while ($row = $rs->fetch()) {
 			if (!in_array($row['Database'], array('information_schema', 'mysql', 'performance_schema', 'test'))) $databases[] = $row['Database'];
 		}
 		return $databases;
@@ -61,8 +61,8 @@ class table extends Model
 		try {
 			$data['code'] = 0;
 			$sql = "SHOW CREATE TABLE {$db}.{$table}";
-			$this->db->setQuery($sql);
-			$row = $this->db->fetch();
+			$rs = $this->db->setQuery($sql);
+			$row = $rs->fetch();
 			$createTableSQL = preg_replace('/AUTO_INCREMENT\=[\d]/', 'AUTO_INCREMENT=1', $row['Create Table']);
 			if ($row) $data['sql'] = str_replace("CREATE TABLE ", "CREATE TABLE IF NOT EXISTS ", $createTableSQL) . ';';
 		} catch (Exception $e) {
@@ -86,8 +86,8 @@ class table extends Model
 		}
 		$tables = array();
 		$sql = "SHOW TABLES IN " . $db;
-		$this->db->setQuery($sql);
-		while ($row = $this->db->fetch()) {
+		$rs = $this->db->setQuery($sql);
+		while ($row = $rs->fetch()) {
 			$tableName = $row['Tables_in_' . $db];
 			$insert = true;
 			if (!empty($table)) $insert = stristr($tableName, $table) ? true : false;
@@ -129,8 +129,8 @@ class table extends Model
 	{
 		$fields = array();
 		$sql = 'DESC ' . $db . '.' . $table;
-		$this->db->setQuery($sql);
-		while ($row = $this->db->fetch()) {
+		$rs = $this->db->setQuery($sql);
+		while ($row = $rs->fetch()) {
 			$val = array();
 			$val['field'] = $row['Field'];
 			$val['null'] = strtolower($row['Null']);
@@ -395,9 +395,9 @@ class table extends Model
 		$data['page']['currentPage'] = $currentPage;
 		$data['page']['totalPage'] = ceil($data['page']['total'] / $pageSize);
 		$sql = "SELECT * FROM {$database}.{$tableName} LIMIT " . $start . ',' . $pageSize;
-		$this->db->setQuery($sql);
+		$rs = $this->db->setQuery($sql);
 		$rulesCount = isset($rules['rules']['end']) && count($rules['rules']['end']) > 0 ? $rules['rules']['end'] : 0;
-		while ($row = $this->db->fetch()) {
+		while ($row = $rs->fetch()) {
 			$val = array();
 			if ($rulesCount > 0) {
 				foreach ($rules['rules']['end'] AS $key => $field) {

@@ -80,7 +80,7 @@ class Dispatcher
             if (!method_exists($this->actionCls, 'run')) {
                 throw new \Qii\Exceptions\MethodNotFound(\Qii::i(1101, $this->controllerCls->actions[$action] . '->run'), __LINE__);
             }
-            $response = call_user_func_array(array($this->actionCls, 'run'), $funcArgs);
+            $response = call_user_func_array(array($this->actionCls, 'run'), array_slice($funcArgs, 1));
         } else {
             if(method_exists($this->controllerCls, 'initialization'))
             {

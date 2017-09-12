@@ -85,7 +85,7 @@ class Easy
 
 	public function __construct()
 	{
-		$this->db = \Qii\Autoloader\Psr4::loadClass('Qii\Model')->db;
+		$this->db = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Driver\Model')->db;
 		$this->clean();
 		return $this;
 	}
@@ -236,7 +236,7 @@ class Easy
 	final protected function validateFields($rules)
 	{
 		if (empty($rules)) return true;
-		$validateCls = _loadClass('Qii_Library_Validate');
+		$validateCls = _loadClass('\Qii\Library\Validate');
 		$result = $validateCls->verify($this->fields->getValues(), $rules, $this->easyRules->getInvalidMessage());
 		if ($result === true) {
 			return true;
@@ -299,7 +299,11 @@ class Easy
 			}
 			if ($this->fields->isField($key)) $where[] = "`{$key}` = '" . $this->db->setQuote($this->fields->getField($key)) . "'";
 		}
-		$result = (array)$this->db->limit(1)->where(join(' AND ', $where))->select($this->getTableName());
+		$result = $this->db->limit(1)->where(join(' AND ', $where))->select($this->getTableName());
+		if(!$result)
+		{
+			$result = array();
+		}
 		if ($this->db->isError()) {
 			$this->_response = $this->db->getResponse();
 		}

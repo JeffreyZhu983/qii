@@ -3,16 +3,16 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>规则生成</title>
-    <link href="{#helper\globals::getCss("style")#}" rel="stylesheet" type="text/css" />
-    <link href="{#helper\globals::getCss("select")#}" rel="stylesheet" type="text/css" />
-    <link href="{#helper\globals::getCss("jquery.multiSelect")#}" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="{#helper\globals::getJs("jquery.min")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("jquery.idTabs.min")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("select-ui.min")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("jquery.bgiframe.min")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("jquery.multiSelect")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("tips")#}"></script>
-	<script type="text/javascript" src="{#helper\globals::getJs("notify-custom.min")#}"></script>
+    <link href="{#_link("static/css/style.css")#}" rel="stylesheet" type="text/css" />
+    <link href="{#_link("static/css/select.css")#}" rel="stylesheet" type="text/css" />
+    <link href="{#_link("static/css/jquery.multiSelect.css")#}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{#_link("static/js/jquery.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.idTabs.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/select-ui.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.bgiframe.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.multiSelect.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/tips.js")#}"></script>
+	<script type="text/javascript" src="{#_link("static/js/notify-custom.min.js")#}"></script>
 
     <script type="text/javascript">
             $(document).ready(function(){
@@ -37,13 +37,13 @@
 	            $('input[name="download"]').on('click', function(){
 	            	var database = $('input[name="database"]').val();
 	            	var tableName = $('input[name="tableName"]').val();
-	            	var url = '{#helper\globals::getFullUrl("api/database/downloadConfig", ".json")#}?database='+ database + '&tableName='+ tableName;
+	            	var url = '{#_link("api/database/downloadConfig.json")#}?database='+ database + '&tableName='+ tableName;
 	            	window.location.href = url;
 	            });
                 $('input[name="creatBasicCode"]').on('click', function(){
                     var database = $('input[name="database"]').val();
                     var tableName = $('input[name="tableName"]').val();
-                    var url = '{#helper\globals::getFullUrl("api/database/creatBasicCode", ".json")#}?database='+ database + '&tableName='+ tableName;
+                    var url = '{#_link("api/database/creatBasicCode.json")#}?database='+ database + '&tableName='+ tableName;
                     window.location.href = url;
                 });
             });
@@ -68,26 +68,25 @@
 <div class="rightinfo">
     {#if $loadDatabase#}
     <div class="tools">
-    	<select id="database" name="database" onchange="if(this.value != ''){window.location.href = '{#helper\globals::getFullUrl("database/creator")#}?database='+ $('#database').val()}">
+    	<select id="database" name="database" onchange="if(this.value != ''){window.location.href = '{#_link("database/creator")#}?database='+ $('#database').val()}">
     		<option value="">请选择数据库</option>
             {#foreach key=key item=item from=$databases#}
             <option value="{#$item#}" {#if $database == $item#}selected{#/if#}>{#$item#}</option>
             {#/foreach#}
     	</select>
-        <select name="tableName" onchange="if(this.value != ''){window.location.href = '{#helper\globals::getFullUrl("database/creator")#}?tableName='+ this.value +'&database='+ $('#database').val() }">
+        <select name="tableName" onchange="if(this.value != ''){window.location.href = '{#_link("database/creator")#}?tableName='+ this.value +'&database='+ $('#database').val() }">
             <option>请选择数据表</option>
             {#foreach key=key item=item from=$tables#}
             <option value="{#$item#}" {#if $tableName == $item#}selected{#/if#}>{#$item#}</option>
             {#/foreach#}
         </select>
         {#if $tables|count > 0#}
-        <a href="{#helper\globals::getFullUrl("database/table")#}?database={#$database#}&tableName={#$tableName#}">数据管理</a>
+        <a href="{#_link("database/table")#}?database={#$database#}&tableName={#$tableName#}">数据管理</a>
         {#/if#}
     </div>
     {#/if#}
     {#if $fields#}
-    <form name="creatorForm" id="creatorForm" action="{#helper\globals::getFullUrl("api/database/creator", ".json")#}?isAjax=1" method="POST">
-    {#helper\globals::safeForm()#}
+    <form name="creatorForm" id="creatorForm" action="{#_link("api/database/creator.json")#}?isAjax=1" method="POST">
     <input type="hidden" name="tableName" value="{#$tableName#}"  />
     <input type="hidden" name="database" value="{#$database#}"  />
     <table class="tablelist">
@@ -153,7 +152,7 @@
 <script type="text/javascript">
     $('.tablelist tbody tr:odd').addClass('odd');
     $('input[name="rulesManager"]').on('click', function(){
-    	window.location.href = '{#helper\globals::getFullUrl("database/rules")#}?database={#$database#}&tableName={#$tableName#}';
+    	window.location.href = '{#_link("database/rules")#}?database={#$database#}&tableName={#$tableName#}';
     });
     $('input[name="selectFrontAll"]').on('click', function(){
     	$('.selectFrontFields').prop('checked', $('input[name="selectFrontAll"]').prop('checked'));

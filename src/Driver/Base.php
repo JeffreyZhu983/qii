@@ -178,7 +178,7 @@ class Base
 		preg_match("/(?:\()(.*)(?:\))/i", $str, $matches);
 		$str = $matches[1];
 		$a = explode(",", $str);
-		for($i=0; $i<count($a); $i++)
+		for($i=0; $i< count($a); $i++)
 		{
 			$this->removeQuote($a[$i]);//从字符串中去除单引号
 		}
@@ -343,6 +343,8 @@ class Base
 	 */
 	public function getTable($table)
 	{
+		list($database, $tableName) = array_pad(explode('.', $table), 2, '');
+		if($tableName) return "`{$database}`.`{$tableName}`";
 		return $table;
 	}
 
@@ -373,7 +375,8 @@ class Base
 				}
 				$values[] = $this->setQuote($value);
 			}
-			$this->modelSQL = $sql = "INSERT INTO `{$table}`(`" . join("`, `", $keys) . "`) VALUES('" . join("', '", $values) . "')";
+
+			$this->modelSQL = $sql = "INSERT INTO ". $this->getTable($table) ."(`" . join("`, `", $keys) . "`) VALUES('" . join("', '", $values) . "')";
 			$this->setQuery($sql);
 			$this->cleanData();
 			$this->setError();
@@ -404,7 +407,7 @@ class Base
 				}
 				$values[] = $this->setQuote($value);
 			}
-			$this->modelSQL = $sql = "REPLACE INTO `{$table}`(`" . join("`, `", $keys) . "`) VALUES('" . join("', '", $values) . "')";
+			$this->modelSQL = $sql = "REPLACE INTO ". $this->getTable($table) ."(`" . join("`, `", $keys) . "`) VALUES('" . join("', '", $values) . "')";
 			$rs = $this->setQuery($sql);
 			$this->cleanData();
 			$this->setError();
@@ -447,7 +450,7 @@ class Base
 					$where[] = "`{$key}` = '" . $value . "'";
 				}
 			}
-			$this->modelSQL = $sql = "UPDATE `{$table}` SET " . join(", ", $values) . (sizeof($where) > 0 ? " WHERE " . join(" AND ", $where) : '');
+			$this->modelSQL = $sql = "UPDATE ". $this->getTable($table) ." SET " . join(", ", $values) . (sizeof($where) > 0 ? " WHERE " . join(" AND ", $where) : '');
 			$rs = $this->setQuery($sql);
 			$this->cleanData();
 			$this->setError();
@@ -473,7 +476,7 @@ class Base
 				$where[] = "`{$k}` = '" . $this->setQuote($v) . "'";
 			}
 		}
-		$this->modelSQL = $sql = "DELETE FROM `{$table}`" . (sizeof($where) > 0 ? " WHERE " . join(" AND ", $where) : '');
+		$this->modelSQL = $sql = "DELETE FROM ". $this->getTable($table) ." " . (sizeof($where) > 0 ? " WHERE " . join(" AND ", $where) : '');
 		$rs = $this->query($sql);
 		$this->cleanData();
 		$this->setError();

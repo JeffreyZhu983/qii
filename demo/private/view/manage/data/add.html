@@ -3,14 +3,19 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>数据编辑器</title>
-    <link href="{#helper\globals::getCss("style")#}" rel="stylesheet" type="text/css" />
-    <link href="{#helper\globals::getCss("select")#}" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="{#helper\globals::getJs("jquery.min")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("jquery.idTabs.min")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs("select-ui.min")#}"></script>
-	<script type="text/javascript" src="{#helper\globals::getJs("notify-custom.min")#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs('xheditor/xheditor-1.2.2.min')#}"></script>
-    <script type="text/javascript" src="{#helper\globals::getJs('xheditor/xheditor_lang/zh-cn')#}"></script>
+
+
+    <link href="{#_link("static/css/style.css")#}" rel="stylesheet" type="text/css" />
+    <link href="{#_link("static/css/select.css")#}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{#_link("static/js/jquery.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.idTabs.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/select-ui.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.bgiframe.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/jquery.multiSelect.js")#}"></script>
+    <script type="text/javascript" src="{#_link("static/js/tips.js")#}"></script>
+	<script type="text/javascript" src="{#_link("static/js/notify-custom.min.js")#}"></script>
+    <script type="text/javascript" src="{#_link('static/js/xheditor/xheditor-1.2.2.min.js')#}"></script>
+    <script type="text/javascript" src="{#_link('static/js/xheditor/xheditor_lang/zh-cn.js')#}"></script>
 	<script>
 	$(document).ready(function(){
 		$("#modifyForm").submit(function()
@@ -55,7 +60,7 @@
     <span>位置：</span>
     <ul class="placeul">
         <li><a href="{#$pathes.index#}">首页</a></li>
-        <li><a href="{#helper\globals::getFullUrl("database/creator")#}?database={#$database#}&tableName={#$tableName#}">规则管理</a></li>
+        <li><a href="{#_link("database/creator")#}?database={#$database#}&tableName={#$tableName#}">规则管理</a></li>
         <li><a href="{#$pathes.table#}?database={#$database#}&tableName={#$tableName#}">数据管理</a></li>
         <li>添加数据</li>
     </ul>
@@ -64,8 +69,7 @@
 <div class="formbody">
 
     <div class="formtitle"><span>基本信息</span></div>
-    <form name="modifyForm" id="modifyForm" method="POST" action="{#helper\globals::getFullUrl("api/database/add", ".json")#}?isAjax=1">
-		{#helper\globals::safeForm()#}
+    <form name="modifyForm" id="modifyForm" method="POST" action="{#_link("api/database/add.json")#}?isAjax=1">
 		<input type="hidden" name="database" value="{#$database#}" id="database" />
 		<input type="hidden" name="tableName" value="{#$tableName#}" id="tableName" />
 	    <ul class="forminfo">

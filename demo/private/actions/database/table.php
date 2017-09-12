@@ -6,12 +6,12 @@
  */
 namespace actions\database;
 
-use Qii\Action_Abstract;
+use Qii\Base\Action;
 
-class table extends Action_Abstract
+class table extends Action
 {
-	protected $enableView = true;
-	protected $enableDatabase = true;
+	public $enableView = true;
+	public $enableDB = true;
 
 	public function __construct()
 	{
@@ -23,33 +23,33 @@ class table extends Action_Abstract
 	 * 创建规则
 	 * @author Jinhui Zhu 2015-08-23
 	 */
-	public function execute()
+	public function run()
 	{
 		list($database, $tableName) = array_pad(func_get_args(), 2, '');
 		$loadDatabase = true;
-		$this->_view->assign('controller', $this->_controller);
-		$this->_view->assign('action', $this->_action);
+		$this->controller->view->assign('controller', $this->_controller);
+		$this->controller->view->assign('action', $this->_action);
 		try {
-			$this->_view->assign('loadDatabase', $loadDatabase);
-			$database = $this->_request->get('database', $database);
-			$tableName = $this->_request->get('tableName', $tableName);
-			$currentPage = $this->_request->get('currentPage', 1);
+			$this->controller->view->assign('loadDatabase', $loadDatabase);
+			$database = $this->request->get('database', $database);
+			$tableName = $this->request->get('tableName', $tableName);
+			$currentPage = $this->request->get('currentPage', 1);
 			$databases = array();
 			$tables = array();
 			if ($loadDatabase) {
-				$databases = $this->_load->model('table')->getDatabases();
+				$databases = $this->controller->load->model('table')->getDatabases();
 				if (!$database && count($database) > 0) $database = $databases[0];
 				if (!$database) throw new \Exception('数据库名不能为空', __LINE__);
-				$tables = $this->_load->model('table')->getTableLists($database);
+				$tables = $this->controller->load->model('table')->getTableLists($database);
 				if (!$tableName && count($tables) > 0) {
 					$tableName = $tables[0];
 				}
 			}
-			$this->_view->assign('databases', $databases);
-			$this->_view->assign('tables', $tables);
+			$this->controller->view->assign('databases', $databases);
+			$this->controller->view->assign('tables', $tables);
 
-			$this->_view->assign('database', $database);
-			$this->_view->assign('tableName', $tableName);
+			$this->controller->view->assign('database', $database);
+			$this->controller->view->assign('tableName', $tableName);
 			$data = array();
 			$data['page'] = array();
 			$data['page']['currentPage'] = 1;
@@ -59,16 +59,16 @@ class table extends Action_Abstract
 			$data['rules']['end'] = array();
 			$data['rows'] = array();
 			if ($tableName) {
-				$data = $this->_load->model('table')->loadTableData($database, $tableName, $currentPage);
+				$data = $this->controller->load->model('table')->loadTableData($database, $tableName, $currentPage);
 			}
 			$start = 0;
 			if ($data['page']['currentPage'] >= 6) {
 				$start = $data['page']['currentPage'] - 6;
 			}
-			$this->_view->assign('start', $start);
-			$this->_view->assign('data', $data);
-			$this->_view->assign('pages', $data['page']);
-			$this->_view->display('manage/data/table.html');
+			$this->controller->view->assign('start', $start);
+			$this->controller->view->assign('data', $data);
+			$this->controller->view->assign('pages', $data['page']);
+			$this->controller->view->display('manage/data/table.html');
 		} catch (Exception $e) {
 			$this->showErrorPage($e->getMessage());
 		}

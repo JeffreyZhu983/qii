@@ -6,12 +6,12 @@
  */
 namespace actions\database;
 
-use Qii\Action_Abstract;
+use Qii\Base\Action;
 
-class creator extends Action_Abstract
+class creator extends Action
 {
-	protected $enableView = true;
-	protected $enableDatabase = true;
+	public $enableView = true;
+	public $enableDB = true;
 
 	public function __construct()
 	{
@@ -22,38 +22,39 @@ class creator extends Action_Abstract
 	 * 创建规则
 	 * @author Jinhui Zhu 2015-08-23
 	 */
-	public function execute()
+	public function run()
 	{
-		list($database, $tableName) = array_pad(func_get_args(), 2, '');
+		$args = func_get_args();
+		list($database, $tableName) = array_pad($args, 2, '');
 		$loadDatabase = $database ? false : true;
-		$this->_view->assign('loadDatabase', $loadDatabase);
-		$tableName = $this->_request->get('tableName', $tableName);
-		$database = $this->_request->get('database', $database);
+		$this->controller->view->assign('loadDatabase', $loadDatabase);
+		$tableName = $this->request->get('tableName', $tableName);
+		$database = $this->request->get('database', $database);
 		try {
-			$databases = $this->_load->model('table')->getDatabases();
+			$databases = $this->controller->load->model('table')->getDatabases();
 			if (!$database && count($database) > 0) $database = $databases[0];
-			$this->_view->assign('databases', $databases);
-			$tables = $this->_load->model('table')->getTableLists($database);
+			$this->controller->view->assign('databases', $databases);
+			$tables = $this->controller->load->model('table')->getTableLists($database);
 			if (!$tableName && count($tables) > 0) {
 				$tableName = $tables[0];
 			}
-			$this->_view->assign('tables', $tables);
+			$this->controller->view->assign('tables', $tables);
 			$fields = array();
 			$rules = array();
 			if ($tableName != '') {
-				$fields = $this->_load->model('table')->getFieldsLists($database, $tableName);
-				$rules = $this->_load->model('table')->getRules($database, $tableName);
+				$fields = $this->controller->load->model('table')->getFieldsLists($database, $tableName);
+				$rules = $this->controller->load->model('table')->getRules($database, $tableName);
 				if (!isset($rules['rules'])) $rules['rules'] = array();
 			}
 			$validateRules = isset($rules['rules']['validate']) ? $rules['rules']['validate'] : array();
-			$this->_view->assign('validateRules', $validateRules);
-			$validate = new \Qii\Validate();
-			$this->_view->assign('validate', $validate->getRuleNames());
-			$this->_view->assign('fields', $fields);
-			$this->_view->assign('rules', isset($rules['rules']) ? $rules['rules'] : array());
-			$this->_view->assign('database', $database);
-			$this->_view->assign('tableName', $tableName);
-			$this->_view->display('manage/data/creator.html');
+			$this->controller->view->assign('validateRules', $validateRules);
+			$validate = new \Qii\Library\Validate();
+			$this->controller->view->assign('validate', $validate->getRuleNames());
+			$this->controller->view->assign('fields', $fields);
+			$this->controller->view->assign('rules', isset($rules['rules']) ? $rules['rules'] : array());
+			$this->controller->view->assign('database', $database);
+			$this->controller->view->assign('tableName', $tableName);
+			$this->controller->view->display('manage/data/creator.html');
 		} catch (Exception $e) {
 			$this->showErrorPage($e->getMessage());
 		}

@@ -120,7 +120,6 @@
         var data = {};
         data.database = '{#$database#}';
         data.tableName = '{#$tableName#}';
-        data.security_sid = '{#\Qii::getSecurity()#}'
         $.ajaxFileUpload({
             url : '{#\helper\globals::getFullUrl('api/database/restore')#}?random='+ Math.random(),
             data : data,

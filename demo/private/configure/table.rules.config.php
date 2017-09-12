@@ -1,6 +1,6 @@
 <?php
 return array(
-	'database' => 'test',
+	'database' => 'qii',
 	'tableName' => 'database_table_rules',
 	'rules' => array(
 		'length' => array(

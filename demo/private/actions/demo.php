@@ -1,9 +1,9 @@
 <?php
 namespace actions;
 
-use Qii\Action_Abstract;
+use Qii\Base\Action;
 
-class demo extends Action_Abstract
+class demo extends Action
 {
 	public function execute()
 	{
