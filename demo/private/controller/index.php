@@ -11,7 +11,7 @@ class index extends \Qii\Base\Controller
         $html[] = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>示例程序</title><style>ul{list-style:none;}</style></head><body>';
         $html[] = '<ul>示例程序';
         $html[] = '<li>><a href="'. _link('dirs.html') .'">文件管理</a></li>';
-        $html[] = '<li>><a href="'. _link('database.html') .'">数据表管理</a></li>';
+        $html[] = '<li>><a href="'. _link('database/creator.html') .'">数据表管理</a></li>';
         $html[] = '<li>><a href="'. _link('index/dispatch.html') .'">Dispatch</a></li>';
         $html[] = '<li>><a href="'. _link('index/forward.html') .'">Forward</a></li>';
         $html[] = '<li>><a href="'. _link('index/display.html') .'">使用指定目录中的模板</a></li>';
