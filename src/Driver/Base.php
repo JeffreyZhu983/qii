@@ -4,7 +4,7 @@ namespace Qii\Driver;
 class Base
 {
 	const VERSION = '1.2';
-	public $_cache;
+	public $cache;
 	public $language;
 	protected $_query = array(
 		"INSERT" => "INSERT INTO %s(%s) VALUES('%s')",
@@ -28,9 +28,9 @@ class Base
 	protected $orderBy;
 	public $load;
 	/**
-	 * @var string $_response Response对象
+	 * @var string $response Response对象
 	 */
-	protected $_response;
+	public $response;
 
 	//方法对应的别名
 	protected $_modelAlias = array('selectRows' => 'selectAll', 'select' => 'selectRow', 'getOne' => 'selectOne', 'getRow' => 'selectRow', 'getAll' => 'selectAll', 'remove' => 'deleteRows');
@@ -39,7 +39,7 @@ class Base
 	{
 		$this->language = \Qii\Autoloader\Psr4::getInstance()->loadClass('Qii\Language\Loader');
 		$this->load = \Qii\Autoloader\Psr4::getInstance()->loadClass('\Qii\Autoloader\Loader');
-		$this->_response = new \Qii\Driver\Response();
+		$this->response = new \Qii\Driver\Response();
 	}
 	/**
 	 * 获取数据库中所有的数据表
@@ -302,7 +302,7 @@ class Base
 	final public function setCache($cache, $policy)
 	{
 		\Qii\Autoloader\Import::requires(Qii_DIR . DS . 'Qii' . DS . 'Cache.php');
-		$this->_cache = \Qii\Autoloader\Psr4::loadClass('\Qii\Cache', $cache)->initialization($policy);//载入cache类文件
+		$this->cache = \Qii\Autoloader\Psr4::loadClass('\Qii\Cache', $cache)->initialization($policy);//载入cache类文件
 	}
 
 	/**
@@ -314,7 +314,7 @@ class Base
 	 */
 	final public function cache($id, $value)
 	{
-		return $this->_cache->set($id, $value);
+		return $this->cache->set($id, $value);
 	}
 
 	/**
@@ -322,7 +322,7 @@ class Base
 	 */
 	final public function getCache()
 	{
-		return $this->_cache;
+		return $this->cache;
 	}
 
 	/**
@@ -333,7 +333,7 @@ class Base
 	 */
 	final public function getCacheData($id)
 	{
-		return $this->_cache->get($id);
+		return $this->cache->get($id);
 	}
 
 	/**
@@ -350,7 +350,7 @@ class Base
 
 	public function setLanguage()
 	{
-		$this->language = \Qii\Autoloader\Psr4::loadClass('Qii_Language_Loader');
+		$this->language = \Qii\Autoloader\Psr4::loadClass('Qii\Language\Loader');
 	}
 
 	/**
@@ -572,7 +572,9 @@ class Base
 			$this->orderBy = sprintf($this->_query['ORDER'], $field, $orderBy);
 		}
 	}
-	
+	/**
+	 * 多个order by条件
+	 */
 	final function orderByArr($map)
 	{
 		if(empty($map)) return $this;
@@ -582,7 +584,10 @@ class Base
 		}
 		return $this;
 	}
-
+	/**
+	 * order by
+	 * @param string order by
+	 */
 	final function orderByStr($orderBy)
 	{
 		if(!$orderBy) return $this;
@@ -608,7 +613,10 @@ class Base
 		}
 		return $this;
 	}
-
+	/**
+	 * 创建Like查询条件
+	 * @param string | array $like like的条件
+	 */
 	final function like($like)
 	{
 		if(empty($like)) return $this;
@@ -627,7 +635,6 @@ class Base
 		if(count($likeArray) > 0)
 		{
 			$likeSQL = join(" OR ", $likeArray);
-			echo $likeSQL;
 			$this->where = sprintf($this->_query["WHERE"], $likeSQL);
 		}
 		return $this;
@@ -668,7 +675,15 @@ class Base
 		}
 		return $this;
 	}
-
+	/**
+	 * 创建插入表的SQL
+	 */
+	final function createInsertSQL($table)
+	{
+		$sql = sprintf($this->_query['INSERT'], $table, join(",", $this->fileds['k']), join("', '", $this->fileds['v']));
+		$this->cleanData();
+		return $sql;
+	}
 	/**
 	 *
 	 * 插入数据到指定表中
@@ -676,12 +691,22 @@ class Base
 	 */
 	final function insertRow($table)
 	{
-		$this->modelSQL = $sql = sprintf($this->_query['INSERT'], $table, join(",", $this->fileds['k']), join("', '", $this->fileds['v']));
-		$this->cleanData();
-		$this->setQuery($sql, '');
+		$this->modelSQL = $sql = $this->createInsertSQL($sql);
+		$this->setQuery($sql);
 		return $this->lastInsertId();
 	}
-
+	/**
+	 * 创建replace object SQL
+	 * 
+	 * @param string $table 表名
+	 * @return string
+	 */
+	final function createReplaceSQL($table)
+	{
+		$sql = sprintf($this->_query['REPLACE'], $table, join(",", $this->fileds['k']), join("', '", $this->fileds['v']));
+		$this->cleanData();
+		return $sql;
+	}
 	/**
 	 *
 	 * Replace方法
@@ -689,8 +714,7 @@ class Base
 	 */
 	final function replaceRow($table)
 	{
-		$this->modelSQL = $sql = sprintf($this->_query['REPLACE'], $table, join(",", $this->fileds['k']), join("', '", $this->fileds['v']));
-		$this->cleanData();
+		$this->modelSQL = $sql = $this->createReplaceSQL($table);
 		return $this->exec($sql);
 	}
 
@@ -701,10 +725,11 @@ class Base
 	 */
 	final function selectRow($table)
 	{
-		$this->modelSQL = $sql = sprintf($this->_query['SELECT'], ((trim($this->fields) != '') ? $this->fields : "*"), $table) . $this->where . $this->groupBy . $this->orderBy . $this->limit;
+		$this->modelSQL = $sql = $this->createSelectSQL($table);
 		$this->cleanData();
 		return $this->getRow($sql);
 	}
+
 
 	/**
 	 *
@@ -713,14 +738,13 @@ class Base
 	 */
 	final function selectOne($table)
 	{
-		$this->modelSQL = $sql = sprintf($this->_query['SELECT'], ((trim($this->fields) != '') ? $this->fields : "*"), $table) . $this->where . $this->groupBy . $this->orderBy . $this->limit;
-		$this->cleanData();
+		$this->modelSQL = $sql = $this->createSelectSQL($table);
 		return $this->getOne($sql);
 	}
 	/**
-	 * 创建SQL
+	 * 创建SELECT SQL
 	 */
-	final function createSQL($table)
+	final function createSelectSQL($table)
 	{
 		$sql = sprintf($this->_query['SELECT'], ((trim($this->fields) != '') ? $this->fields : "*"), $table) . $this->where . $this->groupBy . $this->orderBy . $this->limit;
 		$this->cleanData();
@@ -734,8 +758,7 @@ class Base
 	 */
 	final function selectAll($table)
 	{
-		$this->modelSQL = $sql = sprintf($this->_query['SELECT'], ((trim($this->fields) != '') ? $this->fields : "*"), $table) . $this->where . $this->groupBy . $this->orderBy . $this->limit;
-		$this->cleanData();
+		$this->modelSQL = $sql = $this->createSelectSQL($table);
 		return $this->getAll($sql);
 	}
 	/**
@@ -886,16 +909,16 @@ class Base
 	 */
 	public function getCode()
 	{
-		return $this->_response->getCode();
+		return $this->response->getCode();
 	}
 	/**
 	 * 获取错误信息
 	 */
 	public function getMessage()
 	{
-		if($this->_response->isError())
+		if($this->response->isError())
 		{
-			return $this->_response->getMessage();
+			return $this->response->getMessage();
 		}
 	}
 	/**
@@ -905,7 +928,7 @@ class Base
 	 */
 	public function getResponse()
 	{
-		return $this->_response;
+		return $this->response;
 	}
 
 	public function iconv($str)
