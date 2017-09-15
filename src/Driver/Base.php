@@ -532,6 +532,7 @@ class Base
 	{
 		$this->groupBy = null;
 		if (!empty($fields)) {
+			$fileds = is_array($fields) ? join(', ', $fields) : $fields;
 			$this->groupBy = sprintf($this->_query['GROUP'], $fields);
 		}
 		return $this;
