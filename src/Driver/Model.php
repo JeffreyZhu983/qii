@@ -6,7 +6,7 @@
  * 1.
  * namespace Model;
  *
- * use \Qii\Model;
+ * use \Qii\Driver\Model;
  * class comments extends Model
  * {
  *        public function __construct()
