@@ -549,7 +549,7 @@ class Base
 		if (is_array($array)) {
 			$tmpArray = array();
 			foreach ($array AS $k => $v) {
-				$tmpArray['k'][] = $k;
+				$tmpArray['k'][] = $this->setQuote($k);
 				$tmpArray['v'][] = $this->setQuote($v);
 			}
 			$this->fileds = $tmpArray;
@@ -692,7 +692,7 @@ class Base
 	 */
 	final function insertRow($table)
 	{
-		$this->modelSQL = $sql = $this->createInsertSQL($sql);
+		$this->modelSQL = $sql = $this->createInsertSQL($table);
 		$this->setQuery($sql);
 		return $this->lastInsertId();
 	}
