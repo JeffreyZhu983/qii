@@ -75,7 +75,7 @@
         </tbody>
     </table>
     
-    {#include file="manage/data/pages.html" pagesData=$pages pagesRef="{#helper\globals::getFullUrl("database/$_action")#}?database={#$database#}&tableName={#$tableName#}"#}
+    {#include file="manage/data/pages.html" pagesData=$pages pagesRef="{#helper\globals::getFullUrl("database/$action")#}?database={#$database#}&tableName={#$tableName#}"#}
     </form>
     <div class="pagin">
         <div class="message">&nbsp;</div>

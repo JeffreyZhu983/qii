@@ -27,8 +27,8 @@ class table extends Action
 	{
 		list($database, $tableName) = array_pad(func_get_args(), 2, '');
 		$loadDatabase = true;
-		$this->controller->view->assign('controller', $this->_controller);
-		$this->controller->view->assign('action', $this->_action);
+		$this->controller->view->assign('controller', $this->controllerId);
+		$this->controller->view->assign('action', $this->actionId);
 		try {
 			$this->controller->view->assign('loadDatabase', $loadDatabase);
 			$database = $this->request->get('database', $database);
