@@ -2,6 +2,7 @@
 /**
  * 控制器基类
  */
+
 namespace Qii\Base;
 
 use \Qii\Autoloader\Psr4;
@@ -64,13 +65,13 @@ abstract class Controller
      * @var bool
      */
     public $enableView = false;
-
+    
     /**
      * 是否启用Model
      * @var bool
      */
     public $enableDB = false;
-
+    
     public function __construct()
     {
         $this->load = Psr4::getInstance()->loadClass('\Qii\Autoloader\Loader');
@@ -88,19 +89,19 @@ abstract class Controller
         if ($this->enableView) {
             $this->view = $this->setView();
         }
-
+        
         if (!$this->beforeRun()) {
             exit();
         }
     }
-
+    
     /**
      * 启用view后调用初始化View方法
      */
     protected function initView()
     {
     }
-
+    
     /**
      * 设置view
      *
@@ -120,14 +121,13 @@ abstract class Controller
         $viewEngine = Psr4::getInstance()->loadClass('\Qii\View\Loader');
         $viewEngine->setView($engine, $policy);
         $this->view = $viewEngine->getView();
-        if(method_exists($this, 'initView'))
-        {
+        if (method_exists($this, 'initView')) {
             $this->initView();
         }
         $this->response->setRender($this->view);
-        return $this->view ;
+        return $this->view;
     }
-
+    
     /**
      * 设置缓存
      *
@@ -146,7 +146,7 @@ abstract class Controller
         $loader = new \Qii\Cache\Loader($engine);
         return $this->cache->$engine = $loader->initialization($policy);
     }
-
+    
     /**
      * 获取缓存的策略
      * @param String $cache 缓存的内容
@@ -158,7 +158,7 @@ abstract class Controller
         if (!$cache) return $data;
         $cacheInfo = Register::getAppConfigure(Register::get(Consts::APP_INI_FILE), $cache);
         if (!$cacheInfo) return $data;
-
+        
         $servers = explode(";", $cacheInfo['servers']);
         $ports = explode(";", $cacheInfo['ports']);
         for ($i = 0; $i < count($servers); $i++) {
@@ -166,6 +166,7 @@ abstract class Controller
         }
         return $data;
     }
+    
     /**
      * 开启数据库操作
      */
@@ -173,7 +174,7 @@ abstract class Controller
     {
         return $this->db = Psr4::getInstance()->loadClass('\Qii\Driver\Model');
     }
-
+    
     /**
      * 获取view
      *
@@ -183,7 +184,7 @@ abstract class Controller
     {
         return $this->view;
     }
-
+    
     /**
      * 设置 response
      * @param $request
@@ -192,6 +193,7 @@ abstract class Controller
     {
         return $this->response = $response;
     }
+    
     /**
      * 设置request
      * @param $request
@@ -200,8 +202,8 @@ abstract class Controller
     {
         return $this->request = $request;
     }
-
-
+    
+    
     /**
      * 只要继承的方法调用parent::__construct()就开始执行
      * 此方法如果返回false，将不再往下继续执行
@@ -210,22 +212,23 @@ abstract class Controller
     {
         return true;
     }
-
+    
     /**
      * 执行完dispatch后调用
      */
     protected function afterRun()
     {
-        if(!$this->response || !is_object($this->response))
-        {
+        if (!$this->response || !is_object($this->response)) {
             return;
         }
-        if($this->response instanceof \Qii\Base\Response)
-        {
+        if ($this->response instanceof \Qii\Base\Response) {
+            if ($this->response->needRender() && $this->view && $this->view instanceof \Qii\View\Intf) {
+                $this->response->setRender($this->view);
+            }
             $this->response->response();
         }
     }
-
+    
     /**
      * 转发
      * @param String $controller
@@ -239,7 +242,7 @@ abstract class Controller
         \Qii::getInstance()->dispatcher->setRequest($this->request);
         return call_user_func_array(array(\Qii::getInstance()->dispatcher, 'dispatch'), func_get_args());
     }
-
+    
     /**
      * 获取当前使用的controller
      *
@@ -249,7 +252,7 @@ abstract class Controller
     {
         return get_called_class();
     }
-
+    
     /**
      * 获取 request 方法
      * @return Qii_Request_Http
@@ -258,7 +261,7 @@ abstract class Controller
     {
         return $this->request;
     }
-
+    
     /**
      * 获取response类
      * @return mixed
@@ -267,7 +270,7 @@ abstract class Controller
     {
         return $this->response;
     }
-
+    
     /**
      * 设置forward
      * @param string $controller controller名
@@ -279,7 +282,7 @@ abstract class Controller
         $this->request->setActionName($action);
         $this->request->setForward(true);
     }
-
+    
     /**
      * afterRun 和 forward 执行
      */
