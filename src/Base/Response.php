@@ -1,4 +1,5 @@
 <?php
+
 namespace Qii\Base;
 
 class Response
@@ -9,9 +10,9 @@ class Response
     const DEFAULT_BODY = 'html';
     const FORMAT_JSON = 'json';
     const FORMAT_HTML = 'html';
-
+    
     public static $render = null;
-
+    
     /**
      * Body content
      * @var array
@@ -19,7 +20,7 @@ class Response
     protected $body = array();
     
     /**
-     * data 
+     * data
      * @param array $data
      */
     protected $data = array();
@@ -28,19 +29,20 @@ class Response
      * @var array
      */
     protected $headers = array();
-
+    
     /**
      * Determine to send the headers or not
      * @var unknown_type
      */
     protected $_sendHeader = false;
-	
     
-	public function __construct($data = array())
-	{
+    
+    public function __construct($data = array())
+    {
         $this->format = isset($data['format']) ? isset($data['format']) : self::FORMAT_HTML;
-		$this->data = $data;
-	}
+        $this->data = $data;
+    }
+    
     /**
      * 设置页面渲染类
      * @param \Qii\View\Intf $render 渲染类
@@ -49,7 +51,7 @@ class Response
     {
         \Qii\Base\Response::$render = $render;
     }
-
+    
     /**
      * Append content to the body content
      *
@@ -65,10 +67,10 @@ class Response
         if (!isset($this->body[$key])) {
             $this->body[$key] = '';
         }
-        $this->body[$key] .= (string) $body;
+        $this->body[$key] .= (string)$body;
         return $this;
     }
-
+    
     /**
      * Clear the entire body
      *
@@ -86,7 +88,7 @@ class Response
         }
         return true;
     }
-
+    
     /**
      * Clear headers
      *
@@ -97,7 +99,7 @@ class Response
         $this->headers = array();
         return $this;
     }
-
+    
     /**
      * Return the body content
      *
@@ -111,7 +113,7 @@ class Response
         }
         return array_key_exists($key, $this->body) ? $this->body[$key] : null;
     }
-
+    
     /**
      * Return array of headers; see {@link $headers} for format
      *
@@ -121,7 +123,7 @@ class Response
     {
         return $this->headers;
     }
-
+    
     /**
      * Prepend content the body
      *
@@ -140,7 +142,18 @@ class Response
         $this->body[$key] = $body . $this->body[$key];
         return $this;
     }
-
+    /**
+     * 是否需要view来渲染页面  
+     */
+    public function needRender()
+    {
+        if(is_array($this->data['body']) && isset($this->data['body']['tpl']))
+        {
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * Send the response, including all headers
      *
@@ -148,33 +161,29 @@ class Response
      */
     public function response()
     {
-        if($this->data && isset($this->data['body']))
-        {
-            switch($this->data['format'])
-            {
+        if ($this->data && isset($this->data['body'])) {
+            switch ($this->data['format']) {
                 case self::FORMAT_JSON:
                     $this->setHeader('Content-Type', 'text/json');
                     $this->sendHeaders();
                     echo json_encode($this->data['body'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
-                break;
+                    break;
                 default:
-					$body = $this->data['body'];
-					if(is_array($this->data['body'])) {
-						$body = '';
-						if(isset($this->data['body']['render']) && $this->data['body']['render'] instanceof  \Qii\View\Intf)
-						{
+                    $body = $this->data['body'];
+                    if (is_array($this->data['body'])) {
+                        $body = '';
+                        if (isset($this->data['body']['render']) && $this->data['body']['render'] instanceof \Qii\View\Intf) {
                             \Qii\Base\Response::$render = $this->data['body']['render'];
-						}
-
-                        if(\Qii\Base\Response::$render != null && \Qii\Base\Response::$render instanceof  \Qii\View\Intf)
-                        {
+                        }
+                        
+                        if (\Qii\Base\Response::$render != null && \Qii\Base\Response::$render instanceof \Qii\View\Intf) {
                             $tplData = isset($this->data['body']['tplData']) ? $this->data['body']['tplData'] : [];
                             \Qii\Base\Response::$render->assign($tplData);
                             $body = \Qii\Base\Response::$render->fetch($this->data['body']['tpl']);
                         }
-					}
-                    echo (IS_CLI ? (new \Qii\Response\Cli())->stdout($body) : $body);
-                break;
+                    }
+                    echo(IS_CLI ? (new \Qii\Response\Cli())->stdout($body) : $body);
+                    break;
             }
             return;
         }
@@ -185,11 +194,12 @@ class Response
             echo IS_CLI ? new \Qii\Response\Cli($body) : $body;
         }
     }
-
+    
     public function setAllHeaders()
     {
         return false;
     }
+    
     /**
      * Set body content
      *
@@ -202,10 +212,10 @@ class Response
         if (!strlen($key)) {
             $key = self::DEFAULT_BODY;
         }
-        $this->body[$key] = (string) $body;
+        $this->body[$key] = (string)$body;
         return $this;
     }
-
+    
     /**
      * Set a header
      *
@@ -219,9 +229,9 @@ class Response
      */
     public function setHeader($name, $value, $replace = false)
     {
-        $name  = $this->_normalizeHeader($name);
-        $value = (string) $value;
-
+        $name = $this->_normalizeHeader($name);
+        $value = (string)$value;
+        
         if ($replace) {
             foreach ($this->headers as $key => $header) {
                 if ($name == $header['name']) {
@@ -229,16 +239,16 @@ class Response
                 }
             }
         }
-
+        
         $this->headers[] = array(
-            'name'    => $name,
-            'value'   => $value,
+            'name' => $name,
+            'value' => $value,
             'replace' => $replace
         );
-
+        
         return $this;
     }
-
+    
     /**
      * Set redirect URL
      *
@@ -252,7 +262,7 @@ class Response
         $this->setHeader('Location', $url, true);
         return $this;
     }
-
+    
     /**
      * Magic __toString functionality
      *
@@ -267,7 +277,7 @@ class Response
         $this->response();
         return ob_get_clean();
     }
-
+    
     /**
      * Normalize a header name
      *
@@ -278,12 +288,12 @@ class Response
      */
     protected function _normalizeHeader($name)
     {
-        $filtered = str_replace(array('-', '_'), ' ', (string) $name);
+        $filtered = str_replace(array('-', '_'), ' ', (string)$name);
         $filtered = ucwords(strtolower($filtered));
         $filtered = str_replace(' ', '-', $filtered);
         return $filtered;
     }
-
+    
     /**
      * Send all headers
      *
