@@ -227,6 +227,7 @@ class Upload
 			return $data;
 		}
 		$extension = pathinfo($files['name'], PATHINFO_EXTENSION);
+		$extension = strtolower($extension);
 		if(!$extension){
 			if(isset($this->mine[$files['type']]))
 			{
@@ -238,6 +239,7 @@ class Upload
 			$data['code'] = 1407;
 			$data['src'] = '';
 			$data['size'] = 0;
+            $data['extension'] = $extension;
 			$data['msg'] = 'Not Allowed';
 			return $data;
 		}
