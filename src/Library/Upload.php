@@ -245,8 +245,12 @@ class Upload
 		}
 
 		$extension = '.'. $extension;
-
-		$fileName = rand(10000, 90000) . uniqid();
+		//如果是设置了保持文件名称的话，就不自动转换文件名
+		if(isset($configure['keepFileName'])){
+			$fileName = pathinfo($files['name'], PATHINFO_FILENAME);
+		}else{
+			$fileName = rand(10000, 90000) . uniqid();
+		}
 		$configure['fileName'] = $configure['prefix'] . $fileName . $extension;
 		$subDir = $this->distribution($fileName, $configure['maxFolder']);
 
