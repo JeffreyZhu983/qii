@@ -147,7 +147,7 @@ class Response
      */
     public function needRender()
     {
-        if(is_array($this->data['body']) && isset($this->data['body']['tpl']))
+        if(isset($this->data['body']) && is_array($this->data['body']) && isset($this->data['body']['tpl']))
         {
             return true;
         }

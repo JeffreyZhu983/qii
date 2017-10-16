@@ -256,6 +256,7 @@ class Psr4
         // the current namespace prefix
         //replace "_" to "\" use common method to load class
         $class = str_replace("_", "\\", $class);
+        $class = str_replace("/", "\\", $class);
         if($this->searchMappedFile($class))
         {
             return $class;
