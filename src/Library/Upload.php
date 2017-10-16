@@ -361,7 +361,7 @@ class Upload
 		$extension = strtolower($extension);
 		if(!in_array($files['type'], $this->mine) || !isset($this->mine[$extension]))
 		{
-            $data['code'] = 14071;
+            $data['code'] = 1407;
             $data['src'] = '';
             $data['size'] = 0;
             $data['extension'] = $extension;
