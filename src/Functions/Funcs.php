@@ -120,3 +120,38 @@ function _require($files)
 	return \Qii\Autoloader\Import::requires($files);
 }
 
+/**
+ * 将字符串转换成指定编码
+ *
+ * @param string $str 需要转换的字符串
+ * @param string $to  转换到的编码
+ * @return string
+ */
+function converCode($str, $to)
+{
+    $fromCode = mb_detect_encoding($str, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
+    if($fromCode == $to) return $str;
+    return mb_convert_encoding($str, $to, $fromCode);
+}
+
+/**
+ * 将字符串转换成格式
+ *
+ * @param string $str 需要转换的字符串
+ * @return string
+ */
+function toUTF8($str)
+{
+	return converCode($str, 'UTF-8');
+}
+
+/**
+ * 将字符串转换成GBK
+ *
+ * @param string $str 文本
+ * @return string
+ */
+function toGBK($str)
+{
+	return converCode($str, 'GBK');
+}
