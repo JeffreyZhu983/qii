@@ -361,7 +361,7 @@ class Upload
 		$extension = strtolower($extension);
 		if(!in_array($files['type'], $this->mine) || !isset($this->mine[$extension]))
 		{
-            $data['code'] = 14071;
+            $data['code'] = 1407;
             $data['src'] = '';
             $data['size'] = 0;
             $data['extension'] = $extension;
@@ -402,19 +402,20 @@ class Upload
 				return $data;
 			}
 		}
+		$realPath = rtrim($fillPath, '/') . '/' . toGBK($configure['fileName']);
 		if($files['binary'])
 		{
-			$result = rename($files['tmp_name'], $fillPath . '/' . $configure['fileName']);
+			$result = rename($files['tmp_name'], $realPath);
 		}
 		else
 		{
-			$result= move_uploaded_file($files['tmp_name'], $fillPath . '/' . $configure['fileName']);
+			$result= move_uploaded_file($files['tmp_name'], $realPath);
 		}
 		if ($result) {
 			$data['code'] = 0;
-			$data['src'] = $fillPath . '/' . $configure['fileName'];
+			$data['src'] = toUTF8($realPath);
 			$data['file_type'] = $files['type'];
-			$data['file_hash'] = md5_file($data['src']);
+			$data['file_hash'] = md5_file($realPath);
 			$data['size'] = $files['size'];
 		} else {
 			$data['src'] = '';
