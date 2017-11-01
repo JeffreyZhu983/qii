@@ -2,13 +2,11 @@
 /**
  * 图片裁切，将大图，切成小图
  * 用法：
- * $pixes = new \Qii\Library\Pixes();
+ * $pixes = new Pixes();
  * $pixes->maxWidth = 200;
  * $pixes->maxHeight = 100;
  * $pixes->cutPixes($fileName, $dir);
  */
-namespace Qii\Library;
-
 class Pixes
 {
     /**
@@ -120,19 +118,18 @@ class Pixes
         foreach($pixes['pixes'] as $name => $pix)
         {
             $name = ($dir ? $dir .'/': '') . $name;
-            $pixes['info']['ext'] = 'jpeg';
+            $pixes['info']['ext'] = 'jpg';
+            $small = imagecreatetruecolor($pix[2], $pix[3]);
             switch ($pixes['info']['type'])
             {
                 case 3:
                     $pixes['info']['ext'] = 'png';
-                    $small = imagecreatetruecolor($pix[2], $pix[3]);
                     imagecopy($small, $image, 0, 0, $pix[0], $pix[1], $pix[2], $pix[3]);
                     imagejpeg($small, $name . '.png', 100);
                     break;
                 default:
-                    $small = imagecreate($pix[2], $pix[3]);
                     imagecopy($small, $image, 0, 0, $pix[0], $pix[1], $pix[2], $pix[3]);
-                    imagejpeg($small, $name . '.jpeg', 100);
+                    imagejpeg($small, $name . '.jpg', 100);
                     break;
             }
             imagedestroy($small);
