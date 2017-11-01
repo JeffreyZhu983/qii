@@ -7,6 +7,8 @@
  * $pixes->maxHeight = 100;
  * $pixes->cutPixes($fileName, $dir);
  */
+namespace Qii\Library;
+
 class Pixes
 {
     /**
