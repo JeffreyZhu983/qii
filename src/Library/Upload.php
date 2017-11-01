@@ -360,7 +360,6 @@ class Upload
         }
         $extension = pathinfo($files['name'], PATHINFO_EXTENSION);
         $extension = strtolower($extension);
-        print_r($files);
         if (!in_array($files['type'], $this->mine) || !isset($this->mine[$extension])) {
             $data['code'] = 1407;
             $data['src'] = '';
