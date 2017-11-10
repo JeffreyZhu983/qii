@@ -36,7 +36,7 @@ class Redis implements Intf
         }
 
 
-        if (!empty($policy)) {
+        if (is_array($policy)) {
             $this->policy = array_merge($this->policy, $policy);
         }
 
@@ -52,7 +52,7 @@ class Redis implements Intf
      */
     public function hMset($id, $data, array $policy = null)
     {
-        if (!empty($policy)) {
+        if (is_array($policy)) {
             $this->policy = array_merge($this->policy, $policy);
         }
         try {
@@ -70,7 +70,7 @@ class Redis implements Intf
      */
     public function set($id, $value, array $policy = null)
     {
-        if (!empty($policy)) {
+        if (is_array($policy)) {
             $this->policy = array_merge($this->policy, $policy);
         }
         try {

@@ -15,7 +15,7 @@ class Apcu implements Qii_Cache_Intf
 
     public function set($key, $value, $policy)
     {
-        if(in_array($policy))
+        if(is_array($policy))
         {
             $this->policy = array_merge($this->policy, $policy);
         }
