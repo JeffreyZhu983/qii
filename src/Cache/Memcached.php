@@ -100,12 +100,15 @@ class Memcached implements Intf
      */
     public function set($id, $data, array $policy = null)
     {
-        if (!isset($policy['life_time'])) $policy['life_time'] = $this->_default_policy['life_time'];
-        if($this->_conn instanceof \Memcache){
-            $data = serialize($data);
-            return $this->_conn->set($id, $data, MEMCACHE_COMPRESSED, $policy['life_time']);
+        if (is_array($policy)) {
+            $this->_default_policy = array_merge($this->_default_policy, $policy);
         }
-        return $this->_conn->set($id, $data, $policy['life_time']);
+
+        if($this->_conn instanceof \Memcache || $this->_conn instanceof \Memcached){
+            $data = serialize($data);
+            return $this->_conn->set($id, $data, MEMCACHE_COMPRESSED, $this->_default_policy['life_time']);
+        }
+        return $this->_conn->set($id, $data, $this->_default_policy['life_time']);
     }
 
     /**
@@ -118,7 +121,7 @@ class Memcached implements Intf
     public function get($id)
     {
         $data = $this->_conn->get($id);
-        if($this->_conn instanceof \Memcache){
+        if($this->_conn instanceof \Memcache || $this->_conn instanceof \Memcached){
             $data = unserialize($data);
         }
         return $data;
@@ -149,5 +152,3 @@ class Memcached implements Intf
         return call_user_func_array(array($this->_conn, $method), $args);
     }
 }
-
-?>

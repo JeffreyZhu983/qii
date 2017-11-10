@@ -52,11 +52,13 @@ class Redis implements Intf
      */
     public function hMset($id, $data, array $policy = null)
     {
-        if (!isset($policy['life_time'])) $policy['life_time'] = $this->policy['life_time'];
+        if (!empty($policy)) {
+            $this->policy = array_merge($this->policy, $policy);
+        }
         try {
             $this->redis->hMset($id, $data);
-            if (isset($policy['life_time']) && $policy['life_time'] > 0) {
-                $this->redis->setTimeout($id, $policy['life_time']);
+            if (isset($this->policy['life_time']) && $this->policy['life_time'] > 0) {
+                $this->redis->setTimeout($id, $this->policy['life_time']);
             }
         } catch (\CredisException $e) {
             throw new \Qii\Exceptions\Errors(\Qii::i(-1, $e->getMessage()), __LINE__);
@@ -68,11 +70,13 @@ class Redis implements Intf
      */
     public function set($id, $value, array $policy = null)
     {
-        if (!isset($policy['life_time'])) $policy['life_time'] = $this->policy['life_time'];
+        if (!empty($policy)) {
+            $this->policy = array_merge($this->policy, $policy);
+        }
         try {
             $this->redis->set($id, $value);
-            if (isset($policy['life_time']) && $policy['life_time'] > 0) {
-                $this->redis->setTimeout($id, $policy['life_time']);
+            if (isset($this->policy['life_time']) && $this->policy['life_time'] > 0) {
+                $this->redis->setTimeout($id, $this->policy['life_time']);
             }
         } catch (\CredisException $e) {
             throw new \Qii\Exceptions\Errors(\Qii::i(-1, $e->getMessage()), __LINE__);
