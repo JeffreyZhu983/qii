@@ -63,8 +63,11 @@ class ProxyDetected
         9999
     );
     
-    function isProxy()
+    function isProxy($ip = null)
     {
+        if(!$ip){
+            $ip = $_SERVER["REMOTE_PORT"];
+        }
         foreach ($this->proxyHeaders as $header) {
             if (isset($_SERVER[$header])) {
                 return true;
@@ -72,13 +75,13 @@ class ProxyDetected
         }
         
         foreach ($this->scanPorts as $port) {
-            if (@fsockopen($_SERVER['REMOTE_ADDR'], $port, $errstr, $errno, 1)) {
+            if (@fsockopen($ip, $port, $errstr, $errno, 1)) {
                 return true;
             }
         }
         
         foreach ($this->ports as $port) {
-            if ($_SERVER["REMOTE_PORT"] == $port) {
+            if ($ip == $port) {
                 return true;
             }
         }
