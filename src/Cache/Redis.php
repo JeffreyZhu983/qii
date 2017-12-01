@@ -36,7 +36,7 @@ class Redis implements Intf
         }
 
 
-        if (!empty($policy)) {
+        if (is_array($policy)) {
             $this->policy = array_merge($this->policy, $policy);
         }
 
@@ -50,19 +50,38 @@ class Redis implements Intf
     /**
      * 保存指定key的数据
      */
-    public function set($id, $data, array $policy = null)
+    public function hMset($id, $data, array $policy = null)
     {
-        if (!isset($policy['life_time'])) $policy['life_time'] = $this->policy['life_time'];
+        if (is_array($policy)) {
+            $this->policy = array_merge($this->policy, $policy);
+        }
         try {
             $this->redis->hMset($id, $data);
-            if (isset($policy['life_time']) && $policy['life_time'] > 0) {
-                $this->redis->setTimeout($id, $policy['life_time']);
+            if (isset($this->policy['life_time']) && $this->policy['life_time'] > 0) {
+                $this->redis->setTimeout($id, $this->policy['life_time']);
             }
         } catch (\CredisException $e) {
             throw new \Qii\Exceptions\Errors(\Qii::i(-1, $e->getMessage()), __LINE__);
         }
     }
 
+    /**
+     * 保存指定key的数据
+     */
+    public function set($id, $value, array $policy = null)
+    {
+        if (is_array($policy)) {
+            $this->policy = array_merge($this->policy, $policy);
+        }
+        try {
+            $this->redis->set($id, $value);
+            if (isset($this->policy['life_time']) && $this->policy['life_time'] > 0) {
+                $this->redis->setTimeout($id, $this->policy['life_time']);
+            }
+        } catch (\CredisException $e) {
+            throw new \Qii\Exceptions\Errors(\Qii::i(-1, $e->getMessage()), __LINE__);
+        }
+    }
     /**
      * 获取指定key的数据
      */
@@ -82,6 +101,11 @@ class Redis implements Intf
             return $this->redis->get($id);
         }
         return null;
+    }
+    
+    public function exists($id)
+    {
+        return $this->redis->exists($id);
     }
 
     /**
