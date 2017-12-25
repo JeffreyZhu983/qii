@@ -245,7 +245,6 @@ class Base
 			throw new \Exception('数据表不存在', __LINE__);
 		}
 		$sql = $row['Create Table'];
-            echo $autoIncr;
 		if($autoIncr === null) {
 			return $sql;
 		}
