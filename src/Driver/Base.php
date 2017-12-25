@@ -104,10 +104,11 @@ class Base
 	/**
 	 * 获取指定数据表的所有字段
 	 * @param string $table 表名
-	 * @param string $database 数据库名 
+	 * @param string $database 数据库名
+     * @param string $autoIncr 自动增长的序号
 	 * @return array
 	 */
-	public function getTableInfo($table, $database = null)
+	public function getTableInfo($table, $database = null, $autoIncr = null)
 	{
 		if(!$database) $database = $this->currentDB;
 		$sql = "SELECT * from information_schema.COLUMNS where table_name = '".$table."' and table_schema = '".$database."'";
@@ -165,7 +166,7 @@ class Base
 				$data['rules']['default'][$row['COLUMN_NAME']] = $row['COLUMN_DEFAULT'];
 			}
 		}
-		$data['sql'] = $this->getTableSQL($table, $database);
+		$data['sql'] = $this->getTableSQL($table, $database, $autoIncr);
 		return $data;
 	}
 	/**
@@ -244,6 +245,7 @@ class Base
 			throw new \Exception('数据表不存在', __LINE__);
 		}
 		$sql = $row['Create Table'];
+            echo $autoIncr;
 		if($autoIncr === null) {
 			return $sql;
 		}
