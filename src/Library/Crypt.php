@@ -109,12 +109,31 @@ class Crypt
     public function decryptWithTime($string)
     {
         $passCrypt = $this->decrypt($string);
+        if(!$passCrypt) return '';
 
         $expiredAt = substr($passCrypt, 0, 10);
 
         if(time() > $expiredAt) return  '';
 
         return substr($passCrypt, 10);
+    }
+
+    /**
+     * 检查加密串是否已经过期
+     *
+     * @param string $string
+     * @return bool
+     */
+    public function checkDecryptExpired($string)
+    {
+        $passCrypt = $this->decrypt($string);
+        if(!$passCrypt) return false;
+
+        $expiredAt = substr($passCrypt, 0, 10);
+
+        if(time() > $expiredAt) return  false;
+
+        return true;
     }
 
 	/**
@@ -128,8 +147,8 @@ class Crypt
 		$string = str_replace(' ', '+', $string);
 		$string = base64_decode($this->verifyString($string));
 
-		$passcrypt = openssl_decrypt($string, 'aes-256-cbc', $this->securityKey, OPENSSL_RAW_DATA, $this->getIv());
-		return substr($passcrypt, 10);
+		$passCrypt = openssl_decrypt($string, 'aes-256-cbc', $this->securityKey, OPENSSL_RAW_DATA, $this->getIv());
+		return substr($passCrypt, 10);
 	}
 
 	/**
