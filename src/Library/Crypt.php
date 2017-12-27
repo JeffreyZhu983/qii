@@ -145,8 +145,12 @@ class Crypt
 	public function decrypt($string)
 	{
 		$string = str_replace(' ', '+', $string);
-		$string = base64_decode($this->verifyString($string));
-
+		$string = $this->verifyString($string);
+		if(!$string)
+        {
+            return '';
+        }
+		$string = base64_decode($string);
 		$passCrypt = openssl_decrypt($string, 'aes-256-cbc', $this->securityKey, OPENSSL_RAW_DATA, $this->getIv());
 		return substr($passCrypt, 10);
 	}
