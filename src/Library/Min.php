@@ -82,6 +82,10 @@ class Min
             }
             return join("\n", $js);
         }
+        if(!is_file($files))
+        {
+            return "/*文件'". $files ."'未找到*/";
+        }
         return JSMin::minify($this->getContent($files));
     }
 
