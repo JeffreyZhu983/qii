@@ -346,7 +346,7 @@ class Base
 	{
 		list($database, $tableName) = array_pad(explode('.', $table), 2, '');
 		if($tableName) return "`{$database}`.`{$tableName}`";
-		return $table;
+		return '`'. $table . '`';
 	}
 
 	public function setLanguage()
