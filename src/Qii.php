@@ -200,6 +200,7 @@ if (!function_exists('catch_fatal_error')) {
     ->setUseNamespace('Qii\Router', true)
     ->setUseNamespace('Qii\View', true)
     ->setUseNamespace('WhichBrowser', true)
+    ->setUseNamespace('BigPipe', true)
     ->setUseNamespace('Smarty\\', false)
     ->setUseNamespace('Smarty\\Internal', false);
 
@@ -224,6 +225,7 @@ if (!function_exists('catch_fatal_error')) {
     ->addNamespace('Smarty', Qii_DIR . DS . 'View' . DS . 'smarty')
     ->addNamespace('Smarty', Qii_DIR . DS . 'View' . DS . 'smarty' . DS . 'sysplugins')
     ->addNamespace('WhichBrowser', Qii_DIR . DS . 'Library'. DS . 'Third'. DS . 'WhichBrowser')
+    ->addNamespace('BigPipe', Qii_DIR . DS . 'Library'. DS .'BigPipe'. DS .'BigPipe')
 ;
 
 //加载默认语言包
