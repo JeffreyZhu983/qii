@@ -410,6 +410,7 @@ class Upload
         if ($result) {
             $data['code'] = 0;
             $data['src'] = toUTF8($realPath);
+            $data['name'] = toUTF8($files['name']);
             $data['file_type'] = $files['type'];
             $data['file_hash'] = md5_file($realPath);
             $data['size'] = $files['size'];
