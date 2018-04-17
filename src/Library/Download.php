@@ -148,7 +148,7 @@ class Download
 			ob_flush();
 			flush();
 			usleep($sleep);
-			if(strlen($buf) ==0)
+			if(strlen($buf) == 0)
 			{
 				break;
 			}
