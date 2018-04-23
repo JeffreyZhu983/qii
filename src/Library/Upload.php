@@ -408,7 +408,8 @@ class Upload
                 return $data;
             }
         }
-        $realPath = rtrim($fillPath, '/') . '/' . toGBK($configure['fileName']);
+        //将文件名转换成URL编码，防止移动文件不成功的情况
+        $realPath = rtrim($fillPath, '/') . '/' . urlencode($configure['fileName']);
         if ($files['binary']) {
             $result = rename($files['tmp_name'], $realPath);
         } else {
