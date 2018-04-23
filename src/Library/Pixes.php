@@ -37,7 +37,7 @@ class Pixes
         $size = @getimagesize($src);
         if(!$size)
         {
-            throw new Exception('未知图片', __LINE__);
+            throw new \Exception('未知图片', __LINE__);
         }
         return ['width' => $size[0], 'height' => $size[1], 'type' => $size[2], 'mime' => $size['mime'], 'bits' => $size['bits']];
     }
@@ -139,7 +139,7 @@ class Pixes
         $log = ($dir ? $dir .'/': '') . 'cut-info.php';
         if(!file_put_contents($log, "<?php\nreturn ". var_export($pixes, true) . ";\n"))
         {
-            throw new Exception($log . '写入失败，请确保目录的权限是否设置正确');
+            throw new \Exception($log . '写入失败，请确保目录的权限是否设置正确');
         }
         return $pixes;
     }
