@@ -39,6 +39,15 @@ abstract class Base
      * URL中匹配到的参数
      */
     private $params = null;
+	
+	/**
+	 * 文件扩展名
+	 */
+	private $sysfileExtension;
+	/**
+	 * 存储路径字段
+	 */
+	private $pathArgs;
 
     /**
      * 初始化模式
@@ -299,15 +308,20 @@ abstract class Base
         $extenstion[2] = str_replace('/', '\/', $extenstion[2]);
         $query = preg_replace("/\.{$extenstion[2]}$/", "", $query);
         $paramArray = explode($this->_symbol, $query);
-        $v = $this->decodeArgs($paramArray);
+        $this->pathArgs = $v = $this->decodeArgs($paramArray);
         //添加系统扩展名到返回数组中 2011-10-14 15:26
-        $v['sysfileExtension'] = $extenstion[2];
+		$this->sysfileExtension = $extension[2];
         if ($_GET) $v = array_merge($v, $_GET);
         if ($key != '' || is_int($key)) {
             return $v[$key];
         }
         return $v;
     }
+	
+	public function getPathArgs()
+	{
+		return $this->pathArgs;
+	}
 
     /**
      * 对比转发文件的路径
