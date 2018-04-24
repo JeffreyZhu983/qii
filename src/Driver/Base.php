@@ -451,7 +451,11 @@ class Base
 					$where[] = "`{$key}` = '" . $value . "'";
 				}
 			}
-			$this->modelSQL = $sql = "UPDATE ". $this->getTable($table) ." SET " . join(", ", $values) . (sizeof($where) > 0 ? " WHERE " . join(" AND ", $where) : '');
+			$whereSQL = $this->where;
+			if(sizeof($where) > 0) {
+				$whereSQL = $this->where ? $this->where . " AND (". join(" AND ", $where) .")" : " WHERE ". join(" AND ", $where);
+			}
+			$this->modelSQL = $sql = "UPDATE ". $this->getTable($table) ." SET " . join(", ", $values) . $whereSQL;
 			$rs = $this->setQuery($sql);
 			$this->cleanData();
 			$this->setError();
@@ -472,12 +476,16 @@ class Base
 			return -1;
 		}
 		$where = array();
-		if (sizeof($keys) > 0 || get_object_vars($keys)) {
+		if (sizeof($keys) > 0 || (is_a($keys, 'stdclass') && get_object_vars($keys))) {
 			foreach ($keys AS $k => $v) {
 				$where[] = "`{$k}` = '" . $this->setQuote($v) . "'";
 			}
 		}
-		$this->modelSQL = $sql = "DELETE FROM ". $this->getTable($table) ." " . (sizeof($where) > 0 ? " WHERE " . join(" AND ", $where) : '');
+		$whereSQL = $this->where;
+		if(sizeof($where) > 0) {
+			$whereSQL = $this->where ? $this->where . " AND (". join(" AND ", $where) .")" : " WHERE ". join(" AND ", $where);
+		}
+		$this->modelSQL = $sql = "DELETE FROM ". $this->getTable($table) ." " . $whereSQL;
 		$rs = $this->query($sql);
 		$this->cleanData();
 		$this->setError();
