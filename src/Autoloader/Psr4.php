@@ -277,7 +277,7 @@ class Psr4
         if(!$this->searchMappedFile($class))
         {
             $notLoaded = isset(self::$lastErrorLoadedFile[$class]) ? self::$lastErrorLoadedFile[$class] : self::getClassName($class);
-            throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $notLoaded), __LINE__);
+            throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $notLoaded), 404);
         }
     }
 

@@ -70,7 +70,7 @@ class Loader
 		if (is_file($fileName)) {
 			return $this->merge($fileName);
 		}
-		throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $fileName), __LINE__);
+		throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $fileName), 404);
 	}
 
 	/**
