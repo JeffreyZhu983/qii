@@ -1,5 +1,4 @@
 <?php
-
 namespace Zxing;
 
 use Zxing\Common\HybridBinarizer;
