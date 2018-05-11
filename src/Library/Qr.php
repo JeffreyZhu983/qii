@@ -62,55 +62,57 @@ class Qr
     }
 
     /**
+     * 生成带颜色的二维码
+     * 注意：背景色和前景色不能一样，否则识别不出来
+     *
      * @param string $txt 需要生成的内容
      * @param int $pointSize 每个点的大小
      * @param int $margin 边距
      * @param int $errorLevel 错误级别
      * @param array $options 额外选型
      */
-    public function creatorColor($txt, $pointSize = 8, $margin = 1, $errorLevel = 4, $options = array())
+    public function creatorColor($txt, $pointSize = 10, $margin = 1, $errorLevel = 4, $options = array())
     {
         $defaults = array(
             'width' => 240, //图片大小
-            'logo' => 'static/images/logo.png', //logo
+            'margin' => 2,
+            'logo' => '', //logo
             'bg' => '',
-            'pointColor' => '#000000', //定点颜色
-            'inPointColor' => '#000000',//内定点
+            'pointColor' => '', //定点颜色
+            'inPointColor' => '',//内定点
             'frontColor' => '#000000',//前景色
             'bgColor' => '#FFFFFF', //背景色
-            'contentColor' => '#000000', //内容颜色
+            'contentColor' => '', //内容颜色
             'style' => 1,//直角 1， 液态 2 ，圆角 0
         );
         $options = array_merge($defaults, $options);
 
         \QrCode\QRencode::factory($errorLevel, $pointSize, $margin);
+
         $qrCls = new \QrCode\QRencode();
         $data = $qrCls->encode($txt);
 
         switch($options['style'])
         {
             case 2:
-                $handle = new \QrCode\Liquid($pointSize, $options);
+                $handle = new \QrCode\Widget\Liquid($pointSize, $options);
                 break;
             case 1:
-                $handle = new \QrCode\Rectangle($pointSize, $options);
+                $handle = new \QrCode\Widget\Rectangle($pointSize, $options);
                 break;
             case 0:
-                $handle = new \QrCode\Edellipse($pointSize, $options);
+                $handle = new \QrCode\Widget\Edellipse($pointSize, $options);
                 break;
         }
-        $img = $handle->handle($data);
+        $qrImage = $handle->handle($data);
 
         //保存图片
-
-        $im = $this->resizeImage($img, $options['width'], $options['width']);
-
+        $im = $this->resizeImage($qrImage, $options['width'], $options['width']);
 
         //增加logo
         if (!empty($options['logo'])) {
             $im = $this->imageAddLogo($im, $options['logo']);
         }
-
 
         //添加背景图
         if (!empty($options['bg'])) {

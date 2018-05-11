@@ -1,11 +1,12 @@
 <?php
-
-namespace QrCode;
+namespace QrCode\Widget;
+use Qrcode\Traits;
 
 class Liquid
 {
     use Traits\Fill;
     public $defaults = array(
+        'margin' => 1,
         'pointColor' => '#000000', //定点颜色
         'inPointColor' => '#000000',//内定点
         'frontColor' => '#000000',//前景色
@@ -22,16 +23,19 @@ class Liquid
     {
         $this->pointSize = $pointSize;
         $this->options = array_merge($this->defaults, $options);
+        if(!empty($options['frontColor'])) {
+            if(empty($options['pointColor'])) $this->options['pointColor'] = $options['frontColor'];
+            if(empty($options['inPointColor'])) $this->options['inPointColor'] = $options['frontColor'];
+            if(empty($options['contentColor'])) $this->options['contentColor'] = $options['frontColor'];
+        }
         return $this;
     }
 
 
     public function handle($data)
     {
-
         $pointColor = $this->hex2rgb($this->options['pointColor']);
         $inPointColor = $this->hex2rgb($this->options['inPointColor']);
-        $frontColor = $this->hex2rgb($this->options['frontColor']);
         $bgColor = $this->hex2rgb($this->options['bgColor']);
         $contentColor = $this->hex2rgb($this->options['contentColor']);
 
@@ -47,8 +51,8 @@ class Liquid
         $bgColor = ImageColorAllocate($img, $bgColor['r'], $bgColor['g'], $bgColor['b']);//背景色
         $pointColor = ImageColorAllocate($img, $pointColor['r'], $pointColor['g'], $pointColor['b']);//定点色
         $inPointColor = ImageColorAllocate($img, $inPointColor['r'], $inPointColor['g'], $inPointColor['b']);//内定点
-        $frontColor = ImageColorAllocate($img, $frontColor['r'], $frontColor['g'], $frontColor['b']);//前景色
         $contentColor = ImageColorAllocate($img, $contentColor['r'], $contentColor['g'], $contentColor['b']);//内容色
+
 
         imagefill($img, 0, 0, $bgColor);
         $y = 0;
@@ -62,14 +66,16 @@ class Liquid
                         //左上角定点的四个大角
                         if ($x === 0 || $y === 0 || $x === 6 || $y === 6) {
                             //液态
+                            $xPointLeft = $x;
+                            $yPointLeft = $y;
                             if ($x === 0 && $y === 0) {
-                                $this->roundedCorner($img, $x, $y, $s, $pointColor, true, false, false, false);
+                                $this->roundedCorner($img, $xPointLeft, $yPointLeft, $s, $pointColor, true, false, false, false);
                             } else if ($x === 0 && $y === 6) {
-                                $this->roundedCorner($img, $x, $y, $s, $pointColor, false, true, false, false);
+                                $this->roundedCorner($img, $xPointLeft, $yPointLeft, $s, $pointColor, false, true, false, false);
                             } else if ($x === 6 && $y === 6) {
-                                $this->roundedCorner($img, $x, $y, $s, $pointColor, false, false, true, false);
+                                $this->roundedCorner($img, $xPointLeft, $yPointLeft, $s, $pointColor, false, false, true, false);
                             } else if ($x === 6 && $y === 0) {
-                                $this->roundedCorner($img, $x, $y, $s, $pointColor, false, false, false, true);
+                                $this->roundedCorner($img, $xPointLeft, $yPointLeft, $s, $pointColor, false, false, false, true);
                             } else {
                                 imagefilledrectangle($img, $x * $this->pointSize, $y * $this->pointSize, ($x + 1) * $this->pointSize, ($y + 1) * $this->pointSize, $pointColor);
                             }
@@ -77,13 +83,13 @@ class Liquid
                         } else {
                             //液态
                             if ($x === 2 && $y === 2) {
-                                $this->roundedCorner($img, $x, $y, $s, $inPointColor, true, false, false, false);
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $inPointColor, true, false, false, false);
                             } else if ($x === 2 && $y === 4) {
-                                $this->roundedCorner($img, $x, $y, $s, $inPointColor, false, true, false, false);
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $inPointColor, false, true, false, false);
                             } else if ($x === 4 && $y === 4) {
-                                $this->roundedCorner($img, $x, $y, $s, $inPointColor, false, false, true, false);
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $inPointColor, false, false, true, false);
                             } else if ($x === 4 && $y === 2) {
-                                $this->roundedCorner($img, $x, $y, $s, $inPointColor, false, false, false, true);
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $inPointColor, false, false, false, true);
                             } else {
                                 imagefilledrectangle($img, $x * $this->pointSize, $y * $this->pointSize, ($x + 1) * $this->pointSize, ($y + 1) * $this->pointSize, $inPointColor);
                             }
@@ -93,58 +99,59 @@ class Liquid
 
                         if ($x === $imageSize - 7 || $y === 0 || $x === $imageSize - 1 || $y === 6) {
                             //液态
-                            if ($x === $imageSize - 7 && $y === 0) {
-                                $this->roundedCorner($img, $x, $y, $s, $pointColor, true, false, false, false);
-                            } else if ($x === $imageSize - 7 && $y === 6) {
-                                $this->roundedCorner($img, $x, $y, $s, $pointColor, false, true, false, false);
-                            } else if ($x === $imageSize - 1 && $y === 6) {
-                                $this->roundedCorner($img, $x, $y, $s, $pointColor, false, false, true, false);
-                            } else if ($x === $imageSize - 1 && $y === 0) {
-                                $this->roundedCorner($img, $x, $y, $s, $pointColor, false, false, false, true);
-                            } else {
+                            if ($x === $imageSize - 6 && $y === 0) {
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $pointColor, true, false, false, false);
+                            } else if ($x === $imageSize - 6 && $y === 6) {
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $pointColor, false, true, false, false);
+                            } else if ($x === $imageSize && $y === 6) {
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $pointColor, false, false, true, false);
+                            } else if ($x === $imageSize && $y === 0) {
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $pointColor, false, false, false, true);
+                            }else {//上下
                                 imagefilledrectangle($img, $x * $this->pointSize, $y * $this->pointSize, ($x + 1) * $this->pointSize, ($y + 1) * $this->pointSize, $pointColor);
                             }
                         } else {
                             //液态
-                            if ($x === $imageSize - 5 && $y === 2) {
-                                $this->roundedCorner($img, $x, $y, $s, $inPointColor, true, false, false, false);
-                            } else if ($x === $imageSize - 5 && $y === 4) {
-                                $this->roundedCorner($img, $x, $y, $s, $inPointColor, false, true, false, false);
-                            } else if ($x === $imageSize - 3 && $y === 4) {
-                                $this->roundedCorner($img, $x, $y, $s, $inPointColor, false, false, true, false);
-                            } else if ($x === $imageSize - 3 && $y === 2) {
-                                $this->roundedCorner($img, $x, $y, $s, $inPointColor, false, false, false, true);
+                            if ($x === $imageSize - 4 && $y === 2) {
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $inPointColor, true, false, false, false);
+                            } else if ($x === $imageSize - 4 && $y === 4) {
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $inPointColor, false, true, false, false);
+                            } else if ($x === $imageSize - 2 && $y === 4) {
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $inPointColor, false, false, true, false);
+                            } else if ($x === $imageSize - 2 && $y === 2) {
+                                $this->roundedCorner($img, $x, $y, $this->pointSize, $inPointColor, false, false, false, true);
+                            }else if($x === $imageSize - 6 || $x === $imageSize){
+                                imagefilledrectangle($img, $x * $this->pointSize, $y * $this->pointSize, ($x + 1) * $this->pointSize, ($y + 1) * $this->pointSize, $pointColor);
                             } else {
                                 imagefilledrectangle($img, $x * $this->pointSize, $y * $this->pointSize, ($x + 1) * $this->pointSize, ($y + 1) * $this->pointSize, $inPointColor);
                             }
                         }
-
                     } elseif ($y > count($data) - 9 && $x < 7) { //左下角定点
-                        if ($x === 0 || $y === $imageSize - 7 || $x === 6 || $y === $imageSize - 1) {
+                        if ($x === 0 || $y === $imageSize - 6 || $x === 6 || $y === $imageSize - 1) {
                             //液态
-                            if ($x === 0 && $y === $imageSize - 7) {
+                            if ($x === 0 && $y === $imageSize - 6) {
                                 $this->roundedCorner($img, $x, $y, $s, $pointColor, true, false, false, false);
-                            } else if ($x === 0 && $y === $imageSize - 1) {
+                            } else if ($x === 0 && $y === $imageSize) {
                                 $this->roundedCorner($img, $x, $y, $s, $pointColor, false, true, false, false);
-                            } else if ($x === 6 && $y === $imageSize - 1) {
+                            } else if ($x === 6 && $y === $imageSize) {
                                 $this->roundedCorner($img, $x, $y, $s, $pointColor, false, false, true, false);
-                            } else if ($x === 6 && $y === $imageSize - 7) {
+                            } else if ($x === 6 && $y === $imageSize - 6) {
                                 $this->roundedCorner($img, $x, $y, $s, $pointColor, false, false, false, true);
                             } else {
                                 imagefilledrectangle($img, $x * $this->pointSize, $y * $this->pointSize, ($x + 1) * $this->pointSize, ($y + 1) * $this->pointSize, $pointColor);
                             }
-
-
                         } else {
                             //液态
-                            if ($x === 2 && $y === $imageSize - 5) {
+                            if ($x === 2 && $y === $imageSize - 4) {
                                 $this->roundedCorner($img, $x, $y, $s, $inPointColor, true, false, false, false);
-                            } else if ($x === 2 && $y === $imageSize - 3) {
+                            } else if ($x === 2 && $y === $imageSize - 2) {
                                 $this->roundedCorner($img, $x, $y, $s, $inPointColor, false, true, false, false);
-                            } else if ($x === 4 && $y === $imageSize - 3) {
+                            } else if ($x === 4 && $y === $imageSize - 2) {
                                 $this->roundedCorner($img, $x, $y, $s, $inPointColor, false, false, true, false);
-                            } else if ($x === 4 && $y === $imageSize - 5) {
+                            } else if ($x === 4 && $y === $imageSize - 4) {
                                 $this->roundedCorner($img, $x, $y, $s, $inPointColor, false, false, false, true);
+                            }else if($x < 6 && $y == $imageSize){
+                                imagefilledrectangle($img, $x * $this->pointSize, $y * $this->pointSize, ($x + 1) * $this->pointSize, ($y + 1) * $this->pointSize, $pointColor);
                             } else {
                                 imagefilledrectangle($img, $x * $this->pointSize, $y * $this->pointSize, ($x + 1) * $this->pointSize, ($y + 1) * $this->pointSize, $inPointColor);
                             }
@@ -205,35 +212,34 @@ class Liquid
                         //上+左+下+右=0 全圆
                         if ($t == 0 && $l == 0 && $b == 0 && $r == 0) {
                             //全圆
-                            imagefilledellipse($img, ($x * $s) + ($s / 2), ($y * $s) + ($s / 2), $s, $s, $frontColor);
+                            imagefilledellipse($img, ($x * $s) + ($s / 2), ($y * $s) + ($s / 2), $s, $s, $contentColor);
                         } elseif ($t == 0 && $l == 0 && $r == 0) {
                             //上半圆
-                            $this->halfRounded($img, $x, $y, $s, $frontColor, true, false, false, false);
+                            $this->halfRounded($img, $x, $y, $s, $contentColor, true, false, false, false);
                         } elseif ($t == 0 && $l == 0 && $b == 0) {
                             //左半圆
-                            $this->halfRounded($img, $x, $y, $s, $frontColor, false, true, false, false);
+                            $this->halfRounded($img, $x, $y, $s, $contentColor, false, true, false, false);
                         } elseif ($l == 0 && $b == 0 && $r == 0) {
                             //下半圆
-                            $this->halfRounded($img, $x, $y, $s, $frontColor, false, false, true, false);
+                            $this->halfRounded($img, $x, $y, $s, $contentColor, false, false, true, false);
                         } elseif ($t == 0 && $b == 0 && $r == 0) {
                             //右半圆
-                            $this->halfRounded($img, $x, $y, $s, $frontColor, false, false, false, true);
+                            $this->halfRounded($img, $x, $y, $s, $contentColor, false, false, false, true);
                         } elseif ($t == 0 && $l == 0) {
                             //左上角
-                            $this->roundedCorner($img, $x, $y, $s, $frontColor, true, false, false, false);
+                            $this->roundedCorner($img, $x, $y, $s, $contentColor, true, false, false, false);
                         } elseif ($l == 0 && $b == 0) {
                             //左下角
-                            $this->roundedCorner($img, $x, $y, $s, $frontColor, false, true, false, false);
+                            $this->roundedCorner($img, $x, $y, $s, $contentColor, false, true, false, false);
                         } elseif ($b == 0 && $r == 0) {
                             //右下角
-                            $this->roundedCorner($img, $x, $y, $s, $frontColor, false, false, true, false);
+                            $this->roundedCorner($img, $x, $y, $s, $contentColor, false, false, true, false);
                         } elseif ($r == 0 && $t == 0) {
                             //右上角
-                            $this->roundedCorner($img, $x, $y, $s, $frontColor, false, false, false, true);
+                            $this->roundedCorner($img, $x, $y, $s, $contentColor, false, false, false, true);
                         } else {
                             //直角
-                            imagefilledrectangle($img, $x * $this->pointSize, $y * $this->pointSize, ($x + 1) * $this->pointSize, ($y + 1) * $this->pointSize, $frontColor);
-
+                            imagefilledrectangle($img, $x * $this->pointSize, $y * $this->pointSize, ($x + 1) * $this->pointSize, ($y + 1) * $this->pointSize, $contentColor);
                         }
                     }
 
@@ -299,28 +305,32 @@ class Liquid
 
                         if ($t == 1 && $lt == 1 && $l == 1) {
                             //左上角
-                            $this->halfCorner($img, $x, $y, $s, $bgColor, $frontColor, true, false, false, false);
+                            $this->halfCorner($img, $x, $y, $s, $bgColor, $contentColor, true, false, false, false);
                         }
 
                         if ($l == 1 && $lb == 1 && $b == 1) {
                             //左下角
-                            $this->halfCorner($img, $x, $y, $s, $bgColor, $frontColor, false, true, false, false);
+                            $this->halfCorner($img, $x, $y, $s, $bgColor, $contentColor, false, true, false, false);
                         }
                         if ($b == 1 && $rb == 1 && $r == 1) {
                             //右下角
-                            $this->halfCorner($img, $x, $y, $s, $bgColor, $frontColor, false, false, true, false);
+                            $this->halfCorner($img, $x, $y, $s, $bgColor, $contentColor, false, false, true, false);
                         }
                         if ($r == 1 && $rt == 1 && $t == 1) {
                             //右上角
-                            $this->halfCorner($img, $x, $y, $s, $bgColor, $frontColor, false, false, false, true);
+                            $this->halfCorner($img, $x, $y, $s, $bgColor, $contentColor, false, false, false, true);
                         }
                     }
-
                 }
                 $x++;
             }
             $y++;
         }
-        return $img;
+        $background = ImageCreate($w * $this->pointSize + 2 * $this->options['margin'], $h * $this->pointSize + 2 * $this->options['margin']);
+        imagefill($background, 0, 0, $bgColor);
+        imagecopymerge($background, $img, $this->options['margin'], $this->options['margin'], 0, 0, $w * $this->pointSize, $h * $this->pointSize, 100);
+        imagedestroy($img);
+
+        return $background;
     }
 }

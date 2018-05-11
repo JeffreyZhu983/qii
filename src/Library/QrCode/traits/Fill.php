@@ -164,23 +164,24 @@ trait Fill
         $h = imagesy($im);
 
         //加载logo
-        $ext = substr($logo, strrpos($logo, '.'));
+        $ext = pathinfo($logo, PATHINFO_EXTENSION);
+
         if (empty($ext)) {
             return false;
         }
         switch (strtolower($ext)) {
-            case '.jpg':
+            case 'jpg':
                 $srcIm = @imagecreatefromjpeg($logo);
                 break;
-            case '.gif':
+            case 'gif':
                 $srcIm = @imagecreatefromgif($logo);
                 break;
-            case '.png':
+            case 'png':
                 $srcIm = @imagecreatefrompng($logo);
                 break;
 
         }
-        $srcIm = $this->resizeImage($srcIm, min(46, $w / 5), min(46, $h / 5));
+        $srcIm = $this->resizeImage($srcIm, min(36, $w / 5), min(36, $h / 5));
         $srcWidth = imagesx($srcIm);
         $srcHeight = imagesy($srcIm);
 
