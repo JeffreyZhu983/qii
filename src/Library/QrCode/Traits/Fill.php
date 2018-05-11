@@ -1,4 +1,5 @@
 <?php
+
 namespace QrCode\traits;
 
 trait Fill
@@ -114,11 +115,11 @@ trait Fill
         $picWidth = imagesx($im);
         $picHeight = imagesy($im);
 
-        $newim = imagecreatetruecolor($maxwidth, $maxheight);
-        ImageCopyResampled($newim, $im, 0, 0, 0, 0, $maxwidth, $maxheight, $picWidth, $picHeight);
+        $newIM = imagecreatetruecolor($maxwidth, $maxheight);
+        ImageCopyResampled($newIM, $im, 0, 0, 0, 0, $maxwidth, $maxheight, $picWidth, $picHeight);
         imagedestroy($im);
 
-        return $newim;
+        return $newIM;
 
     }
 
@@ -158,7 +159,6 @@ trait Fill
     //图片增加logo
     public function imageAddLogo($im, $logo)
     {
-
         //计算宽和高
         $w = imagesx($im);
         $h = imagesy($im);
@@ -227,6 +227,115 @@ trait Fill
         imagecopymerge($im, $srcIm, ($w / 2) - ($srcWidth / 2), ($h / 2) - ($srcHeight / 2), 0, 0, $srcWidth, $srcHeight, 100);
         imagedestroy($srcIm);
         return $im;
+    }
+
+    /**
+     * 在二维码下边生成图片
+     *
+     * @param resource $im 图片资源
+     * @param string $text 文字
+     * @param int $fontSize 字体
+     * @param string $fontPath 字体路径
+     * @param array $options 选型
+     * @return resource
+     */
+    public function imageAddText($im, $text, $fontSize = 14, $fontPath = '', $options = array())
+    {
+        $fontSize = $fontSize ?? 14;
+        if (empty($options['bgColor'])) {
+            $options['bgColor'] = '#FFFFFF';
+        }
+        if (empty($options['fontColor'])) {
+            $options['fontColor'] = $options['frontColor'] ?? '#000000';
+        }
+
+        //计算宽和高
+        $w = imagesx($im);
+        $h = imagesy($im);
+
+        $bgColor = $this->hex2rgb($options['bgColor']);
+        $fontColor = $this->hex2rgb($options['fontColor']);
+        //自动换行
+        $text = $this->autoWrap($text, 0, $fontSize, $fontPath, $w);
+        $box = $this->imageTTFBoxExtended($fontSize, 0, $fontPath, $text);
+        $maxHeight = $h + $box['height'] + 20;
+
+        $newIM = imagecreatetruecolor($w, $maxHeight);
+
+        //背景色
+        $background = imagecolorallocatealpha($newIM, $bgColor['r'], $bgColor['g'], $bgColor['b'], 100);
+        imagefill($newIM, 0, 0, $background);
+        imagecopymerge($newIM, $im, 0, 0, 0, 0, $w, $h, 100);
+
+        $fontColor = imagecolorallocatealpha($newIM, $fontColor['r'], $fontColor['g'], $fontColor['b'], 50);
+        imagettftext($newIM, $fontSize, 0, max(0, ($w - $box['width']) / 2), $h + 25, $fontColor, $fontPath, $text);
+        imagedestroy($im);
+        return $newIM;
+    }
+
+    /**
+     * 获取文字的宽高
+     *
+     * @param int $size 字体大小
+     * @param int $angle
+     * @param string $fontPath 字体路径
+     * @param string $text 文字
+     * @return array
+     */
+    public function imageTTFBoxExtended($size, $angle, $fontPath, $text)
+    {
+        $box = imagettfbbox($size, $angle, $fontPath, $text);
+
+        //calculate x baseline
+        if ($box[0] >= -1) {
+            $box['x'] = abs($box[0] + 1) * -1;
+        } else {
+            //$box['x'] = 0;
+            $box['x'] = abs($box[0] + 2);
+        }
+
+        //calculate actual text width
+        $box['width'] = abs($box[2] - $box[0]);
+        if ($box[0] < -1) {
+            $box['width'] = abs($box[2]) + abs($box[0]) - 1;
+        }
+
+        //calculate y baseline
+        $box['y'] = abs($box[5] + 1);
+
+        //calculate actual text height
+        $box['height'] = abs($box[7]) - abs($box[1]);
+        if ($box[3] > 0) {
+            $box['height'] = abs($box[7] - $box[1]) - 1;
+        }
+        return $box;
+    }
+
+    /**
+     * 文字自动换行
+     *
+     * @param int $fontSize [字体大小]
+     * @param int $angle [角度]
+     * @param string $fontFace [字体名称]
+     * @param string $string [字符串]
+     * @param int $width [预设宽度]
+     */
+    function autoWrap($text, $angle, $fontSize, $fontFace, $width)
+    {
+        $content = "";
+        // 将字符串拆分成一个个单字 保存到数组 letter 中
+        preg_match_all("/./u", $text, $arr);
+        $letter = $arr[0];
+        foreach ($letter as $l) {
+            $testStr = $content . " " . $l;
+            $testBox = imagettfbbox($fontSize, $angle, $fontFace, $testStr);
+            // 判断拼接后的字符串是否超过预设的宽度
+            if (($testBox[2] > $width) && ($content !== "")) {
+                $content .= PHP_EOL;
+            }
+            $content .= $l;
+        }
+        return $content;
     }
 
     /**

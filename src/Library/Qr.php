@@ -57,7 +57,7 @@ class Qr
      */
     public function creator($txt, $pointSize = 8, $margin = 1, $errorLevel = 4)
     {
-        if (!$txt) return;
+        if (!$txt) throw new \Exception('请输入要生成的内容');
         return \QrCode\QRcode::png($txt, false, $errorLevel, $pointSize, $margin);
     }
 
@@ -73,11 +73,15 @@ class Qr
      */
     public function creatorColor($txt, $pointSize = 10, $margin = 1, $errorLevel = 4, $options = array())
     {
+        if (!$txt) throw new \Exception('请输入要生成的内容');
         $defaults = array(
             'width' => 240, //图片大小
             'margin' => 2,
             'logo' => '', //logo
             'bg' => '',
+            'fontSize' => 14,
+            'fontPath' => __DIR__ . DS . 'ttfs'. DS . 'msyh.ttc',
+            'fontColor' => '#000000',
             'pointColor' => '', //定点颜色
             'inPointColor' => '',//内定点
             'frontColor' => '#000000',//前景色
@@ -109,6 +113,8 @@ class Qr
         //保存图片
         $im = $this->resizeImage($qrImage, $options['width'], $options['width']);
 
+
+
         //增加logo
         if (!empty($options['logo'])) {
             $im = $this->imageAddLogo($im, $options['logo']);
@@ -117,6 +123,11 @@ class Qr
         //添加背景图
         if (!empty($options['bg'])) {
             $im = $this->imageAddBG($im, $options['bg']);
+        }
+
+        if(!empty($options['text']))
+        {
+            $im = $this->imageAddText($im, $options['text'], $options['fontSize'], $options['fontPath'], $options);
         }
         //保存图片
         header('Content-type:image/png');
