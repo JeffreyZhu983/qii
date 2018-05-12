@@ -310,7 +310,7 @@ abstract class Base
         $paramArray = explode($this->_symbol, $query);
         $this->pathArgs = $v = $this->decodeArgs($paramArray);
         //添加系统扩展名到返回数组中 2011-10-14 15:26
-		$this->sysfileExtension = $extension[2];
+		$this->sysfileExtension = $extension[2] ?? '';
         if ($_GET) $v = array_merge($v, $_GET);
         if ($key != '' || is_int($key)) {
             return $v[$key];
