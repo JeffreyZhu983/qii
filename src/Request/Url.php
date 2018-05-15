@@ -40,7 +40,7 @@ class Url
      */
     public static function getPathInfo()
     {
-        return PATH_INFO;
+        return PATH_INFO ? PATH_INFO : explode('?', $_SERVER['REQUEST_URI'])[0];
     }
 
     /**

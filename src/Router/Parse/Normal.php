@@ -48,7 +48,7 @@ class Normal
         if (!$this->config) {
             return array('controller' => $controller, 'action' => $action);
         }
-        if($url == '') $url = 'index/index.html';
+        if($url == '' || $url == '/') $url = 'index/index.html';
         $url = ltrim($url, '/');
         $dirName = pathinfo($url, PATHINFO_DIRNAME);
         $dirInfo = explode('/', $dirName);
