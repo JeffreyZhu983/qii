@@ -2,6 +2,40 @@
 /**
  * 二维码工具
  * 提供读取和生成二维码方法
+ * 使用如下：
+ * 
+ *		$option = array(
+ *            'width' => 240, //图片大小
+ *            'margin' => 4,
+ *            'logo' => 'static/images/logo.png', //logo
+ *			'logRes' => $logRes,
+ *            //'bg' => 'static/images/bnr1.jpg',
+ *			'bgRes' => $bgRes,
+ *            'pointColor' => '#000000', //定点颜色
+ *            'inPointColor' => '#000000',//内定点
+ *            'frontColor' => '#000000',//前景色
+ *            'bgColor' => '#DCDCDC', //背景色
+ *            'contentColor' => '#000000', //内容颜色
+ *            'style' => 2,//直角 1， 液态 2 ，圆角 0
+ *        );
+ *		$option = array(
+ *            'width' => 240, //图片大小
+ *            'margin' => 4,
+ *            'logo' => 'static/images/logo.png', //logo
+ *            //'bg' => 'static/images/bnr1.jpg',
+ *            'fontSize' => 12,
+ *            'fontPath' => '../private/tools/fonts/SourceHanSerifSC-ExtraLight.otf',
+ *           'frontColor' => '#003300',//前景色
+ *            'bgColor' => '#FFFFFF', //背景色
+ *			'text' => 'travelzs.com',
+ *            'style' => 2,//直角 1， 液态 2 ，圆角 0
+ *        );
+ *        $qrCls = new \Qii\Library\Qr();
+ *		$txt = $this->request->url->get('txt', 'http://www.travelzs.com');
+ *		$pointSize = $this->request->url->get('pointSize', 8);
+ *		$style = $this->request->url->get('style', 1);
+ *		$option['style'] = $style;
+ *        $qrCls->creatorColor($txt, $pointSize, 4, 4, $option);
  */
 
 namespace Qii\Library;
@@ -78,7 +112,9 @@ class Qr
             'width' => 240, //图片大小
             'margin' => 2,
             'logo' => '', //logo
-            'bg' => '',
+			'logoRes' => null,
+            'bg' => '',//背景图
+			'bgRes' => null,//背景图资源
             'fontSize' => 14,
             'fontPath' => __DIR__ . DS . 'ttfs'. DS . 'msyh.ttc',
             'fontColor' => '#000000',
@@ -119,11 +155,19 @@ class Qr
         if (!empty($options['logo'])) {
             $im = $this->imageAddLogo($im, $options['logo']);
         }
+		if(!empty($options['logoRes'])) {
+			$im = $this->imageAddLogoRes($im, $options['logoRes']);
+		}
+		
 
         //添加背景图
         if (!empty($options['bg'])) {
             $im = $this->imageAddBG($im, $options['bg']);
         }
+		
+		if(!empty($options['bgRes'])) {
+			$im = $this->imageAddBGRes($im, $options['bgRes']);
+		}
 
         if(!empty($options['text']))
         {

@@ -62,7 +62,9 @@ trait Fill
         }
     }
 
-    //圆角
+    /**
+	 * 图片圆角
+	 */
     public function roundedCorner($img, $x, $y, $s, $color, $lt = true, $lb = true, $rb = true, $rt = true)
     {
         if ($lt) {
@@ -124,66 +126,88 @@ trait Fill
     }
 
     //增加背景
-    public function imageAddBG($im, $bgpath)
+    public function imageAddBG($im, $bgPath)
     {
-
-        //计算宽和高
-        $w = imagesx($im);
-        $h = imagesy($im);
-
         //加载logo
-        $ext = substr($bgpath, strrpos($bgpath, '.'));
-        if (empty($ext)) {
-            return false;
-        }
-        switch (strtolower($ext)) {
-            case '.jpg':
-                $srcIm = @imagecreatefromjpeg($bgpath);
-                break;
-            case '.gif':
-                $srcIm = @imagecreatefromgif($bgpath);
-                break;
-            case '.png':
-                $srcIm = @imagecreatefrompng($bgpath);
-                break;
-
-        }
-
-        $bgw = imagesx($srcIm);
-        $bgh = imagesy($srcIm);
-        imagecopymerge($srcIm, $im, ($bgw / 2) - ($w / 2), ($bgh / 2) - ($h / 2), 0, 0, $w, $h, 100);
-        imagedestroy($im);
-        return $srcIm;
-    }
-
-    //图片增加logo
-    public function imageAddLogo($im, $logo)
-    {
-        //计算宽和高
-        $w = imagesx($im);
-        $h = imagesy($im);
-
-        //加载logo
-        $ext = pathinfo($logo, PATHINFO_EXTENSION);
-
+        $ext = pathinfo($bgPath, PATHINFO_EXTENSION);
         if (empty($ext)) {
             return false;
         }
         switch (strtolower($ext)) {
             case 'jpg':
-                $srcIm = @imagecreatefromjpeg($logo);
+                $bgRes = @imagecreatefromjpeg($bgPath);
                 break;
             case 'gif':
-                $srcIm = @imagecreatefromgif($logo);
+                $bgRes = @imagecreatefromgif($bgPath);
                 break;
             case 'png':
-                $srcIm = @imagecreatefrompng($logo);
+                $bgRes = @imagecreatefrompng($bgPath);
                 break;
 
         }
-        $srcIm = $this->resizeImage($srcIm, min(36, $w / 5), min(36, $h / 5));
-        $srcWidth = imagesx($srcIm);
-        $srcHeight = imagesy($srcIm);
+		
+		return $this->imageAddBGRes($im, $bgRes);
+    }
+	/**
+	 * 添加背景，参数都是资源
+	 * @param resource $im 图片资源
+	 * @param resource $bgRes 背景图片
+	 * @return resource
+	 */
+	public function imageAddBGRes($im, $bgRes)
+	{
+        //计算宽和高
+        $w = imagesx($im);
+        $h = imagesy($im);
+        $bgw = imagesx($bgRes);
+        $bgh = imagesy($bgRes);
+        imagecopymerge($bgRes, $im, ($bgw / 2) - ($w / 2), ($bgh / 2) - ($h / 2), 0, 0, $w, $h, 100);
+        imagedestroy($im);
+        return $bgRes;
+	}
+
+    /**
+	 * 图片增加logo
+	 * @param resource $im 图片资源
+	 * @param resource $logo logo图
+	 * @return resource
+	 */
+    public function imageAddLogo($im, $logo) {
+        //加载logo
+        $ext = pathinfo($logo, PATHINFO_EXTENSION);
+
+        if (empty($ext)) {
+            throw new \Exception('Unsupported image format');
+        }
+        switch (strtolower($ext)) {
+            case 'jpg':
+                $logoRes = @imagecreatefromjpeg($logo);
+                break;
+            case 'gif':
+                $logoRes = @imagecreatefromgif($logo);
+                break;
+            case 'png':
+                $logoRes = @imagecreatefrompng($logo);
+                break;
+			default:
+				throw new \Exception('Unsupported image format');
+				break;
+        }
+		return $this->imageAddLogoRes($im, $logoRes);
+    }
+	/**
+	 * 通过图片资源生成
+	 * @param resource $im 图片资源
+	 * @param resource $logoRes Logo资源
+	 * @return resource
+	 */
+	public function imageAddLogoRes($im, $logoRes) {
+        //计算宽和高
+        $w = imagesx($im);
+        $h = imagesy($im);
+        $logoRes = $this->resizeImage($logoRes, min(36, $w / 5), min(36, $h / 5));
+        $srcWidth = imagesx($logoRes);
+        $srcHeight = imagesy($logoRes);
 
 
         //logo边框1 小
@@ -223,11 +247,11 @@ trait Fill
         imagedestroy($bor1);
 
         //二维码与logo合并
-        $srcIm = $rounder->round_it($srcIm);
-        imagecopymerge($im, $srcIm, ($w / 2) - ($srcWidth / 2), ($h / 2) - ($srcHeight / 2), 0, 0, $srcWidth, $srcHeight, 100);
-        imagedestroy($srcIm);
+        $logoRes = $rounder->round_it($logoRes);
+        imagecopymerge($im, $logoRes, ($w / 2) - ($srcWidth / 2), ($h / 2) - ($srcHeight / 2), 0, 0, $srcWidth, $srcHeight, 100);
+        imagedestroy($logoRes);
         return $im;
-    }
+	}
 
     /**
      * 在二维码下边生成图片
@@ -340,7 +364,8 @@ trait Fill
 
     /**
      * 16进制颜色转换为RGB色值
-     * @method hex2rgb
+     * @param string $hexColor 颜色值
+	 * @return array {r:, g:, b:}
      */
     public function hex2rgb($hexColor)
     {
