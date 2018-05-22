@@ -17,13 +17,7 @@
  */
 namespace Qii\Config;
 
-use \Qii\Application;
 use \Qii\Autoloader\Psr4;
-
-use \Qii\Config\Register;
-use \Qii\Config\Consts;
-
-use \Qii\Exceptions\Variable;
 
 class Register
 {
