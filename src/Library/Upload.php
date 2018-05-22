@@ -387,7 +387,7 @@ class Upload
         
         $extension = '.' . $extension;
         //如果是设置了保持文件名称的话，就不自动转换文件名
-        if (isset($configure['keepFileName'])) {
+        if (isset($configure['keepFileName']) && $configure['keepFileName']) {
             $fileName = pathinfo($files['name'], PATHINFO_FILENAME);
         } else {
             $fileName = rand(10000, 90000) . uniqid();
@@ -409,11 +409,11 @@ class Upload
             }
         }
         //将文件名转换成URL编码，防止移动文件不成功的情况
-        $realPath = rtrim($fillPath, '/') . '/' . urlencode($configure['fileName']);
+        $realPath = rtrim($fillPath, '/') . '/' . $configure['fileName'];
         if ($files['binary']) {
-            $result = rename($files['tmp_name'], $realPath);
+            $result = @rename($files['tmp_name'], $realPath);
         } else {
-            $result = move_uploaded_file($files['tmp_name'], $realPath);
+            $result = @move_uploaded_file($files['tmp_name'], $realPath);
         }
         if ($result) {
             $data['code'] = 0;
