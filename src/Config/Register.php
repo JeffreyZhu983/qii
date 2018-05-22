@@ -254,11 +254,10 @@ class Register
 		}
 		$array = Register::ini($iniFile);
 		if (!$array) return false;
-
 		$common = $array['common'];
 		if (isset($array[$environ])) {
 			$environConfig = $array[$environ];
-			$common = array_merge($common, $environConfig);
+			$common = self::array_merge_recursive_distinct($common, $environConfig);
 		}
 		//如果文件不可写，touch就有问题，就不写缓存文件
 		if (is_writeable($iniFile)) {
@@ -269,6 +268,31 @@ class Register
 		return $common;
 	}
 
+    /**
+     * 递归的合并两个数组 array_merge_recursive会把字段转化成数组
+     *
+     * @param array $array1
+     * @param array $array2
+     * @return array
+     */
+    public static function array_merge_recursive_distinct ( array &$array1, array &$array2 )
+    {
+        $merged = $array1;
+
+        foreach ( $array2 as $key => &$value )
+        {
+            if ( is_array ( $value ) && isset ( $merged [$key] ) && is_array ( $merged [$key] ) )
+            {
+                $merged [$key] = self::array_merge_recursive_distinct ( $merged [$key], $value );
+            }
+            else
+            {
+                $merged [$key] = $value;
+            }
+        }
+
+        return $merged;
+    }
 	/**
 	 * 设置网站的配置文件
 	 *
