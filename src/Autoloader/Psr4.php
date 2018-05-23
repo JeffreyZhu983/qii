@@ -69,14 +69,32 @@ class Psr4
     /**
      * 注册自动加载类
      *
-     * @return void
+     * @return $this
      */
     public function register()
     {
         spl_autoload_register(array($this, 'loadFileByClass'));
         return $this;
     }
-
+    /**
+     * Setting is use namespaces for class
+     *
+     * @param $prefix 以prefix前缀开头的使用namespace
+     * @param bool $useNamespace
+     * @return object $this
+     */
+    public function setUseNamespaces($arr)
+    {
+        if(!is_array($arr))
+        {
+            return $this;
+        }
+        foreach($arr as $namespace)
+        {
+            call_user_func_array(array($this, 'setUseNamespace'), $namespace);
+        }
+        return $this;
+    }
     /**
      * Setting is use namespace for class
      *
@@ -90,6 +108,23 @@ class Psr4
         return $this;
     }
 
+    /**
+     * Adds a base directory for namespace prefix
+     * @param $arr
+     * @return $this
+     */
+    public function addNamespaces($arr)
+    {
+        if(!is_array($arr))
+        {
+            return $this;
+        }
+        foreach ($arr as $namespace)
+        {
+            call_user_func_array(array($this, 'addNamespace'), $namespace);
+        }
+        return $this;
+    }
     /**
      * Adds a base directory for a namespace prefix.
      *
@@ -242,7 +277,7 @@ class Psr4
         if(!$this->searchMappedFile($class))
         {
             $notLoaded = isset(self::$lastErrorLoadedFile[$class]) ? self::$lastErrorLoadedFile[$class] : self::getClassName($class);
-            throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $notLoaded), __LINE__);
+            throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $notLoaded), 404);
         }
     }
 

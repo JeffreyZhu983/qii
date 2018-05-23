@@ -153,12 +153,11 @@ class Application
     }
     /**
      * 获取网站的配置文件
-     * @return Mix
+     * @return Config\Mix
      */
     public function getAppIniFile()
     {
         return Register::get(Consts::APP_INI_FILE);
-        return $this;
     }
 
     /**
@@ -176,7 +175,7 @@ class Application
             $ini,
             $env
         )
-        ) throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $ini), __LINE__);
+        ) throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $ini), 404);
         //载入request方法
         $this->request = Psr4::getInstance()->loadClass('\Qii\Request\Http');
         Setting::getInstance()->setDefaultTimeZone();
@@ -313,7 +312,7 @@ class Application
             $env
         )
         ) {
-            throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $ini), __LINE__);
+            throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $ini), 404);
         }
         return $this;
     }
@@ -363,7 +362,12 @@ class Application
     {
         return call_user_func_array(array('\Qii\Exceptions\Errors', 'e'), func_get_args());
     }
-	
+
+    /**
+     * 执行
+     * @return $this
+     * @throws \Exception
+     */
 	public function run()
 	{
         $this->helper->load(self::$workspace);

@@ -47,16 +47,21 @@ abstract class Request
         $this->host = IS_CLI ? '' : $_SERVER['HTTP_HOST'];
         $params = (array)$this->url->getParams();
         if(count($params) > 0) $this->params = array_merge($this->params, $params);
+        $routeInfo = $this->url->getPathArgs();
+		$controller = $this->defaultController();
+		$action = $this->defaultAction();
+		if(count($routeInfo) > 1)
+		{
+			$action = array_pop($routeInfo);
+			$controller = join("\\", $routeInfo);
+		}
+		else if(count($routeInfo) == 1 && !empty($routeInfo[0])) {
+			$controller = $routeInfo[0];
+		}
         //处理url中的数据
         if(ucwords($rewriteRule) == 'Short'){
-            $this->setControllerName(
-                    isset($this->params[0]) && $this->params[0] != '' ?
-                        $this->params[0] :
-                        $this->defaultController());
-            $this->setActionName(
-                    isset($this->params[1]) && $this->params[1] != '' ?
-                        $this->params[1] :
-                        $this->defaultAction());
+            $this->setControllerName($controller);
+            $this->setActionName($action);
         }
         return $this;
     }

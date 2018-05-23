@@ -25,10 +25,15 @@ class Rules
     /**
      * 字段名称
      */
-    private $files = array();
+    private $fields = array();
+    /**
+     * @var object $validate 验证工具
+     */
+    public $validate;
 
     public function __construct()
     {
+        $this->validate = \_loadClass('\Qii\Library\Validate');
         $this->constants();
         $this->clean();
     }
@@ -185,13 +190,13 @@ class Rules
         }
     }
 
-    public function removeForceValidKey($key)
+    public function removeForceValidKey($k)
     {
         foreach ($this->forceValidKey as $key => $value) 
         {
-            if($value == $key)
+            if($value == $k)
             {
-                unset($this->forceValidKey);
+                unset($this->forceValidKey[$key]);
             }
         }
     }
@@ -239,6 +244,28 @@ class Rules
             $this->addValue($field, $value);
         }
     }
+
+    public function verifyField($value, $rules){
+        $data = array();
+        $data['data'] = $this->data;
+        $data['code'] = 0;
+        $data['valid'] = true;
+        $data['msg'] = '';
+        foreach($rules as $rule)
+        {
+            $result = $this->validate->verify(
+                array($value),
+                array($rule['rules']),
+                array($rule['message'])
+            );
+            if($result !== true){
+                $data['valid'] = false;
+                $data['code'] = 20000;
+                $data['errorInfo'] = $result;
+            }
+        }
+        return $data;
+    }
     /**
      * 验证数据，验证将返回数据及验证结果
      * @return bool
@@ -254,7 +281,6 @@ class Rules
         {
             return $data;
         }
-        $valid = \_loadClass('\Qii\Library\Validate');
         //将optionValidKey中不为空的字段添加到必须验证的字段中去
         //如果选择验证的都没数据就提示参数错误
         $options = array();
@@ -282,7 +308,7 @@ class Rules
                 $rule['rules'] = array('required' => true);
                 $rule['message'] = array('required' => $key .'不能为空');
             }
-            $result = $valid->verify(
+            $result = $this->validate->verify(
                 array($key => isset($this->data[$key]) ? $this->data[$key] : ''),
                 array($key => $rule['rules']),
                 array($key => $rule['message'])
@@ -308,7 +334,7 @@ class Rules
     {
         $data = array();
         $data['data'] = array();
-        $valid = _loadClass('Qii_Library_Validate');
+        $valid = _loadClass('Qii\Library\Validate');
         foreach($this->data AS $key => $val)
         {
             $rule = $this->get($key);

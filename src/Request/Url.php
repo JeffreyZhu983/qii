@@ -40,7 +40,14 @@ class Url
      */
     public static function getPathInfo()
     {
-        return PATH_INFO;
+		if(PATH_INFO) return PATH_INFO;
+		
+		$path = pathinfo($_SERVER['SCRIPT_NAME'], PATHINFO_DIRNAME);
+		$pathinfo = $_SERVER['REQUEST_URI'];
+		if (substr($_SERVER['REQUEST_URI'], 0, strlen($path)) == $path) {
+			$pathinfo = substr($_SERVER['REQUEST_URI'], strlen($path));
+		}
+        return explode('?', $pathinfo)[0];
     }
 
     /**

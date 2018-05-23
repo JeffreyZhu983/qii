@@ -48,7 +48,7 @@ class Normal
         if (!$this->config) {
             return array('controller' => $controller, 'action' => $action);
         }
-        if($url == '') $url = 'index/index.html';
+        if($url == '' || $url == '/') $url = 'index/index.html';
         $url = ltrim($url, '/');
         $dirName = pathinfo($url, PATHINFO_DIRNAME);
         $dirInfo = explode('/', $dirName);
@@ -110,8 +110,18 @@ class Normal
             $match['controller'] = $controller;
             $match['action'] = $action;
         } else {
-            $match['controller'] = isset($dirInfo[0]) ? $dirInfo[0] : 'index';
-            $match['action'] = isset($dirInfo[1]) ? $dirInfo[1] : 'index';
+			$controller = 'index';
+			$action = 'index';
+			if(count($dirInfo) > 1)
+			{
+				$action = array_pop($dirInfo);
+				$controller = join('\\', $dirInfo);
+			}
+			else if(count($dirInfo) == 1 && !empty($dirInfo[0])) {
+				$controller = $dirInfo[0];
+			}
+            $match['controller'] = $controller;
+            $match['action'] = $action;
             //匹配配置文件中以 * 开头的规则
             foreach($this->config as $key => $config)
             {

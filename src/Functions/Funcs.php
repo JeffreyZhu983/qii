@@ -23,6 +23,14 @@ function _e()
 {
     return call_user_func_array('\Qii::e', func_get_args());
 }
+
+/**
+ * Chrome logs
+ * @return mixed
+ */
+function _log() {
+    return call_user_func_array('\Qii\Library\Chrome::log', func_get_args());
+}
 /**
  * 加载语言包
  * @param string $language 语言包
