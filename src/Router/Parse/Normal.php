@@ -1,4 +1,5 @@
 <?php
+
 namespace Qii\Router\Parse;
 
 /**
@@ -48,7 +49,7 @@ class Normal
         if (!$this->config) {
             return array('controller' => $controller, 'action' => $action);
         }
-        if($url == '' || $url == '/') $url = 'index/index.html';
+        if ($url == '' || $url == '/') $url = 'index/index.html';
         $url = ltrim($url, '/');
         $dirName = pathinfo($url, PATHINFO_DIRNAME);
         $dirInfo = explode('/', $dirName);
@@ -58,14 +59,13 @@ class Normal
         }
         $dirInfo[] = $fileName;
         //补全路径
-        if(count($dirInfo) == 1)
-        {
-        	$dirInfo[] = 'index';
+        if (count($dirInfo) == 1) {
+            $dirInfo[] = 'index';
         }
 
         $dir = [];
         $match = ['key' => '', 'val' => '', 'url' => $url];
-        if(isset($this->config['*:*'])) {
+        if (isset($this->config['*:*'])) {
             list($controller, $action) = explode(':', $this->config['*:*']);
             $match['match'] = '*:*';
             $match['controller'] = $controller ? $controller : 'index';
@@ -89,50 +89,56 @@ class Normal
                 if (strlen($config) > strlen($match['val'])) {
                     $match = array_merge($match, ['key' => $joinPath, 'val' => $config]);
                 }
+            } else if (isset($this->config[$joinPath . ':*'])) {
+                $match = array_merge($match, ['key' => $joinPath, 'val' => $this->config[$joinPath . ':*']]);
+            } else if (isset($this->config[$joinPath . ':*:*'])) {
+                $match = array_merge($match, ['key' => $joinPath, 'val' => $this->config[$joinPath . ':*:*']]);
             }
         }
         $match['dirInfo'] = $dirInfo;
         //如果match到就解析match的内容
         if ($match['val']) {
+            $real = $match['val'];
             $matches = explode(':', $match['val']);
             $match['matches'] = $matches;
+            $maxIndex = 0;
+            foreach ($match['matches'] as $val) {
+                preg_match_all("/[\d]/", $val, $index);
+                if ($index && $index[0]) {
+                    foreach ($index[0] as $i) {
+                        if($maxIndex < $i) $maxIndex = $i;
+                        if (isset($dirInfo[$i])) $real = str_replace('{' . $i . '}', $dir[$i], $real);
+                    }
+                }
+            }
+            $maxIndex++;
+            $match['real'] = $real;
+            $matches = explode(':', $real);
             $action = array_pop($matches);
             $controller = join('\\', $matches);
-            $controllerExplode = explode('\\', $controller);
-            if (stristr($controller, '{1}')) {
-                $pad = count($controllerExplode) - count($dirInfo);
-                if ($pad > 0) {
-                    $dirInfo = array_pad($dirInfo, count($controllerExplode), 'index');
-                }
-                $controller = join('\\', array_slice($dirInfo, 0, count($controllerExplode)));
-            }
-            $action = $action == '{1}' || $action == '*' ? isset($dirInfo[count($controllerExplode)]) ? $dirInfo[count($controllerExplode)] : 'index' : $action;
             $match['controller'] = $controller;
-            $match['action'] = $action;
+            //如果 action == * 那就取路径中的配置 或默认为index
+            $match['action'] = $action == '*' && isset($dirInfo[$maxIndex])? $dirInfo[$maxIndex] : 'index';
         } else {
-			$controller = 'index';
-			$action = 'index';
-			if(count($dirInfo) > 1)
-			{
-				$action = array_pop($dirInfo);
-				$controller = join('\\', $dirInfo);
-			}
-			else if(count($dirInfo) == 1 && !empty($dirInfo[0])) {
-				$controller = $dirInfo[0];
-			}
+            $controller = 'index';
+            $action = 'index';
+            if (count($dirInfo) > 1) {
+                $action = array_pop($dirInfo);
+                $controller = join('\\', $dirInfo);
+            } else if (count($dirInfo) == 1 && !empty($dirInfo[0])) {
+                $controller = $dirInfo[0];
+            }
             $match['controller'] = $controller;
             $match['action'] = $action;
             //匹配配置文件中以 * 开头的规则
-            foreach($this->config as $key => $config)
-            {
-                if(stristr($key, '*:'))
-                {
+            foreach ($this->config as $key => $config) {
+                if (substr($key, 0, 2) == '*:') {
                     list($sourceController, $sourceAction) = explode(':', $key);
                     list($destController, $destAction) = explode(":", $config);
                     $match['controller'] = $destController;
-                    if($sourceAction == '*') {
+                    if ($sourceAction == '*') {
                         $map['action'] = $destAction;
-                    }else if($map['action'] == $sourceAction){
+                    } else if ($map['action'] == $sourceAction) {
                         $map['action'] = $destAction;
                     }
                 }
