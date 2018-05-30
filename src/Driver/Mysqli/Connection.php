@@ -51,7 +51,7 @@ class Connection extends \Qii\Driver\ConnBase implements \Qii\Driver\ConnIntf
 			mysqli_select_db($connection, $dbInfo['db']);
 			return $connection;
 		} catch (Exception  $e) {
-			throw new \Qii\Exceptions\Errors(\Qii::i(1500, $dbInfo['host'], $dbInfo['user'], $dbInfo['password'], $dbInfo['db'], $e->getMessage()), __LINE__);
+			throw new \Qii\Exceptions\Errors(\Qii::i(1500, $dbInfo['host'], $dbInfo['user'], $dbInfo['password'], $dbInfo['db'], toUTF8($e->getMessage())), __LINE__);
 		}
 	}
 }
