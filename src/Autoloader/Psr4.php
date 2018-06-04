@@ -399,9 +399,8 @@ class Psr4
         $file = '';
         // look through base directories for this namespace prefix
         foreach ($this->prefixes[$prefix] as $baseDir) {
-            $file = str_replace("/", DS, $baseDir
-                . str_replace('\\', DS, $relativeClass)
-                . '.php');
+            $path = $baseDir . $relativeClass. '.php';
+            $file = $this->replaceDash($path);
             // if the mapped file exists, require it
             if ($this->requireFile($file)) {
                 self::$cachedFiles[$prefix . '_' . $relativeClass] = $file;
@@ -413,6 +412,21 @@ class Psr4
         return false;
     }
 
+    /**
+     * 替换路径中多余的
+     * @param string $path 路径
+     * @return mixed
+     */
+    protected function replaceDash($path)
+    {
+        $path = str_replace('\\', DS, $path);
+        $path = str_replace('\\\\', DS, $path);
+
+        $path = str_replace('/', DS, $path);
+        $path = str_replace('//', DS, $path);
+
+        return $path;
+    }
     /**
      * If a file exists, require it from the file system.
      *

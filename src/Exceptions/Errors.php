@@ -70,7 +70,10 @@ class Errors extends \Exception
         $env = \Qii\Config\Register::get(\Qii\Config\Consts::APP_ENVIRON, 'dev');
         if ($env == 'product' || ($appConfigure['errorPage'] && (isset($appConfigure['debug']) && $appConfigure['debug'] == 0))) {
             list($controller, $action) = explode(':', $appConfigure['errorPage']);
-            $controllerCls = \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_CONTROLLER_PREFIX) . '\\' . $controller;
+            $controllerCls = $controller;
+            if(substr($controller, 0, 1) != '\\') {
+                $controllerCls = \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_CONTROLLER_PREFIX) . '\\' . $controller;
+            }
             $action = preg_replace('/(Action)$/i', "", $action);
             $filePath = \Qii\Autoloader\Psr4::getInstance()->searchMappedFile($controllerCls);
             if (!is_file($filePath)) {

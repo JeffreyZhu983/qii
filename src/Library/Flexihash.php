@@ -121,7 +121,7 @@ class Flexihash
 	public function addTarget($target)
 	{
 		if (isset($this->_targetToPositions[$target])) {
-			throw new \Flexihash_Exception("Target '$target' already exists.");
+			throw new Flexihash_Exception("Target '$target' already exists.");
 		}
 
 		$this->_targetToPositions[$target] = array();
@@ -161,7 +161,7 @@ class Flexihash
 	public function removeTarget($target)
 	{
 		if (!isset($this->_targetToPositions[$target])) {
-			throw new \Flexihash_Exception("Target '$target' does not exist.");
+			throw new Flexihash_Exception("Target '$target' does not exist.");
 		}
 
 		foreach ($this->_targetToPositions[$target] as $position) {
@@ -192,7 +192,7 @@ class Flexihash
 	public function lookup($resource)
 	{
 		$targets = $this->lookupList($resource, 1);
-		if (empty($targets)) throw new \Flexihash_Exception('No targets exist');
+		if (empty($targets)) throw new Flexihash_Exception('No targets exist');
 		return $targets[0];
 	}
 
@@ -212,7 +212,7 @@ class Flexihash
 	public function lookupList($resource, $requestedCount)
 	{
 		if (!$requestedCount)
-			throw new \Flexihash_Exception('Invalid count requested');
+			throw new Flexihash_Exception('Invalid count requested');
 
 		// handle no targets
 		if (empty($this->_positionToTarget))
@@ -373,6 +373,6 @@ class Flexihash_Md5Hasher
  * @package Flexihash
  * @licence http://www.opensource.org/licenses/mit-license.php
  */
-class Flexihash_Exception extends Exception
+class Flexihash_Exception extends \Exception
 {
 }

@@ -38,7 +38,11 @@ class Dispatcher
         $controller = $controller != '' ? $controller : $this->request->getControllerName();
         $action = $action != '' ? $action : $this->request->getActionName();
 
-        $controllerName = Register::get(Consts::APP_DEFAULT_CONTROLLER_PREFIX) . '_' . $controller;
+        $controllerName = $controller;
+        //如果controller以\开头，就不添加默认前缀 Update at 2018-05-29 13:50
+        if(substr($controller,0, 1) != '\\') {
+            $controllerName = Register::get(Consts::APP_DEFAULT_CONTROLLER_PREFIX) . '_' . $controller;
+        }
         $funcArgs = array();
         if (count($args) > 2) {
             $funcArgs = array_slice($args, 2);

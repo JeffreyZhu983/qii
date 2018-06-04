@@ -184,6 +184,40 @@ abstract class Controller
     {
         return $this->view;
     }
+
+    /**
+     * view assign
+     * @param string | array $key
+     * @param mix $val 值
+     * @return void
+     */
+    public function assign($key, $val = null)
+    {
+        if(!$this->view && !($this->view instanceof \Qii\View\Intf)) {
+            throw new \Exception('未定义渲染引擎');
+        }
+
+        if(is_array($key)) {
+            $this->view->assign($key);
+        }else{
+            $this->view->assign($key, $val);
+        }
+    }
+
+    /**
+     * 渲染
+     * @param string $tpl 模板路径
+     * @param array $arr 需要替换的变量
+     */
+    public function render($tpl, $arr = [])
+    {
+        if(!$this->view && !($this->view instanceof \Qii\View\Intf)) {
+            throw new \Exception('未定义渲染引擎');
+        }
+
+        $this->view->assign($arr);
+        $this->view->display($tpl);
+    }
     
     /**
      * 设置 response

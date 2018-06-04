@@ -71,7 +71,9 @@ class Upload
         'dll' => 'application/x-msdownload',
         'dms' => 'application/octet-stream',
         'doc' => 'application/msword',
+        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'dot' => 'application/msword',
+        'dotx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
         'dvi' => 'application/x-dvi',
         'dxr' => 'application/x-director',
         'eps' => 'application/postscript',
@@ -151,9 +153,12 @@ class Upload
         'pmw' => 'application/x-perfmon',
         'pnm' => 'image/x-portable-anymap',
         'pot,' => 'application/vnd.ms-powerpoint',
+        'potx,' => 'application/vnd.openxmlformats-officedocument.presentationml.template',
         'ppm' => 'image/x-portable-pixmap',
         'pps' => 'application/vnd.ms-powerpoint',
+        'ppsx' => 'application/vnd.openxmlformats-officedocument.presentationml.slideshowt',
         'ppt' => 'application/vnd.ms-powerpoint',
+        'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         'prf' => 'application/pics-rules',
         'ps' => 'application/postscript',
         'pub' => 'application/x-mspublisher',
@@ -162,7 +167,7 @@ class Upload
         'ram' => 'audio/x-pn-realaudio',
         'ras' => 'image/x-cmu-raster',
         'rgb' => 'image/x-rgb',
-        'rmi' => 'audio/mid http://www.dreamdu.com',
+        'rmi' => 'audio/mid',
         'roff' => 'application/x-troff',
         'rtf' => 'application/rtf',
         'rtx' => 'text/richtext',
@@ -216,7 +221,9 @@ class Upload
         'xlc' => 'application/vnd.ms-excel',
         'xlm' => 'application/vnd.ms-excel',
         'xls' => 'application/vnd.ms-excel',
+        'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'xlt' => 'application/vnd.ms-excel',
+        'xltx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
         'xlw' => 'application/vnd.ms-excel',
         'xof' => 'x-world/x-vrml',
         'xpm' => 'image/x-xpixmap',
@@ -380,7 +387,7 @@ class Upload
         
         $extension = '.' . $extension;
         //如果是设置了保持文件名称的话，就不自动转换文件名
-        if (isset($configure['keepFileName'])) {
+        if (isset($configure['keepFileName']) && $configure['keepFileName']) {
             $fileName = pathinfo($files['name'], PATHINFO_FILENAME);
         } else {
             $fileName = rand(10000, 90000) . uniqid();
@@ -401,15 +408,17 @@ class Upload
                 return $data;
             }
         }
-        $realPath = rtrim($fillPath, '/') . '/' . toGBK($configure['fileName']);
+        //将文件名转换成URL编码，防止移动文件不成功的情况
+        $realPath = rtrim($fillPath, '/') . '/' . $configure['fileName'];
         if ($files['binary']) {
-            $result = rename($files['tmp_name'], $realPath);
+            $result = @rename($files['tmp_name'], $realPath);
         } else {
-            $result = move_uploaded_file($files['tmp_name'], $realPath);
+            $result = @move_uploaded_file($files['tmp_name'], $realPath);
         }
         if ($result) {
             $data['code'] = 0;
             $data['src'] = toUTF8($realPath);
+            $data['name'] = toUTF8($files['name']);
             $data['file_type'] = $files['type'];
             $data['file_hash'] = md5_file($realPath);
             $data['size'] = $files['size'];

@@ -18,11 +18,6 @@ namespace hightman\http;
 class Connection
 {
     /**
-     * The maximum number of concurrent connections for the same host and port pair.
-     */
-    const MAX_BURST = 3;
-
-    /**
      * The connection socket flags
      */
     const FLAG_NEW = 0x01;
@@ -32,11 +27,43 @@ class Connection
     const FLAG_REUSED = 0x10;
     const FLAG_SELECT = 0x20;
 
+    /**
+     * @var int state of proxy connection
+     * 1: ask
+     * 2: confirm proxy type
+     * 3: authentication
+     * 4: auth result
+     * 5: send ip & port
+     * 6: ok or refused
+     */
+    public $proxyState = 0;
+
     protected $outBuf, $outLen;
     protected $arg, $sock, $conn, $flag = 0;
     private static $_objs = [];
     private static $_refs = [];
     private static $_lastError;
+    private static $_socks5 = [];
+
+    /**
+     * Set socks5 proxy server
+     * @param string $host proxy server address, passed null to disable
+     * @param int $port proxy server port, default to 1080
+     * @param string $user authentication username
+     * @param string $pass authentication password
+     */
+    public static function useSocks5($host, $port = 1080, $user = null, $pass = null)
+    {
+        if ($host === null) {
+            self::$_socks5 = [];
+        } else {
+            self::$_socks5 = ['conn' => 'tcp://' . $host . ':' . $port];
+            if ($user !== null && $pass !== null) {
+                self::$_socks5['user'] = $user;
+                self::$_socks5['pass'] = $pass;
+            }
+        }
+    }
 
     /**
      * Create connection, with built-in pool.
@@ -57,12 +84,13 @@ class Connection
                 break;
             }
         }
-        if ($obj === null && count(self::$_objs[$conn]) < self::MAX_BURST) {
+        if ($obj === null && count(self::$_objs[$conn]) < Client::$maxBurst) {
             $obj = new self($conn);
             self::$_objs[$conn][] = $obj;
             Client::debug('create conn \'', $conn, '\'');
         }
         if ($obj !== null) {
+            $obj->arg = $arg;
             if ($obj->flag & self::FLAG_OPENED) {
                 $obj->flag |= self::FLAG_REUSED;
             } else {
@@ -73,7 +101,6 @@ class Connection
             $obj->flag |= self::FLAG_BUSY;
             $obj->outBuf = null;
             $obj->outLen = 0;
-            $obj->arg = $arg;
         }
         return $obj;
     }
@@ -135,6 +162,9 @@ class Connection
      */
     public function hasDataToWrite()
     {
+        if ($this->proxyState > 0) {
+            return $this->proxyState & 1 ? true : false;
+        }
         return ($this->outBuf !== null && strlen($this->outBuf) > $this->outLen);
     }
 
@@ -146,6 +176,9 @@ class Connection
     public function write($buf = null)
     {
         if ($buf === null) {
+            if ($this->proxyState > 0) {
+                return $this->proxyWrite();
+            }
             $len = 0;
             if ($this->hasDataToWrite()) {
                 $buf = $this->outLen > 0 ? substr($this->outBuf, $this->outLen) : $this->outBuf;
@@ -156,7 +189,7 @@ class Connection
             }
             return $len;
         }
-        $n = fwrite($this->sock, $buf);
+        $n = @fwrite($this->sock, $buf);
         if ($n === 0 && $this->ioEmptyError()) {
             $n = false;
         }
@@ -170,7 +203,7 @@ class Connection
      */
     public function getLine()
     {
-        $line = stream_get_line($this->sock, 2048, "\n");
+        $line = @stream_get_line($this->sock, 2048, "\n");
         if ($line === '' || $line === false) {
             $line = $this->ioEmptyError() ? false : null;
         } else {
@@ -187,12 +220,69 @@ class Connection
      */
     public function read($size = 8192)
     {
-        $buf = fread($this->sock, $size);
+        $buf = @fread($this->sock, $size);
         if ($buf === '' || $buf === false) {
             $buf = $this->ioEmptyError() ? false : null;
         }
         $this->ioFlagReset();
         return $buf;
+    }
+
+    /**
+     * Read data for proxy communication
+     */
+    public function proxyRead()
+    {
+        $proxyState = $this->proxyState;
+        Client::debug('proxy readState: ', $proxyState);
+        if ($proxyState === 2) {
+            $buf = $this->read(2);
+            if ($buf === "\x05\x00") {
+                $this->proxyState = 5;
+            } elseif ($buf === "\x05\x02") {
+                $this->proxyState = 3;
+            }
+        } elseif ($proxyState === 4) {
+            $buf = $this->read(2);
+            if ($buf === "\x01\x00") {
+                $this->proxyState = 5;
+            }
+        } elseif ($proxyState === 6) {
+            $buf = $this->read(10);
+            if (substr($buf, 0, 4) === "\x05\x00\x00\x01") {
+                $this->proxyState = 0;
+            }
+        }
+        return $proxyState !== $this->proxyState;
+    }
+
+    /**
+     * Write data for proxy communication
+     * @return mixed
+     */
+    public function proxyWrite()
+    {
+        Client::debug('proxy writeState: ', $this->proxyState);
+        if ($this->proxyState === 1) {
+            $buf = isset(self::$_socks5['user']) ? "\x05\x01\x02" : "\x05\x01\x00";
+            $this->proxyState++;
+            return $this->write($buf);
+        } elseif ($this->proxyState === 3) {
+            if (!isset(self::$_socks5['user'])) {
+                return false;
+            }
+            $buf = chr(0x01) . chr(strlen(self::$_socks5['user'])) . self::$_socks5['user']
+                . chr(strlen(self::$_socks5['pass'])) . self::$_socks5['pass'];
+            $this->proxyState++;
+            return $this->write($buf);
+        } elseif ($this->proxyState === 5) {
+            $pa = parse_url($this->conn);
+            $buf = "\x05\x01\x00\x01" . pack('Nn', ip2long($pa['host']), isset($pa['port']) ? $pa['port'] : 80);
+            $this->proxyState++;
+            return $this->write($buf);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -233,12 +323,23 @@ class Connection
             $this->flag |= self::FLAG_NEW2;
         }
         // async-connect
-        $this->sock = stream_socket_client($this->conn, $errno, $error, 1, STREAM_CLIENT_ASYNC_CONNECT);
+        $ctx = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]];
+        if (isset(self::$_socks5['conn'])) {
+            $this->proxyState = 1;
+            $conn = self::$_socks5['conn'];
+        } else {
+            $this->proxyState = 0;
+            $conn = $this->conn;
+            if (!strncmp($conn, 'ssl:', 4) && $this->arg instanceof Processor) {
+                $ctx['ssl']['peer_name'] = $this->arg->req->getUrlParam('host');
+            }
+        }
+        $this->sock = @stream_socket_client($conn, $errno, $error, 10, STREAM_CLIENT_ASYNC_CONNECT, stream_context_create($ctx));
         if ($this->sock === false) {
-            Client::debug($repeat ? 're' : '', 'open \'', $this->conn, '\' failed: ', $error);
+            Client::debug($repeat ? 're' : '', 'open \'', $conn, '\' failed: ', $error);
             self::$_lastError = $error;
         } else {
-            Client::debug($repeat ? 're' : '', 'open \'', $this->conn, '\' success: ', $this->sock);
+            Client::debug($repeat ? 're' : '', 'open \'', $conn, '\' success: ', $this->sock);
             stream_set_blocking($this->sock, false);
             $this->flag |= self::FLAG_OPENED;
             $this->addSockRef();

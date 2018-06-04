@@ -36,12 +36,31 @@ class Normal
      * @param String $action
      * @return Array ($controller, $action);
      *
-     * *:* => *:yyy 所有controller和action都转发到 *->yyy
-     * *:* => yy:* 所有转发到xxx->*, 这里的*，前边对应的是什么，后边就对应转发到什么，比如: *:xxx => yy:yyy
-     * xx:* => yy:* xx中对应的方法转发到yy对应的方法
-     * xx:* => yy:yyy xxx Controller转发到 yy->yyy
-     * *:xxx => yy:yyy 所有Controller转发到 yy->yyy
-     * xxx:*(yy):第三个参数 => {1}:* 转发xxx:yy => yy:第三个参数
+     * $rules = [
+     * 'api:*' => 'api\client\*:*',
+     * 'api:client:admin:*' => 'api\client\{2}:*',
+     * 'api:admin:*' => 'api\admin\{2}:*',
+     * 'admin:*' => 'admin\{1}:*',
+     * 'udp:*' => 'udp\{1}:*',
+     * 's:*' => 's:index',
+     * 'index:*' => 'ip:*',
+     * 'shortURL:*:*' => '\shortURL\*:*'
+     * ];
+     *
+     * $urls = [
+     * '/api/client/admin' => ['controller' => 'api\client\client', 'action' => 'index'],
+     * '/api/client/admin/remove' => ['controller' => 'api\client', 'action' => 'remove'],
+     * '/api/url/add' => ['controller' => 'api\url', 'action' => 'add'],
+     * '/api/admin/free/add' => ['controller' => 'api\admin\free', 'action' => 'add'],
+     * '/admin/index' => ['controller' => 'admin\index', 'action' => 'index'],
+     * '/admin/dir/add' => ['controller' => 'admin\dir', 'action' => 'add'],
+     * '/udp/index' => ['controller' => 'udp', 'action' => 'index'],
+     * '/udp/add' => ['controller' => 'udp', 'action' => 'index'],
+     * '/s/for' => ['controller' => 's', 'action' =>'index'],
+     * '/index/for' => ['controller' => 'ip', 'action' =>'for'],
+     * '/usr/login/check' => ['controller' => 'usr\login', 'action' => 'check'],
+     * '/shortURL/free/sss' => ['controller' => '\shortURL\free', 'action' => 'sss'],
+     * ];
      */
     public function parse($url, $controller, $action)
     {
@@ -60,11 +79,11 @@ class Normal
         //补全路径
         if(count($dirInfo) == 1)
         {
-        	$dirInfo[] = 'index';
+            $dirInfo[] = 'index';
         }
 
         $dir = [];
-        $match = ['key' => '', 'val' => '', 'url' => $url];
+        $match = ['url' => $url, 'controller' => $controller, 'action' => $action];
         if(isset($this->config['*:*'])) {
             list($controller, $action) = explode(':', $this->config['*:*']);
             $match['match'] = '*:*';
@@ -72,72 +91,96 @@ class Normal
             $match['action'] = $action ? $action : 'index';
             return $match;
         }
-        foreach ($dirInfo AS $path) {
-            $dir[] = $path;
-            $notAll = join($dir, ':');
-            if (isset($this->config[$notAll])) {
-                $config = $this->config[$notAll];
-                //匹配最长的规则
-                if (strlen($config) > strlen($match['val'])) {
-                    $match = array_merge($match, ['key' => $notAll, 'val' => $config]);
-                }
-            }
-            $joinPath = join($dir, ':') . ":*";
-            if (isset($this->config[$joinPath])) {
-                $config = $this->config[$joinPath];
-                //匹配最长的规则
-                if (strlen($config) > strlen($match['val'])) {
-                    $match = array_merge($match, ['key' => $joinPath, 'val' => $config]);
-                }
-            }
-        }
         $match['dirInfo'] = $dirInfo;
-        //如果match到就解析match的内容
-        if ($match['val']) {
-            $matches = explode(':', $match['val']);
-            $match['matches'] = $matches;
-            $action = array_pop($matches);
-            $controller = join('\\', $matches);
-            $controllerExplode = explode('\\', $controller);
-            if (stristr($controller, '{1}')) {
-                $pad = count($controllerExplode) - count($dirInfo);
-                if ($pad > 0) {
-                    $dirInfo = array_pad($dirInfo, count($controllerExplode), 'index');
-                }
-                $controller = join('\\', array_slice($dirInfo, 0, count($controllerExplode)));
-            }
-            $action = $action == '{1}' || $action == '*' ? isset($dirInfo[count($controllerExplode)]) ? $dirInfo[count($controllerExplode)] : 'index' : $action;
-            $match['controller'] = $controller;
-            $match['action'] = $action;
-        } else {
-			$controller = 'index';
-			$action = 'index';
-			if(count($dirInfo) > 1)
-			{
-				$action = array_pop($dirInfo);
-				$controller = join('\\', $dirInfo);
-			}
-			else if(count($dirInfo) == 1 && !empty($dirInfo[0])) {
-				$controller = $dirInfo[0];
-			}
-            $match['controller'] = $controller;
-            $match['action'] = $action;
-            //匹配配置文件中以 * 开头的规则
-            foreach($this->config as $key => $config)
-            {
-                if(stristr($key, '*:'))
-                {
-                    list($sourceController, $sourceAction) = explode(':', $key);
-                    list($destController, $destAction) = explode(":", $config);
-                    $match['controller'] = $destController;
-                    if($sourceAction == '*') {
-                        $map['action'] = $destAction;
-                    }else if($map['action'] == $sourceAction){
-                        $map['action'] = $destAction;
+
+        $lastFound = [];
+        //将内容和规则做匹配
+        foreach ($dirInfo AS $key => $path) {
+            $dir[] = $path;
+            $register = [];
+            $matchLen = 0;
+            foreach($this->config as $config => $val) {
+                //匹配规则
+                $configArr = explode(':', $config);
+                $interSet = array_intersect_assoc($configArr, $dir);
+                if($interSet) {
+                    $countInterSet = count($interSet);
+                    if($configArr[$countInterSet] == '*' || $configArr[$countInterSet] == $dirInfo[$dirInfo[$key]]) {
+                        if($matchLen < $countInterSet) {
+                            $register = ['rule' => $config, 'val' => $val, 'interSet' => $interSet];
+                        }else{
+                            $matchLen = $countInterSet;
+                        }
                     }
                 }
             }
         }
+        if(!empty($register)){
+            $lastFound = $register;
+        }
+        $match['match'] = $lastFound;
+        //没有匹配到就直接使用/url做匹配
+        if(!$match['match']) {
+            $info = $this->getInfoFromDirInfo($dirInfo);
+            $match['controller'] = $info['controller'];
+            $match['action'] = $info['action'];
+            return $match;
+        }
+        //解析规则
+        $rulesVal = $match['match']['val'];
+        preg_match_all("/\{[\d]{1,}\}|[\*]{1}/", $rulesVal, $rules);
+
+        if(empty($rules) || empty($rules[0])) {
+            $info = $this->getInfoFromDirInfo($dirInfo);
+            $match['controller'] = $info['controller'];
+            $match['action'] = $info['action'];
+        }
+        $maxIndex = 0;
+        //获取*位置最大值索引值
+        if(preg_match("/[\*]{1}/", $rulesVal)) {
+            foreach($rules[0] as $val) {
+                $val = intval(str_replace(array('{', '}'), '', $val));
+                if($val > $maxIndex) $maxIndex = $val;
+            }
+            $maxIndex++;
+        }
+        $replacements = $rules[0];
+        foreach($rules[0] as $key => $val)
+        {
+            if(preg_match("/\{[\d]{1,}\}/", $val)) {
+                $index = str_replace(array('{', '}'), '', $val);
+                $replacements[$key] = $dirInfo[$index] ?? 'index';
+                $rulesVal = preg_replace("/\{[\d]{1,}\}/", $replacements[$key], $rulesVal, 1);
+            }else if($val == '*'){
+                $replacements[$key] = $dirInfo[$maxIndex] ?? 'index';
+                //一次只替换一个，用于匹配多次
+                $rulesVal = preg_replace("/[\*]{1}/", $replacements[$key], $rulesVal, 1);
+                $maxIndex++;
+            }
+        }
+        list($controller, $action) = explode(":", $rulesVal);
+        $match['controller'] = $controller;
+        $match['action'] = $action ?? 'index';
+        $match['replacements'] = $replacements;
+        $match['rulesVal'] = $rulesVal;
         return $match;
+    }
+
+    /**
+     * 从路径中获取controller和action
+     *
+     * @param array $dirInfo 目录路径
+     * @return array
+     */
+    protected function getInfoFromDirInfo($dirInfo)
+    {
+        if(count($dirInfo) >= 2) {
+            $action = array_pop($dirInfo);
+            $controller = join("\\", $dirInfo);
+        }else{
+            $controller = join("\\", $dirInfo);
+            $action = 'index';
+        }
+        return ['controller' => $controller, 'action' => $action];
     }
 }

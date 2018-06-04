@@ -102,7 +102,10 @@ class Error
         $env = \Qii\Config\Register::get(\Qii\Config\Consts::APP_ENVIRON, 'dev');
         if ($env != 'product' && $errorPage != null) {
             list($controller, $action) = explode(':', $appConfigure['errorPage']);
-            $controllerCls = \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_CONTROLLER_PREFIX) . '\\' . $controller;
+            $controllerCls = $controller;
+            if(substr($controller, 0, 1) != '\\') {
+                $controllerCls = \Qii\Config\Register::get(\Qii\Config\Consts::APP_DEFAULT_CONTROLLER_PREFIX) . '\\' . $controller;
+            }
             $action = preg_replace('/(Action)$/i', "", $action);
             $filePath = \Qii\Autoloader\Psr4::getInstance()->searchMappedFile($controllerCls);
             if (!is_file($filePath)) {
@@ -128,7 +131,7 @@ class Error
      */
     public static function showError($message)
     {
-        include(join(DS, array(Qii_DIR, 'Exceptions', 'view', 'error.php')));
+        include(join(DS, array(Qii_DIR, 'Exceptions', 'View', 'error.php')));
     }
     
     /**
@@ -137,7 +140,7 @@ class Error
      */
     public static function showMessage($message)
     {
-        include(join(DS, array(Qii_DIR, 'Exceptions', 'view', 'message.php')));
+        include(join(DS, array(Qii_DIR, 'Exceptions', 'View', 'message.php')));
     }
     
     public function __call($method, $args)

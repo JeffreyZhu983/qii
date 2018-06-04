@@ -340,7 +340,7 @@ class Validate
 	 */
 	public function number($str)
 	{
-		return preg_match("/^[0-9]+$/", $str);
+		return preg_match("/^(\-){0,1}[0-9]+$/", $str);
 	}
 
 	/**

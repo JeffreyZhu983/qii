@@ -68,7 +68,7 @@ class Connection extends \Qii\Driver\ConnBase implements \Qii\Driver\ConnIntf
 			}
 			return new \PDO($dsn, $dbInfo['user'], $dbInfo['password']);
 		} catch (Exception  $e) {
-			throw new \Qii\Exceptions\Errors(\Qii::i(1500, $dbInfo['host'], $dbInfo['user'], $dbInfo['password'], $dbInfo['db'], iconv('GB2312', 'UTF-8', $e->getMessage())), __LINE__);
+			throw new \Qii\Exceptions\Errors(\Qii::i(1500, $dbInfo['host'], $dbInfo['user'], $dbInfo['password'], $dbInfo['db'], toUTF8($e->getMessage())), __LINE__);
 		}
 	}
 }

@@ -13,6 +13,10 @@ namespace Qii\Library;
  * echo $crypt->encrypt('加密字符串');
  * 解密字符串
  * echo $crypt->decrypt('解密字符串');
+ * 带过期时间加密
+ * echo $crypt->encryptWithTime('加密串', 过期时间,单位：秒);
+ * 解密字符串
+ * echo $crypt->decryptWithTime('需要解密的字符串');
  */
 class Crypt
 {
@@ -78,6 +82,60 @@ class Crypt
 		return $this->getVerifyString(base64_encode($passcrypt));
 	}
 
+    /**
+     * 带过期时间加密
+     *
+     * @param string $string 加密串
+     * @param int $expired 过期时间，单位 : 秒
+     * @return string
+     * @throws \Exception
+     */
+	public function encryptWithTime($string, $expired = 100)
+    {
+        if($expired > 86400) {
+            throw new \Exception('过期时间不能大于 86400秒');
+        }
+        $expiredAt = time() + $expired;
+        $string = $expiredAt . $string;
+
+        return $this->encrypt($string);
+    }
+    /**
+     * 解密后验证是否已经过期, 过期后返回空字符串
+     *
+     * @param  string $string 需要解密的字符串
+     * @return bool|string
+     */
+    public function decryptWithTime($string)
+    {
+        $passCrypt = $this->decrypt($string);
+        if(!$passCrypt) return '';
+
+        $expiredAt = substr($passCrypt, 0, 10);
+
+        if(time() > $expiredAt) return  '';
+
+        return substr($passCrypt, 10);
+    }
+
+    /**
+     * 检查加密串是否已经过期
+     *
+     * @param string $string
+     * @return bool
+     */
+    public function checkDecryptExpired($string)
+    {
+        $passCrypt = $this->decrypt($string);
+        if(!$passCrypt) return false;
+
+        $expiredAt = substr($passCrypt, 0, 10);
+
+        if(time() > $expiredAt) return  false;
+
+        return true;
+    }
+
 	/**
 	 * 解密字符
 	 *
@@ -87,10 +145,14 @@ class Crypt
 	public function decrypt($string)
 	{
 		$string = str_replace(' ', '+', $string);
-		$string = base64_decode($this->verifyString($string));
-
-		$passcrypt = openssl_decrypt($string, 'aes-256-cbc', $this->securityKey, OPENSSL_RAW_DATA, $this->getIv());
-		return substr($passcrypt, 10);
+		$string = $this->verifyString($string);
+		if(!$string)
+        {
+            return '';
+        }
+		$string = base64_decode($string);
+		$passCrypt = openssl_decrypt($string, 'aes-256-cbc', $this->securityKey, OPENSSL_RAW_DATA, $this->getIv());
+		return substr($passCrypt, 10);
 	}
 
 	/**
