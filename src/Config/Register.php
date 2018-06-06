@@ -151,7 +151,11 @@ class Register
 						if (isset($config[$space])) $config[$name][$space] = array_merge($config[$space], $properties);;
 						continue;
 					}
-					if (isset($config[$space])) $config[$name] = array_merge($config[$space], $config[$name]);
+                    if(stristr($namespace, '.')) {
+                        if (isset($config[$space])) $config[$name] = $config[$space];
+                    }else{
+                        if (isset($config[$space])) $config[$name] = array_merge($config[$space], $config[$name], $properties);
+                    }
 				}
 			}
 		}
