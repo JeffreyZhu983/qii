@@ -148,7 +148,7 @@ class Register
 					//如果space以“.”开头，与key的方式放在当前key下边如[dev:.space]，那么生成后的数据就是这样的[dev][space]否则是[space+dev]
 					if (substr($space, 0, 1) == '.') {
 						$space = substr($space, 1);
-						if (isset($config[$space])) $config[$name][$space] = $config[$space];
+						if (isset($config[$space])) $config[$name][$space] = array_merge($config[$space], $properties);;
 						continue;
 					}
 					if (isset($config[$space])) $config[$name] = array_merge($config[$space], $config[$name]);
