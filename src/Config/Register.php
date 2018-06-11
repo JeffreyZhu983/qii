@@ -29,6 +29,13 @@ class Register
 	 */
 	public static $_cache;
 
+    /**
+     * 是否将内容写入到文件
+     *
+     * @var bool $isWrite 是否写入到文件
+     */
+	public static $isWrite = true;
+
 	/**
 	 * 设置键值
 	 *
@@ -134,7 +141,6 @@ class Register
 		$config = array();
 		foreach ($ini AS $namespace => $properties) {
 			$properties = Register::feval($properties);
-			$extends = '';
 			$name = $namespace;
 			$namespaces = array();
 			if (stristr($namespace, ':')) {
@@ -241,7 +247,7 @@ class Register
 		$cacheName = $environ . '.' . $cacheName;
 		if (!is_file($iniFile)) return false;
 		$cacheFile = Psr4::getInstance()->getFileByPrefix(Register::get(Consts::APP_CACHE_PATH) . DS . $cacheName . '.php');
-		if (Register::get(Consts::APP_CACHE_PATH)) {
+		if (self::$isWrite && Register::get(Consts::APP_CACHE_PATH)) {
 			if (is_file($cacheFile)) {
 				if (filemtime($cacheFile) == filemtime($iniFile)) {
 					$common = include($cacheFile);
@@ -258,7 +264,7 @@ class Register
 			$common = self::array_merge_recursive_distinct($common, $environConfig);
 		}
 		//如果文件不可写，touch就有问题，就不写缓存文件
-		if (is_writeable($iniFile)) {
+		if (self::$isWrite && is_writeable($iniFile)) {
 			file_put_contents($cacheFile, "<?php \n return " . var_export($common, true) . "\n?>", LOCK_EX);
 			touch($iniFile);
 		}
