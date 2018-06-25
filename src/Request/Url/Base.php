@@ -64,6 +64,20 @@ abstract class Base
     }
 
     /**
+     * 设置参数的值
+     *
+     * @param array $params 参数
+     */
+    public function setParams($params)
+    {
+        if($this->params == null) {
+            $this->params = $params;
+        }else{
+            $this->params = array_merge($this->params, $params);
+        }
+    }
+
+    /**
      * 返回所有params参数
      *
      */
