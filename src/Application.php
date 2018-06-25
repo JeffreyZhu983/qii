@@ -175,7 +175,7 @@ class Application
             $ini,
             $env
         )
-        ) throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $ini), 404);
+        ) throw new \Qii\Exceptions\FileNotFound($ini, 404);
         //载入request方法
         $this->request = Psr4::getInstance()->loadClass('\Qii\Request\Http');
         Setting::getInstance()->setDefaultTimeZone();
@@ -366,7 +366,7 @@ class Application
             Psr4::getInstance()->getFileByPrefix($ini),
             $env)
         ) {
-            throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $ini), 404);
+            throw new \Qii\Exceptions\FileNotFound($ini, 404);
         }
         return $this;
     }

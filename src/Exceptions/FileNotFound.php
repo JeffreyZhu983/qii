@@ -7,10 +7,8 @@ class FileNotFound extends Errors
 
 	public function __construct($message, $code, $previous = null)
     {
-        if($code == 404) {
-            $documentRoot = str_replace(array('/', '\\'), array(DS, DS), $_SERVER['DOCUMENT_ROOT']);
-            $message = str_replace($documentRoot, '', $message);
-        }
+        $message = self::getRelatePath($_SERVER['SCRIPT_FILENAME'], $message);
+        $message = \Qii::i(1405, $message);
         parent::__construct($message, $code, $previous);
     }
 
