@@ -148,7 +148,6 @@ class Register
 				$name = array_shift($namespaces);
 			}
 			$name = trim($name);
-			$config[$name] = $properties;
 			if (count($namespaces) > 0) {
 				foreach ($namespaces AS $space) {
 					//如果space以“.”开头，与key的方式放在当前key下边如[dev:.space]，那么生成后的数据就是这样的[dev][space]否则是[space+dev]
@@ -160,10 +159,13 @@ class Register
                     if(stristr($namespace, '.')) {
                         if (isset($config[$space])) $config[$name] = $config[$space];
                     }else{
+                        $config[$name] = $config[$name] ?? [];
                         if (isset($config[$space])) $config[$name] = array_merge($config[$space], $config[$name], $properties);
                     }
 				}
-			}
+			}else{
+                $config[$name] = $properties;
+            }
 		}
 		return $config;
 	}
