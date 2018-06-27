@@ -95,5 +95,7 @@ return array(
 	5002 => '%s not allowed',
 	5003 => '%s is null',
 	5004 => '%s is invalid',
-	5005 => '%s regular does not exist'
+	5005 => '%s regular does not exist',
+
+    6001 => 'Undefined render engine',
 );

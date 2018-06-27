@@ -29,6 +29,13 @@ class Register
 	 */
 	public static $_cache;
 
+    /**
+     * 是否将内容写入到文件
+     *
+     * @var bool $isWrite 是否写入到文件
+     */
+	public static $isWrite = true;
+
 	/**
 	 * 设置键值
 	 *
@@ -134,7 +141,6 @@ class Register
 		$config = array();
 		foreach ($ini AS $namespace => $properties) {
 			$properties = Register::feval($properties);
-			$extends = '';
 			$name = $namespace;
 			$namespaces = array();
 			if (stristr($namespace, ':')) {
@@ -142,18 +148,24 @@ class Register
 				$name = array_shift($namespaces);
 			}
 			$name = trim($name);
-			$config[$name] = $properties;
 			if (count($namespaces) > 0) {
 				foreach ($namespaces AS $space) {
 					//如果space以“.”开头，与key的方式放在当前key下边如[dev:.space]，那么生成后的数据就是这样的[dev][space]否则是[space+dev]
 					if (substr($space, 0, 1) == '.') {
 						$space = substr($space, 1);
-						if (isset($config[$space])) $config[$name][$space] = $config[$space];
+						if (isset($config[$space])) $config[$name][$space] = array_merge($config[$space], $properties);;
 						continue;
 					}
-					if (isset($config[$space])) $config[$name] = array_merge($config[$space], $config[$name]);
+                    if(stristr($namespace, '.')) {
+                        if (isset($config[$space])) $config[$name] = $config[$space];
+                    }else{
+                        $config[$name] = $config[$name] ?? [];
+                        if (isset($config[$space])) $config[$name] = array_merge($config[$space], $config[$name], $properties);
+                    }
 				}
-			}
+			}else{
+                $config[$name] = $properties;
+            }
 		}
 		return $config;
 	}
@@ -237,7 +249,7 @@ class Register
 		$cacheName = $environ . '.' . $cacheName;
 		if (!is_file($iniFile)) return false;
 		$cacheFile = Psr4::getInstance()->getFileByPrefix(Register::get(Consts::APP_CACHE_PATH) . DS . $cacheName . '.php');
-		if (Register::get(Consts::APP_CACHE_PATH)) {
+		if (self::$isWrite && Register::get(Consts::APP_CACHE_PATH)) {
 			if (is_file($cacheFile)) {
 				if (filemtime($cacheFile) == filemtime($iniFile)) {
 					$common = include($cacheFile);
@@ -254,7 +266,7 @@ class Register
 			$common = self::array_merge_recursive_distinct($common, $environConfig);
 		}
 		//如果文件不可写，touch就有问题，就不写缓存文件
-		if (is_writeable($iniFile)) {
+		if (self::$isWrite && is_writeable($iniFile)) {
 			file_put_contents($cacheFile, "<?php \n return " . var_export($common, true) . "\n?>", LOCK_EX);
 			touch($iniFile);
 		}

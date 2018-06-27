@@ -98,9 +98,7 @@ abstract class Controller
     /**
      * 启用view后调用初始化View方法
      */
-    protected function initView()
-    {
-    }
+    protected function initView(){}
     
     /**
      * 设置view
@@ -111,23 +109,11 @@ abstract class Controller
      */
     public function setView($engine = 'smarty', $policy = array())
     {
-        $viewConfigure = \Qii::appConfigure('view');
-        //如果之前实例化过相同的就不再实例化
-        if (!$engine) $engine = $viewConfigure['engine'];
-        $policy = (array)$policy;
-        if (!$policy) {
-            $policy = array_merge($policy, $viewConfigure[$engine]);
-        }
-        $viewEngine = Psr4::getInstance()->loadClass('\Qii\View\Loader');
-        $viewEngine->setView($engine, $policy);
-        $this->view = $viewEngine->getView();
-        if (method_exists($this, 'initView')) {
-            $this->initView();
-        }
+        $this->view = \Qii::getInstance()->setView($engine, $policy)->getView();
+        $this->initView();
         $this->response->setRender($this->view);
         return $this->view;
     }
-    
     /**
      * 设置缓存
      *
@@ -136,35 +122,7 @@ abstract class Controller
      */
     public function setCache($engine = '', $policy = array())
     {
-        $engine = $engine == '' ? \Qii::appConfigure('cache') : $engine;
-        $basicPolicy = array(
-            'servers' => $this->getCachePolicy($engine),
-        );
-        if ($basicPolicy['servers']) {
-            $policy = array_merge($basicPolicy, $policy);
-        }
-        $loader = new \Qii\Cache\Loader($engine);
-        return $this->cache->$engine = $loader->initialization($policy);
-    }
-    
-    /**
-     * 获取缓存的策略
-     * @param String $cache 缓存的内容
-     * @return multitype:multitype:Ambigous <>
-     */
-    final public function getCachePolicy($cache)
-    {
-        $data = array();
-        if (!$cache) return $data;
-        $cacheInfo = Register::getAppConfigure(Register::get(Consts::APP_INI_FILE), $cache);
-        if (!$cacheInfo) return $data;
-        
-        $servers = explode(";", $cacheInfo['servers']);
-        $ports = explode(";", $cacheInfo['ports']);
-        for ($i = 0; $i < count($servers); $i++) {
-            $data[] = array('host' => $servers[$i], 'port' => $ports[$i]);
-        }
-        return $data;
+        return $this->cache->$engine = \Qii::getInstance()->setCache($engine, $policy);
     }
     
     /**
@@ -194,7 +152,7 @@ abstract class Controller
     public function assign($key, $val = null)
     {
         if(!$this->view && !($this->view instanceof \Qii\View\Intf)) {
-            throw new \Exception('未定义渲染引擎');
+            throw new \Exception(_i(6001), __LINE__);
         }
 
         if(is_array($key)) {
@@ -212,7 +170,7 @@ abstract class Controller
     public function render($tpl, $arr = [])
     {
         if(!$this->view && !($this->view instanceof \Qii\View\Intf)) {
-            throw new \Exception('未定义渲染引擎');
+            throw new \Exception(_i(6001), __LINE__);
         }
 
         $this->view->assign($arr);

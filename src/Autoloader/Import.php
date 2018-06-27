@@ -50,7 +50,7 @@ class Import
             return $configure;
         }else{
             //print_r(debug_backtrace());
-            throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $file), 404);
+            throw new \Qii\Exceptions\FileNotFound($file, 404);
         }
         return false;
     }
@@ -74,7 +74,7 @@ class Import
      */
     public static function requireByDir($dir)
     {
-        if (!is_dir($dir)) throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $dir), 404);
+        if (!is_dir($dir)) throw new \Qii\Exceptions\FileNotFound($dir, 404);
         $files = self::findFiles($dir, array('php'));
         if (isset($files['php'])) self::requires($files['php']);
     }

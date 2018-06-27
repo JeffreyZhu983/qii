@@ -175,7 +175,7 @@ class Application
             $ini,
             $env
         )
-        ) throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $ini), 404);
+        ) throw new \Qii\Exceptions\FileNotFound($ini, 404);
         //载入request方法
         $this->request = Psr4::getInstance()->loadClass('\Qii\Request\Http');
         Setting::getInstance()->setDefaultTimeZone();
@@ -275,7 +275,62 @@ class Application
         );
         return $this;
     }
+    /**
+     * 设置缓存
+     *
+     * @param string $engine 缓存方法
+     * @param array $policy 缓存策略
+     */
+    public function setCache($engine = '', $policy = array())
+    {
+        $engine = $engine == '' ? \Qii::appConfigure('cache') : $engine;
+        $basicPolicy = array(
+            'servers' => $this->getCachePolicy($engine),
+        );
+        if ($basicPolicy['servers']) {
+            $policy = array_merge($basicPolicy, $policy);
+        }
+        $loader = new \Qii\Cache\Loader($engine);
+        return $loader->initialization($policy);
+    }
 
+    /**
+     * 获取缓存的策略
+     * @param String $cache 缓存的内容
+     * @return multitype:multitype:Ambigous <>
+     */
+    public function getCachePolicy($cache) {
+        $data = array();
+        if (!$cache) return $data;
+        $cacheInfo = Register::getAppConfigure(Register::get(Consts::APP_INI_FILE), $cache);
+        if (!$cacheInfo) return $data;
+
+        $servers = explode(";", $cacheInfo['servers']);
+        $ports = explode(";", $cacheInfo['ports']);
+        for ($i = 0; $i < count($servers); $i++) {
+            $data[] = array('host' => $servers[$i], 'port' => $ports[$i]);
+        }
+        return $data;
+    }
+    /**
+     * 设置view
+     *
+     * @param string $engine
+     * @param array $policy
+     * @return mixed
+     */
+    public function setView($engine = 'smarty', $policy = array()) {
+        $viewConfigure = \Qii::appConfigure('view');
+        //如果之前实例化过相同的就不再实例化
+        if (!$engine) $engine = $viewConfigure['engine'];
+        $policy = (array)$policy;
+        if (!$policy) {
+            $policy = array_merge($policy, $viewConfigure[$engine]);
+        }
+        $viewEngine = Psr4::getInstance()->loadClass('\Qii\View\Loader');
+        $viewEngine->setView($engine, $policy);
+        return $viewEngine;
+    }
     /**
      * 设置数据库使用的文件
      *
@@ -309,10 +364,9 @@ class Application
         $this->setDBIniFile($ini);
         if (!Register::setAppConfigure(
             Psr4::getInstance()->getFileByPrefix($ini),
-            $env
-        )
+            $env)
         ) {
-            throw new \Qii\Exceptions\FileNotFound(\Qii::i(1405, $ini), 404);
+            throw new \Qii\Exceptions\FileNotFound($ini, 404);
         }
         return $this;
     }
