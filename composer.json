@@ -2,7 +2,7 @@
     "name"  : "Qii/Qii",
     "type"  : "project",
     "keywords": ["Qii", "PHP Framework"],
-    "homepage": "http://www.qiiframework.com",
+    "homepage": "http://www.travelzs.com",
     "license" : "MIT",
     "description": "An Easy php framework.",
     "authors" : [
@@ -26,5 +26,5 @@
     "autoload": {
         "psr-4": {"Qii\\src\\": "./"}
     },
-    "minimum-stability":"dev"
+    "minimum-stability":"stable"
 }
