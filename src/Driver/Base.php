@@ -645,7 +645,11 @@ class Base
 		if(count($likeArray) > 0)
 		{
 			$likeSQL = join(" OR ", $likeArray);
-			$this->where = sprintf($this->_query["WHERE"], $likeSQL);
+            if(!$this->where) {
+                $this->where = sprintf($this->_query["WHERE"], $likeSQL);
+            } else {
+                $this->where .=  ' AND ('. $likeSQL .')';
+            }
 		}
 		return $this;
 	}
@@ -665,7 +669,11 @@ class Base
 			}
 			if (sizeof($whereArray) > 0) {
 				$whereSQL = join(" AND ", $whereArray);
-				$this->where = sprintf($this->_query["WHERE"], $whereSQL);
+				if(!$this->where) {
+                    $this->where = sprintf($this->_query["WHERE"], $whereSQL);
+                }else{
+                    $this->where .= " AND (". $whereSQL .")";
+                }
 			}
 		}
 		return $this;

@@ -86,7 +86,6 @@ class Normal
         $match = ['url' => $url, 'controller' => $controller, 'action' => $action, 'dirInfo' => $dirInfo];
         if(isset($this->config['*:*'])) {
             list($controller, $action) = $arr = explode(':', $this->config['*:*']);
-
             preg_match_all("/\{[\d]{1,}\}|[\*]{1}/", $this->config['*:*'], $rules);
             if(!$rules) {
                 $match['match'] = '*:*';
