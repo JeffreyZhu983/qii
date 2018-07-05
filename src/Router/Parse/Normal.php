@@ -107,7 +107,7 @@ class Normal
                 $interSet = array_intersect_assoc($configArr, $dir);
                 if($interSet) {
                     $countInterSet = count($interSet);
-                    if($configArr[$countInterSet] == '*' || $configArr[$countInterSet] == $dirInfo[$dirInfo[$key]]) {
+                    if(isset($configArr[$countInterSet]) && ($configArr[$countInterSet] == '*' || (isset($dirInfo[$dirInfo[$key]]) && $configArr[$countInterSet] == $dirInfo[$dirInfo[$key]]))) {
                         if($matchLen < $countInterSet) {
                             $register = ['rule' => $config, 'val' => $val, 'interSet' => $interSet];
                         }else{

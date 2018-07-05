@@ -126,7 +126,7 @@ class Download
 		header('Content-Transfer-Encoding: binary');
 		header("Accept-Ranges: bytes");
 		header("Accept-Length: ".  filesize($filePath));
-		$fileName = toGBK($fileName);
+		//$fileName = toGBK($fileName);
 		if($view == 'download')
 		{
 			header("Content-Disposition: attachment; filename=". $fileName);
