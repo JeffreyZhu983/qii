@@ -11,6 +11,8 @@ class Base
         "INSERT" => "INSERT INTO %s(%s) VALUES('%s')",
         "REPLACE" => "REPLACE %s (%s) VALUES('%s')",
         "SELECT" => "SELECT %s FROM %s",
+        "LEFT_JOIN" => " LEFT JOIN %s ON %s",
+        "RIGHT_JOIN" => " RIGHT JOIN %s ON %s",
         "UPDATE" => "UPDATE %s SET ",
         "DELETE" => "DELETE FROM %s %s",
         "WHERE" => " WHERE %s",
@@ -28,6 +30,7 @@ class Base
     protected $orderBy;
     public $load;
     public $where = null;
+    public $join = null;
     /**
      * @var string $response Response对象
      */
@@ -367,6 +370,36 @@ class Base
     }
 
     /**
+     * 左连表
+     *
+     * @param string $table 表名
+     * @param string $on on条件
+     * @return $this
+     */
+    final function leftJoinObject($table, $on)
+    {
+        if(empty($table) || empty($on)) return $this;
+
+        $this->join .= sprintf($this->_query['LEFT_JOIN'], $table, $on);
+        return $this;
+    }
+
+    /**
+     * 右连表
+     *
+     * @param string $table 表名
+     * @param string $on on条件
+     * @return $this
+     */
+    final function rightJoinObject($table, $on)
+    {
+        if(empty($table) || empty($on)) return $this;
+
+        $this->join .= sprintf($this->_query['RIGHT_JOIN'], $table, $on);
+        return $this;
+    }
+
+    /**
      *
      * Replace Object
      * @param String $table
@@ -473,11 +506,11 @@ class Base
     /**
      * 需要清除的数据
      *
-     * @return Array
+     * @return array
      */
     final function cleanOptions()
     {
-        return array('fields', 'where', 'groupBy', 'orderBy', 'limit', 'setArray');
+        return array('fields', 'where', 'groupBy', 'orderBy', 'limit', 'setArray', 'join');
     }
 
     /**
@@ -640,6 +673,10 @@ class Base
         if (!empty($where)) {
             $whereArray = array();
             foreach ($where AS $k => $v) {
+                if(stristr($k, '.')) {
+                    $whereArray[] = " {$k} = '{$v}'";
+                    continue;
+                }
                 $whereArray[] = " `{$k}` = '{$v}'";
             }
             if (sizeof($whereArray) > 0) {
@@ -744,7 +781,7 @@ class Base
      */
     final function createSelectSQL($table)
     {
-        $sql = sprintf($this->_query['SELECT'], ((trim($this->fields) != '') ? $this->fields : "*"), $table) . $this->where . $this->groupBy . $this->orderBy . $this->limit;
+        $sql = sprintf($this->_query['SELECT'], ((trim($this->fields) != '') ? $this->fields : "*"), $table) . $this->join . $this->where . $this->groupBy . $this->orderBy . $this->limit;
         $this->cleanData();
         return $sql;
     }
@@ -767,7 +804,7 @@ class Base
      */
     final function rs($table)
     {
-        $this->modelSQL = $sql = sprintf($this->_query['SELECT'], ((trim($this->fields) != '') ? $this->fields : "*"), $table) . $this->where . $this->groupBy . $this->orderBy . $this->limit;
+        $this->modelSQL = $sql = sprintf($this->_query['SELECT'], ((trim($this->fields) != '') ? $this->fields : "*"), $table) . $this->join . $this->where . $this->groupBy . $this->orderBy . $this->limit;
         $this->cleanData();
         return $this->setQuery($sql);
     }
