@@ -648,7 +648,11 @@ class Base
             $likeArray[] = $like;
         } else {
             foreach ($like AS $key => $val) {
-                $likeArray[] = sprintf($this->_query['LIKE'], $key, "%" . $this->setQuote($val) . "%");
+                if(stristr($key, '.')) {
+                    $likeArray[] = sprintf("%s LIKE '%s'", $key, "%" . $this->setQuote($val) . "%");
+                }else{
+                    $likeArray[] = sprintf($this->_query['LIKE'], $key, "%" . $this->setQuote($val) . "%");
+                }
             }
         }
         if (count($likeArray) > 0) {
@@ -675,9 +679,9 @@ class Base
             foreach ($where AS $k => $v) {
                 if(stristr($k, '.')) {
                     $whereArray[] = " {$k} = '{$v}'";
-                    continue;
+                }else{
+                    $whereArray[] = " `{$k}` = '{$v}'";
                 }
-                $whereArray[] = " `{$k}` = '{$v}'";
             }
             if (sizeof($whereArray) > 0) {
                 $whereSQL = join(" AND ", $whereArray);
