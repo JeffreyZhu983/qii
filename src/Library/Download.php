@@ -23,7 +23,7 @@ class Download
 		header('Cache-Control: pre-check=0, post-check=0, max-age=0');
 		header("Content-type: application/octet-stream");
 		header("Accept-Length: ".  sizeof($string));
-		$fileName = iconv("UTF-8", "GB2312//TRANSLIT", $fileName);
+		$fileName = toGBK(urlencode($fileName));
 		header("Content-Disposition: attachment; filename=". $fileName);
 		echo $string;
 	}
@@ -72,7 +72,7 @@ class Download
 		}
 		header("Cache-control: public");
 		header("Pragma: public");
-		$fileName = iconv("UTF-8", "GB2312//TRANSLIT", $fileName);
+		$fileName = toGBK(urlencode($fileName));
 		header('Content-Dispositon:attachment; filename=' . $fileName);
 		$fp = fopen($filePath, 'rb+');
 		fseek($fp, $range);
@@ -126,7 +126,7 @@ class Download
 		header('Content-Transfer-Encoding: binary');
 		header("Accept-Ranges: bytes");
 		header("Accept-Length: ".  filesize($filePath));
-		$fileName = toGBK($fileName);
+		$fileName = toGBK(urlencode($fileName));
 		if($view == 'download')
 		{
 			header("Content-Disposition: attachment; filename=". $fileName);
