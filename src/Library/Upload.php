@@ -230,6 +230,7 @@ class Upload
         'xwd' => 'image/x-xwindowdump',
         'z' => 'application/x-compress',
         'zip' => 'application/zip',
+        'epub' => 'application/epub+zip',
     );
     
     public function __construct()
