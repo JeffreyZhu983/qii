@@ -50,9 +50,9 @@ function _config($key, $val = null)
 {
 	if($val === null)
 	{
-		return \Qii_Config_Register::get($key);
+		return \Qii\Config\Register::get($key);
 	}
-	return \Qii_Config_Register::set($key, $val);
+	return \Qii\Config\Register::set($key, $val);
 }
 /**
  * Adds a base directory for a namespace prefix.
@@ -108,7 +108,7 @@ function _getFileByPrefix($file)
  * @param array|null $fieldsVal 值
  * @return mixed
  */
-function _DBDriver(\Qii_Driver_Rules $rule, $privateKey = null, $fieldsVal = null)
+function _DBDriver(\Qii\Driver\Rules $rule, $privateKey = null, $fieldsVal = null)
 {
     $rules = _loadClass('Qii\Driver\Easy')->_initialize();
     if ($privateKey) $rules->setPrivateKey($privateKey);
