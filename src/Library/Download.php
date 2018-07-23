@@ -1,6 +1,7 @@
 <?php
 namespace Qii\Library;
 
+set_time_limit (0);
 ignore_user_abort(true);
 class Download
 {
