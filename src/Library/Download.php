@@ -2,10 +2,12 @@
 namespace Qii\Library;
 
 set_time_limit (0);
-ignore_user_abort(true);
+//ignore_user_abort(true);
 class Download
 {
 	const VERSION = 1.0;
+	//下载速率
+	public $speed = 1000;
 	public function __construct()
 	{
 		
@@ -138,13 +140,10 @@ class Download
 		}
 		//输出固定长度的文件避免文件过大导致无法下载
 		$chunk = 16384;
-		$speed = 1000;
-		//#$speed = 0;
-		$sleep = $speed ? floor(( $chunk / ($speed*1024))*1000000) : 0;
+		$sleep = $this->speed ? floor(( $chunk / ($this->speed*1024))*1000000) : 0;
 		do
 		{
 			$buf = fread($file, $chunk);
-			$sent += strlen($buf);
 			echo $buf;
 			ob_flush();
 			flush();
@@ -155,6 +154,5 @@ class Download
 			}
 		}while(true);
 		fclose($file);
-		exit();
 	}
 }
