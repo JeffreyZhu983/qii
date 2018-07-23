@@ -1,30 +1,17 @@
 {
-    "name"  : "Qii/Qii",
-    "type"  : "project",
-    "keywords": ["Qii", "PHP Framework"],
-    "homepage": "http://www.travelzs.com",
-    "license" : "MIT",
-    "description": "An Easy php framework.",
-    "authors" : [
+    "name": "jinhui.zhu/qii",
+    "description": "Qii framework",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
         {
-            "name"      : "Jeff",
-            "email"     : "jinhui.zhu@live.cn",
-            "homepage"  : "http://www.travelzs.com",	
-            "role": "Developer"
+            "name": "Zhu Jinhui",
+            "email": "jinhui.zhu@live.cn"
         }
     ],
-    "support" : {
-        "email" : "jinhui.zhu@live.cn",
-        "issues": "",
-        "forum" : "",
-        "wiki"  : "",
-        "source": ""
-    },
+    "minimum-stability": "dev",
     "require": {
-        "php": ">=5.3"
+        "php": ">=5.3.0"
     },
-    "autoload": {
-        "psr-4": {"Qii\\src\\": "./"}
-    },
-    "minimum-stability":"stable"
+    "require": {}
 }
