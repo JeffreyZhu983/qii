@@ -25,7 +25,7 @@ class database extends base
 		$rules = $this->request->post($tableName);
 		if (!$rules) {
 			$data['code'] = 1;
-			echo $this->Json($data);
+			echo $this->jsonEncode($data);
 			return;
 		}
 		$result = $this->load->model('table')->saveRules($database, $tableName, $rules);
@@ -49,7 +49,7 @@ class database extends base
 		$rules = $this->request->post('rules');
 		if (!$rules) {
 			$data['code'] = 1;
-			echo $this->Json($data);
+			echo $this->jsonEncode($data);
 			return;
 		}
 		$result = $this->load->model('table')->updateRules($database, $tableName, $rules);
@@ -91,7 +91,7 @@ class database extends base
 		if (!$database || !$tableName) {
 			$data['code'] = 1;
 			$data['msg'] = '参数不全';
-			echo $this->Json($data);
+			echo $this->jsonEncode($data);
 			return;
 		}
 
@@ -267,7 +267,7 @@ class database extends base
 		}
 		$fileName = $_FILES['restoreSQL']['tmp_name'];
 		$data = $this->load->model('table')->restore($database, $tableName, $fileName);
-		echo $this->Json($data);
+		echo $this->jsonEncode($data);
 	}
 
 	public function creatBasicCodeAction()
@@ -287,7 +287,10 @@ class database extends base
 				$data['msg'] = '请先设置规则';
 				throw new \Exception($data['msg'], $data['code']);
 			}
-			$privateKeys = 'array(\'' . join('\', \'', array_keys($rules['rules']['pri'])) . '\')';
+            $privateKeys = '';
+			if(isset($rules['rules']['pri']) && $rules['rules']['pri']) {
+                $privateKeys = 'array(\'' . join('\', \'', array_keys($rules['rules']['pri'])) . '\')';
+            }
 			$this->view->assign('privateKeys', $privateKeys);
 			$code = $this->load->model('code');
 			$code->setDatabase($database);
