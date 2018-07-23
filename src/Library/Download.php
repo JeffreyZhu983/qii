@@ -1,10 +1,13 @@
 <?php
 namespace Qii\Library;
 
-ignore_user_abort(true);
+set_time_limit (0);
+//ignore_user_abort(true);
 class Download
 {
 	const VERSION = 1.0;
+	//下载速率
+	public $speed = 1000;
 	public function __construct()
 	{
 		
@@ -23,7 +26,7 @@ class Download
 		header('Cache-Control: pre-check=0, post-check=0, max-age=0');
 		header("Content-type: application/octet-stream");
 		header("Accept-Length: ".  sizeof($string));
-		$fileName = iconv("UTF-8", "GB2312//TRANSLIT", $fileName);
+		$fileName = toGBK(urlencode($fileName));
 		header("Content-Disposition: attachment; filename=". $fileName);
 		echo $string;
 	}
@@ -72,7 +75,7 @@ class Download
 		}
 		header("Cache-control: public");
 		header("Pragma: public");
-		$fileName = iconv("UTF-8", "GB2312//TRANSLIT", $fileName);
+		$fileName = toGBK(urlencode($fileName));
 		header('Content-Dispositon:attachment; filename=' . $fileName);
 		$fp = fopen($filePath, 'rb+');
 		fseek($fp, $range);
@@ -126,7 +129,7 @@ class Download
 		header('Content-Transfer-Encoding: binary');
 		header("Accept-Ranges: bytes");
 		header("Accept-Length: ".  filesize($filePath));
-		$fileName = toGBK($fileName);
+		$fileName = toGBK(urlencode($fileName));
 		if($view == 'download')
 		{
 			header("Content-Disposition: attachment; filename=". $fileName);
@@ -137,13 +140,10 @@ class Download
 		}
 		//输出固定长度的文件避免文件过大导致无法下载
 		$chunk = 16384;
-		$speed = 1000;
-		//#$speed = 0;
-		$sleep = $speed ? floor(( $chunk / ($speed*1024))*1000000) : 0;
+		$sleep = $this->speed ? floor(( $chunk / ($this->speed*1024))*1000000) : 0;
 		do
 		{
 			$buf = fread($file, $chunk);
-			$sent += strlen($buf);
 			echo $buf;
 			ob_flush();
 			flush();
@@ -154,6 +154,5 @@ class Download
 			}
 		}while(true);
 		fclose($file);
-		exit();
 	}
 }

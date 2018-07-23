@@ -83,15 +83,17 @@ class Normal
         }
 
         $dir = [];
-        $match = ['url' => $url, 'controller' => $controller, 'action' => $action];
+        $match = ['url' => $url, 'controller' => $controller, 'action' => $action, 'dirInfo' => $dirInfo];
         if(isset($this->config['*:*'])) {
-            list($controller, $action) = explode(':', $this->config['*:*']);
-            $match['match'] = '*:*';
-            $match['controller'] = $controller ? $controller : 'index';
-            $match['action'] = $action ? $action : 'index';
-            return $match;
+            list($controller, $action) = $arr = explode(':', $this->config['*:*']);
+            preg_match_all("/\{[\d]{1,}\}|[\*]{1}/", $this->config['*:*'], $rules);
+            if(!$rules) {
+                $match['match'] = '*:*';
+                $match['controller'] = $controller ? $controller : 'index';
+                $match['action'] = $action ? $action : 'index';
+            }
+            return $this->matchVal($this->config['*:*'], $dirInfo);
         }
-        $match['dirInfo'] = $dirInfo;
 
         $lastFound = [];
         //将内容和规则做匹配
@@ -105,7 +107,7 @@ class Normal
                 $interSet = array_intersect_assoc($configArr, $dir);
                 if($interSet) {
                     $countInterSet = count($interSet);
-                    if($configArr[$countInterSet] == '*' || $configArr[$countInterSet] == $dirInfo[$dirInfo[$key]]) {
+                    if(isset($configArr[$countInterSet]) && ($configArr[$countInterSet] == '*' || (isset($dirInfo[$dirInfo[$key]]) && $configArr[$countInterSet] == $dirInfo[$dirInfo[$key]]))) {
                         if($matchLen < $countInterSet) {
                             $register = ['rule' => $config, 'val' => $val, 'interSet' => $interSet];
                         }else{
@@ -127,7 +129,8 @@ class Normal
             return $match;
         }
         //解析规则
-        $rulesVal = $match['match']['val'];
+        return $this->matchVal($match['match']['val'], $dirInfo);
+        /*
         preg_match_all("/\{[\d]{1,}\}|[\*]{1}/", $rulesVal, $rules);
 
         if(empty($rules) || empty($rules[0])) {
@@ -163,7 +166,7 @@ class Normal
         $match['action'] = $action ?? 'index';
         $match['replacements'] = $replacements;
         $match['rulesVal'] = $rulesVal;
-        return $match;
+        return $match;*/
     }
 
     /**
@@ -182,5 +185,41 @@ class Normal
             $action = 'index';
         }
         return ['controller' => $controller, 'action' => $action];
+    }
+
+    protected function matchVal($rulesVal, $dirInfo) {
+        if(!$rulesVal) return [];
+        preg_match_all("/\{[\d]{1,}\}|[\*]{1}/", $rulesVal, $rules);
+
+        $maxIndex = 0;
+        //获取*位置最大值索引值
+        if(preg_match("/[\*]{1}/", $rulesVal)) {
+            foreach($rules[0] as $val) {
+                $val = intval(str_replace(array('{', '}'), '', $val));
+                if($val > $maxIndex) $maxIndex = $val;
+            }
+            $maxIndex++;
+        }
+        $replacements = $rules[0];
+        foreach($rules[0] as $key => $val)
+        {
+            if(preg_match("/\{[\d]{1,}\}/", $val)) {
+                $index = str_replace(array('{', '}'), '', $val);
+                $replacements[$key] = $dirInfo[$index] ?? 'index';
+                $rulesVal = preg_replace("/\{[\d]{1,}\}/", $replacements[$key], $rulesVal, 1);
+            }else if($val == '*'){
+                $replacements[$key] = $dirInfo[$maxIndex] ?? 'index';
+                //一次只替换一个，用于匹配多次
+                $rulesVal = preg_replace("/[\*]{1}/", $replacements[$key], $rulesVal, 1);
+                $maxIndex++;
+            }
+        }
+        list($controller, $action) = explode(":", $rulesVal);
+        $match['controller'] = $controller;
+        $match['action'] = $action ?? 'index';
+        $match['replacements'] = $replacements;
+        $match['rulesVal'] = $rulesVal;
+
+        return $match;
     }
 }

@@ -72,16 +72,30 @@ class cmd
                 if (empty($param['cache'])) $cache = 'tmp';
                 $this->dir[5] = $cache;
                 //创建目录工作区目录
-                if(!is_dir($param['workspace'] . '/public'))
+                $publicDir = $param['workspace'] . '/public';
+                if(!is_dir($publicDir))
                 {
-                    mkdir($param['workspace'] . '/public', 0777);
+                    if(mkdir($publicDir, 0777))
+                    {
+                        $this->stdout('创建public目录'. $publicDir ."成功\n");
+                    }
+                    else
+                    {
+                        $this->stdout('创建public目录'. $publicDir ."失败\n");
+                    }
                 }
                 foreach ($this->dir AS $d) {
                     $path = $param['workspace'] . '/private/' . $d;
                     if (!is_dir($path)) {
                         $date = date('Y-m-d H:i:s');
-                        echo "create path {$path} success.\n";
-                        mkdir($path, 0777, true);
+                        if(mkdir($path, 0777, true))
+                        {
+                            $this->stdout('创建'. $path . "成功\n");
+                        }
+                        else
+                        {
+                            $this->stdout('创建'. $path . "失败\n");
+                        }
                         //写入.htaccess文件到包含的目录，不允许通过Apache浏览
                         $htaccess = array();
                         $htaccess[] = "##";
@@ -257,7 +271,6 @@ class cmd
      */
     public function workspace($dir)
     {
-        return true;
         if (!empty($dir)) {
             if (!is_dir($dir)) {
                 return mkdir($dir, 0777, true);
