@@ -106,7 +106,10 @@ class Memcached implements Intf
 
         if($this->_conn instanceof \Memcache || $this->_conn instanceof \Memcached){
             $data = serialize($data);
-            return $this->_conn->set($id, $data, MEMCACHE_COMPRESSED, $this->_default_policy['life_time']);
+            if($this->_conn instanceof \Memcache) {
+                return $this->_conn->set($id, $data, MEMCACHE_COMPRESSED, $this->_default_policy['life_time']);
+            }
+            return $this->_conn->set($id, $data, $this->_default_policy['life_time']);
         }
         return $this->_conn->set($id, $data, $this->_default_policy['life_time']);
     }

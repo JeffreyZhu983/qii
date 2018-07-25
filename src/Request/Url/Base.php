@@ -49,6 +49,8 @@ abstract class Base
 	 */
 	private $pathArgs;
 
+	public $host;
+
     /**
      * 初始化模式
      * @param string $mode 模式
@@ -61,6 +63,7 @@ abstract class Base
             $this->_symbol = '/';
         }
         $this->params = $this->getParams();
+        $this->host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
     }
 
     /**
@@ -131,7 +134,7 @@ abstract class Base
         if (IS_CLI) return '';
         $prefix = 'http://';
         if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || $_SERVER['SERVER_PORT'] == 443) $prefix = 'https://';
-        return $prefix . rtrim(rtrim(str_replace('//', '/', $_SERVER['HTTP_HOST']), '/'), "\\");
+        return $prefix . rtrim(rtrim(str_replace('//', '/', $this->host), '/'), "\\");
     }
 
     /**
@@ -139,7 +142,8 @@ abstract class Base
      */
     public function getDomain()
     {
-        return rtrim(rtrim(str_replace('//', '/', $_SERVER['HTTP_HOST']), '/'), "\\");
+        if (IS_CLI) return '';
+        return rtrim(rtrim(str_replace('//', '/', $this->host), '/'), "\\");
     }
 
     /**
@@ -149,7 +153,7 @@ abstract class Base
     public function getCurrentURL()
     {
         if (IS_CLI) return '';
-        return 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        return 'http://' . $this->host . $_SERVER['REQUEST_URI'];
     }
 
     /**

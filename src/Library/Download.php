@@ -2,7 +2,7 @@
 namespace Qii\Library;
 
 set_time_limit (0);
-//ignore_user_abort(true);
+ignore_user_abort(false);
 class Download
 {
 	const VERSION = 1.0;
@@ -98,9 +98,7 @@ class Download
 	 */
 	public function download($filePath, $fileName = '', $mime = '', $view = 'download')
 	{
-		//设定不限制时间
-		ignore_user_abort(false);
-		set_time_limit(0);
+
 		//转换文件路为GBK，避免无法访问中文文件
 		$filePath = toGBK($filePath);
 		if(!file_exists($filePath))
