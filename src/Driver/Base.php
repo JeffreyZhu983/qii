@@ -665,6 +665,32 @@ class Base
         }
         return $this;
     }
+    /**
+     * 不包含的条件
+     * @param array $where 条件
+     * @return $this
+     */
+    final function exclude($where)
+    {
+        if (empty($where)) return $this;
+        $whereArray = array();
+        if ($where && !is_array($where)) {
+            $whereArray[] = $where;
+        } else {
+            foreach ($where AS $key => $val) {
+            	$whereArray[] = sprintf("%s != '%s'", $key, $this->setQuote($val));
+            }
+        }
+        if (count($whereArray) > 0) {
+            $whereSQL = join(" AND ", $whereArray);
+            if (!$this->where) {
+                $this->where = sprintf($this->_query["WHERE"], $whereSQL);
+            } else {
+                $this->where .= ' AND (' . $whereSQL . ')';
+            }
+        }
+        return $this;
+    }
 
     /**
      * 传的条件为数组
