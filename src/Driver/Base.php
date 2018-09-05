@@ -1000,15 +1000,21 @@ class Base
         return $this->response;
     }
 
+    /**
+     * 转换字符创
+     *
+     * @param $str
+     * @return array|string
+     */
     public function iconv($str)
     {
         if (is_array($str)) {
             return array_map(function ($n) {
-                return iconv('GB2312', 'UTF-8', $n);
+                return toUtf8($n);
             }, $str);
         }
 
-        return iconv('GB2312', 'UTF-8', $str);
+        return toUtf8($str);
     }
 
     /**

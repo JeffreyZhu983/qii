@@ -183,7 +183,7 @@ class Rules
         }
         else
         {
-            if(!in_array($key, $this->forceValidKey))
+            if(!in_array($key, $this->forceValidKey) && in_array($key, $this->fields()))
             {
                 $this->forceValidKey[] = $key;
             }
@@ -217,7 +217,7 @@ class Rules
         }
         else
         {
-            if(!in_array($key, $this->optionValidKey))
+            if(!in_array($key, $this->optionValidKey) && in_array($key, $this->fields()))
             {
                 $this->optionValidKey[] = $key;
             }
