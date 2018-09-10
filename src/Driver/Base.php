@@ -703,6 +703,7 @@ class Base
         if (!empty($where)) {
             $whereArray = array();
             foreach ($where AS $k => $v) {
+                $v = $this->setQuote($v);
                 if(stristr($k, '.')) {
                     $whereArray[] = " {$k} = '{$v}'";
                 }else{
