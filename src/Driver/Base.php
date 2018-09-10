@@ -665,6 +665,32 @@ class Base
         }
         return $this;
     }
+    /**
+     * 不包含的条件
+     * @param array $where 条件
+     * @return $this
+     */
+    final function exclude($where)
+    {
+        if (empty($where)) return $this;
+        $whereArray = array();
+        if ($where && !is_array($where)) {
+            $whereArray[] = $where;
+        } else {
+            foreach ($where AS $key => $val) {
+            	$whereArray[] = sprintf("%s != '%s'", $key, $this->setQuote($val));
+            }
+        }
+        if (count($whereArray) > 0) {
+            $whereSQL = join(" AND ", $whereArray);
+            if (!$this->where) {
+                $this->where = sprintf($this->_query["WHERE"], $whereSQL);
+            } else {
+                $this->where .= ' AND (' . $whereSQL . ')';
+            }
+        }
+        return $this;
+    }
 
     /**
      * 传的条件为数组
@@ -677,6 +703,7 @@ class Base
         if (!empty($where)) {
             $whereArray = array();
             foreach ($where AS $k => $v) {
+                $v = $this->setQuote($v);
                 if(stristr($k, '.')) {
                     $whereArray[] = " {$k} = '{$v}'";
                 }else{
@@ -974,15 +1001,21 @@ class Base
         return $this->response;
     }
 
+    /**
+     * 转换字符创
+     *
+     * @param $str
+     * @return array|string
+     */
     public function iconv($str)
     {
         if (is_array($str)) {
             return array_map(function ($n) {
-                return iconv('GB2312', 'UTF-8', $n);
+                return toUtf8($n);
             }, $str);
         }
 
-        return iconv('GB2312', 'UTF-8', $str);
+        return toUtf8($str);
     }
 
     /**
