@@ -1000,7 +1000,6 @@ class Base
     {
         return $this->response;
     }
-
     /**
      * 转换字符创
      *

@@ -37,7 +37,7 @@ class base extends \Qii\Base\Controller
 	 */
 	public function echoJson($data, $exit = true)
 	{
-		ob_end_clean();
+		ob_clean();
 		echo $this->jsonEncode($data);
 		if ($exit) exit();
 	}
