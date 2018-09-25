@@ -124,6 +124,7 @@ class Qr
             'bgColor' => '#FFFFFF', //背景色
             'contentColor' => '', //内容颜色
             'style' => 1,//直角 1， 液态 2 ，圆角 0
+            'stroke' => 0,//是否描边
         );
         $options = array_merge($defaults, $options);
 
@@ -153,10 +154,10 @@ class Qr
 
         //增加logo
         if (!empty($options['logo'])) {
-            $im = $this->imageAddLogo($im, $options['logo']);
+            $im = $this->imageAddLogo($im, $options['logo'], $options['stroke']);
         }
 		if(!empty($options['logoRes'])) {
-			$im = $this->imageAddLogoRes($im, $options['logoRes']);
+			$im = $this->imageAddLogoRes($im, $options['logoRes'], $options['stroke']);
 		}
 		
 

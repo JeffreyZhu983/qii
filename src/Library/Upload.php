@@ -406,7 +406,7 @@ class Upload
                 $data['code'] = 100007;
                 $data['src'] = 0;
                 $data['msg'] = 'Access Denied';
-                $this->setError($index, 100007);
+                $this->setError($index, _i(100007));
                 return $data;
             }
         }
@@ -427,9 +427,9 @@ class Upload
         } else {
             $data['src'] = '';
             $data['code'] = 100005;
-            $data['msg'] = 100005;
+            $data['msg'] = _i(100005);
             $data['size'] = 0;
-            $this->setError($index, 100005);
+            $this->setError($index, _i(100005));
         }
         return $data;
     }

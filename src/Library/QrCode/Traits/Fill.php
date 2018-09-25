@@ -104,21 +104,43 @@ trait Fill
             imagefilledpolygon($img, $values2, 3, $color);
         }
     }
-
     /**
-     * 缩放图片
-     * @param type $im
-     * @param type $maxwidth
-     * @param type $maxheight
+     * 缩放图片Logo
+     * @param type $im 资源
+     * @param type $maxWidth 最大宽度
+     * @param type $maxHeight 最大高度
      * @return type
      */
-    public function resizeImage($im, $maxwidth, $maxheight)
+    public function resizeLogo($im, $maxWidth, $maxHeight) {
+        $picWidth = imagesx($im);
+        $picHeight = imagesy($im);
+        imagesavealpha($im, true);
+
+        $newIM = imagecreatetruecolor($maxWidth, $maxHeight);
+
+        $almostBlack = imagecolorallocate($newIM,254,254,254);
+        imagefill($newIM,0,0, $almostBlack);
+        imagecolortransparent($newIM, $almostBlack);
+
+        ImageCopyResampled($newIM, $im, 0, 0, 0, 0, $maxWidth, $maxHeight, $picWidth, $picHeight);
+        imagedestroy($im);
+
+        return $newIM;
+    }
+    /**
+     * 缩放图片
+     * @param type $im 资源
+     * @param type $maxWidth 最大宽度
+     * @param type $maxHeight 最大高度
+     * @return type
+     */
+    public function resizeImage($im, $maxWidth, $maxHeight)
     {
         $picWidth = imagesx($im);
         $picHeight = imagesy($im);
+        $newIM = imagecreatetruecolor($maxWidth, $maxHeight);
 
-        $newIM = imagecreatetruecolor($maxwidth, $maxheight);
-        ImageCopyResampled($newIM, $im, 0, 0, 0, 0, $maxwidth, $maxheight, $picWidth, $picHeight);
+        ImageCopyResampled($newIM, $im, 0, 0, 0, 0, $maxWidth, $maxHeight, $picWidth, $picHeight);
         imagedestroy($im);
 
         return $newIM;
@@ -170,9 +192,10 @@ trait Fill
 	 * 图片增加logo
 	 * @param resource $im 图片资源
 	 * @param resource $logo logo图
+     * @param int $stroke 是否对logo进行描边
 	 * @return resource
 	 */
-    public function imageAddLogo($im, $logo) {
+    public function imageAddLogo($im, $logo, $stroke = 1) {
         //加载logo
         $ext = pathinfo($logo, PATHINFO_EXTENSION);
 
@@ -193,61 +216,62 @@ trait Fill
 				throw new \Exception('Unsupported image format');
 				break;
         }
-		return $this->imageAddLogoRes($im, $logoRes);
+		return $this->imageAddLogoRes($im, $logoRes, $stroke);
     }
 	/**
 	 * 通过图片资源生成
 	 * @param resource $im 图片资源
 	 * @param resource $logoRes Logo资源
+     * @param int $stroke 是否对logo进行描边
 	 * @return resource
 	 */
-	public function imageAddLogoRes($im, $logoRes) {
+	public function imageAddLogoRes($im, $logoRes, $stroke = 0) {
         //计算宽和高
         $w = imagesx($im);
         $h = imagesy($im);
-        $logoRes = $this->resizeImage($logoRes, min(36, $w / 5), min(36, $h / 5));
+        $logoRes = $this->resizeLogo($logoRes, max(36, $w / 6), max(36, $h / 6));
         $srcWidth = imagesx($logoRes);
         $srcHeight = imagesy($logoRes);
+        if($stroke) {
+            //logo边框1 小
+            $bor1 = ImageCreate($srcWidth + 2, $srcHeight + 2);
+            ImageColorAllocate($bor1, 237, 234, 237);//背景色
+            $bor1Width = imagesx($bor1);
+            $bor1Height = imagesy($bor1);
 
+            //logo边框2 中
+            $bor2 = ImageCreate($bor1Width + 8, $bor1Height + 8);
+            ImageColorAllocate($bor2, 255, 255, 255);//背景色
+            $bor2_w = imagesx($bor2);
+            $bor2_h = imagesy($bor2);
 
-        //logo边框1 小
-        $bor1 = ImageCreate($srcWidth + 2, $srcHeight + 2);
-        ImageColorAllocate($bor1, 237, 234, 237);//背景色
-        $bor1Width = imagesx($bor1);
-        $bor1Height = imagesy($bor1);
+            //logo边框3 大
+            $bor3 = ImageCreate($bor2_w + 2, $bor2_h + 2);
+            ImageColorAllocate($bor3, 215, 215, 215);//背景色
+            $bor3Width = imagesx($bor3);
+            $bor3Height = imagesy($bor3);
 
-        //logo边框2 中
-        $bor2 = ImageCreate($bor1Width + 8, $bor1Height + 8);
-        ImageColorAllocate($bor2, 255, 255, 255);//背景色
-        $bor2_w = imagesx($bor2);
-        $bor2_h = imagesy($bor2);
+            //圆角处理
+            $rounder = new \QrCode\RoundedCorner('', 5);
 
-        //logo边框3 大
-        $bor3 = ImageCreate($bor2_w + 2, $bor2_h + 2);
-        ImageColorAllocate($bor3, 215, 215, 215);//背景色
-        $bor3Width = imagesx($bor3);
-        $bor3Height = imagesy($bor3);
+            //二维码与logo边框3合并
+            $bor3 = $rounder->round_it($bor3);
+            imagecopymerge($im, $bor3, ($w / 2) - ($bor3Width / 2), ($h / 2) - ($bor3Height / 2), 0, 0, $bor3Width, $bor3Height, 100);
+            imagedestroy($bor3);
 
-        //圆角处理
-        $rounder = new \QrCode\RoundedCorner('', 5);
+            //二维码与logo边框2合并
+            $bor2 = $rounder->round_it($bor2);
+            imagecopymerge($im, $bor2, ($w / 2) - ($bor2_w / 2), ($h / 2) - ($bor2_h / 2), 0, 0, $bor2_w, $bor2_h, 100);
+            imagedestroy($bor2);
 
-        //二维码与logo边框3合并
-        $bor3 = $rounder->round_it($bor3);
-        imagecopymerge($im, $bor3, ($w / 2) - ($bor3Width / 2), ($h / 2) - ($bor3Height / 2), 0, 0, $bor3Width, $bor3Height, 100);
-        imagedestroy($bor3);
+            //二维码与logo边框1合并
+            $bor1 = $rounder->round_it($bor1);
+            imagecopymerge($im, $bor1, ($w / 2) - ($bor1Width / 2), ($h / 2) - ($bor1Height / 2), 0, 0, $bor1Width, $bor1Height, 100);
+            imagedestroy($bor1);
 
-        //二维码与logo边框2合并
-        $bor2 = $rounder->round_it($bor2);
-        imagecopymerge($im, $bor2, ($w / 2) - ($bor2_w / 2), ($h / 2) - ($bor2_h / 2), 0, 0, $bor2_w, $bor2_h, 100);
-        imagedestroy($bor2);
-
-        //二维码与logo边框1合并
-        $bor1 = $rounder->round_it($bor1);
-        imagecopymerge($im, $bor1, ($w / 2) - ($bor1Width / 2), ($h / 2) - ($bor1Height / 2), 0, 0, $bor1Width, $bor1Height, 100);
-        imagedestroy($bor1);
-
-        //二维码与logo合并
-        $logoRes = $rounder->round_it($logoRes);
+            //二维码与logo合并
+            $logoRes = $rounder->round_it($logoRes);
+        }
         imagecopymerge($im, $logoRes, ($w / 2) - ($srcWidth / 2), ($h / 2) - ($srcHeight / 2), 0, 0, $srcWidth, $srcHeight, 100);
         imagedestroy($logoRes);
         return $im;
@@ -346,6 +370,7 @@ trait Fill
      */
     function autoWrap($text, $angle, $fontSize, $fontFace, $width)
     {
+        $text = str_replace("<br />", PHP_EOL, $text);
         $content = "";
         // 将字符串拆分成一个个单字 保存到数组 letter 中
         preg_match_all("/./u", $text, $arr);
