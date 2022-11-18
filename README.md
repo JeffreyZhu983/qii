@@ -1,4 +1,5 @@
 # 新版Qii
+#最新版本已经存放到自建[git仓库](https://code.istudy.wang/root/qii)
 
 使用方法：
 
